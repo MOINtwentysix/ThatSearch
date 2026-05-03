@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThatSearch – The Student Search Engine</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body class="home-page">
+
+  <!-- Top navigation -->
+  <header class="home-header">
+    <nav class="home-nav">
+      <a href="search.html?q=calculator" class="nav-link">🧮 Calculator</a>
+      <a href="#about" class="nav-link">About</a>
+      <button class="nav-link icon-btn" id="darkModeToggle" aria-label="Toggle dark mode">🌙</button>
+    </nav>
+  </header>
+
+  <!-- Main hero -->
+  <main class="home-main">
+    <div class="logo-container">
+      <div class="logo-icon">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <circle cx="28" cy="28" r="28" fill="url(#logoGrad)" />
+          <circle cx="24" cy="23" r="10" stroke="white" stroke-width="3.5" fill="none"/>
+          <line x1="31.5" y1="30.5" x2="42" y2="41" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="56" y2="56">
+              <stop offset="0%" stop-color="#667eea"/>
+              <stop offset="100%" stop-color="#764ba2"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 class="logo">
+        <span class="logo-that">That</span><span class="logo-search">Search</span>
+      </h1>
+      <p class="logo-tagline">The Smart Search Engine for Students</p>
+    </div>
+
+    <!-- Search box -->
+    <div class="search-wrapper">
+      <form class="search-form" id="searchForm" action="search.html">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            name="q"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search anything…"
+            autocomplete="off"
+            autofocus
+          />
+          <button type="button" class="clear-btn" id="clearBtn" aria-label="Clear">✕</button>
+        </div>
+        <div id="autocomplete" class="autocomplete-dropdown" role="listbox"></div>
+        <div class="search-buttons">
+          <button type="submit" class="btn btn-primary">ThatSearch</button>
+          <button type="button" class="btn btn-secondary" id="luckyBtn">I'm Feeling Curious</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Trending topics -->
+    <div class="trending-topics">
+      <p class="trending-label">🔥 Trending for Students</p>
+      <div class="topic-chips">
+        <a href="search.html?q=photosynthesis" class="chip">Photosynthesis</a>
+        <a href="search.html?q=world+war+2" class="chip">World War II</a>
+        <a href="search.html?q=pythagorean+theorem" class="chip">Pythagorean Theorem</a>
+        <a href="search.html?q=albert+einstein" class="chip">Albert Einstein</a>
+        <a href="search.html?q=french+revolution" class="chip">French Revolution</a>
+        <a href="search.html?q=marie+curie" class="chip">Marie Curie</a>
+        <a href="search.html?q=dna" class="chip">DNA</a>
+        <a href="search.html?q=2+*+(3+%2B+5)" class="chip">🧮 2 × (3 + 5)</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- About section -->
+  <section id="about" class="about-section">
+    <h2>Why ThatSearch?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🔍</span>
+        <h3>Smart Search</h3>
+        <p>Get relevant results instantly with search-term highlighting so you never lose track of what you searched for.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🧮</span>
+        <h3>Built-in Calculator</h3>
+        <p>Type any math expression and get an instant answer — no need to switch apps.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📖</span>
+        <h3>Info Cards</h3>
+        <p>Quick facts about people, events, countries and concepts appear right at the top of your results.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎓</span>
+        <h3>Student-First</h3>
+        <p>Curated content and a distraction-free interface designed for learning, not scrolling.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="home-footer">
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
+    </div>
+    <p>© 2024 ThatSearch — Made for Students</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

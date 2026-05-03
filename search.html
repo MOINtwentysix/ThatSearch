@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThatSearch – Results</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body class="results-page">
+
+  <!-- Search header -->
+  <header class="results-header">
+    <a href="index.html" class="results-logo" aria-label="ThatSearch home">
+      <span class="logo-that">That</span><span class="logo-search">Search</span>
+    </a>
+
+    <div class="results-search-wrapper">
+      <form class="results-search-form" id="searchForm" action="search.html">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            name="q"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search…"
+            autocomplete="off"
+          />
+          <button type="button" class="clear-btn" id="clearBtn" aria-label="Clear">✕</button>
+        </div>
+        <div id="autocomplete" class="autocomplete-dropdown" role="listbox"></div>
+      </form>
+    </div>
+
+    <button class="nav-link icon-btn" id="darkModeToggle" aria-label="Toggle dark mode">🌙</button>
+  </header>
+
+  <!-- Tab bar -->
+  <nav class="tabs-bar">
+    <button class="tab active" data-tab="all">🔍 All</button>
+    <button class="tab" data-tab="calculator">🧮 Calculator</button>
+    <button class="tab" data-tab="info">📖 Info Card</button>
+  </nav>
+
+  <!-- Main results area -->
+  <main class="results-main">
+
+    <!-- ===== CALCULATOR WIDGET ===== -->
+    <section class="widget calculator-widget" id="calculatorWidget" style="display:none">
+      <h2 class="widget-title">🧮 Calculator</h2>
+      <div class="calc-display">
+        <div class="calc-expression" id="calcExpression"></div>
+        <div class="calc-result" id="calcResult"></div>
+      </div>
+      <div class="calc-keypad" id="calcKeypad">
+        <button class="calc-key func" data-val="(" >(</button>
+        <button class="calc-key func" data-val=")">)</button>
+        <button class="calc-key func" data-val="sqrt(">√</button>
+        <button class="calc-key func" data-val="^">x^y</button>
+        <button class="calc-key func special" data-action="clear">C</button>
+
+        <button class="calc-key" data-val="7">7</button>
+        <button class="calc-key" data-val="8">8</button>
+        <button class="calc-key" data-val="9">9</button>
+        <button class="calc-key op" data-val="/">&divide;</button>
+        <button class="calc-key op" data-val="%">%</button>
+
+        <button class="calc-key" data-val="4">4</button>
+        <button class="calc-key" data-val="5">5</button>
+        <button class="calc-key" data-val="6">6</button>
+        <button class="calc-key op" data-val="*">&times;</button>
+        <button class="calc-key func" data-action="backspace">⌫</button>
+
+        <button class="calc-key" data-val="1">1</button>
+        <button class="calc-key" data-val="2">2</button>
+        <button class="calc-key" data-val="3">3</button>
+        <button class="calc-key op" data-val="-">&minus;</button>
+        <button class="calc-key op" data-val="+">+</button>
+
+        <button class="calc-key wide" data-val="0">0</button>
+        <button class="calc-key" data-val=".">.</button>
+        <button class="calc-key op pi" data-val="3.14159265">π</button>
+        <button class="calc-key equals" data-action="equals">=</button>
+      </div>
+    </section>
+
+    <!-- ===== INFO CARD WIDGET ===== -->
+    <section class="widget info-card" id="infoCard" style="display:none">
+      <div class="info-card-inner">
+        <div class="info-card-body">
+          <div class="info-card-text">
+            <h2 id="infoName" class="info-name"></h2>
+            <p id="infoSubtitle" class="info-subtitle"></p>
+            <p id="infoDescription" class="info-description"></p>
+            <table class="info-table" id="infoTable"></table>
+            <div class="info-tags" id="infoTags"></div>
+          </div>
+          <div class="info-card-image-wrap">
+            <img id="infoImage" src="" alt="" class="info-image" onerror="this.style.display='none'" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RESULTS ===== -->
+    <section id="resultsSection">
+      <p class="results-meta" id="resultsMeta"></p>
+      <div id="resultsList" class="results-list"></div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination"></div>
+    </section>
+
+    <!-- No results state -->
+    <div class="no-results" id="noResults" style="display:none">
+      <div class="no-results-icon">🔎</div>
+      <h3>No results found</h3>
+      <p>Try different keywords or check your spelling.</p>
+    </div>
+
+  </main>
+
+  <footer class="results-footer">
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="index.html">Home</a>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/search.js"></script>
+</body>
+</html>
