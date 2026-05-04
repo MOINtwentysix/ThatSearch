@@ -4,19 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ThatSearch for Students</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #05070d;
-      --text: #eef3ff;
-      --muted: #aab3cb;
-      --primary: #69b6ff;
-      --primary-strong: #2f8ff6;
-      --line: rgba(177, 208, 255, 0.24);
-      --error: #ff9393;
-      --ok: #93efb0;
-      --panel: rgba(10, 15, 26, 0.7);
-      --panel-strong: rgba(9, 13, 23, 0.92);
-      --shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+      --bg: #ffffff;
+      --surface: #f8f9fa;
+      --surface-hover: #f1f3f4;
+      --border: #dfe1e5;
+      --border-focus: #4285f4;
+      --text: #202124;
+      --muted: #5f6368;
+      --primary: #1a73e8;
+      --primary-hover: #1765cc;
+      --error: #d93025;
+      --shadow-sm: 0 1px 6px rgba(32, 33, 36, 0.18);
+      --shadow-md: 0 4px 16px rgba(32, 33, 36, 0.14);
+      --shadow-lg: 0 8px 32px rgba(32, 33, 36, 0.12);
+      --radius-pill: 9999px;
+      --radius-card: 12px;
+      --logo-blue: #4285f4;
+      --logo-red: #ea4335;
+      --logo-yellow: #fbbc05;
+      --logo-green: #34a853;
     }
 
     * {
@@ -28,157 +39,310 @@
       margin: 0;
       min-height: 100%;
       color: var(--text);
-      background:
-        radial-gradient(circle at center, rgba(17, 26, 51, 0.95) 0%, rgba(9, 13, 24, 0.98) 40%, rgba(4, 6, 12, 1) 72%, rgba(1, 2, 5, 1) 100%);
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: -25vmax;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0 19%, rgba(10, 14, 30, 0.98) 23%, rgba(30, 49, 94, 0.38) 38%, rgba(77, 122, 219, 0.16) 54%, rgba(0, 0, 0, 0) 72%),
-        conic-gradient(from 0deg at 50% 50%, rgba(73, 140, 255, 0.18), rgba(101, 68, 188, 0.14), rgba(61, 187, 225, 0.15), rgba(73, 140, 255, 0.18));
-      filter: blur(4px);
-      animation: drift 42s linear infinite;
-      pointer-events: none;
-      z-index: -2;
+    /* ── Header (visible after search) ───────────────────── */
+    .site-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
     }
 
-    body::after {
-      content: "";
-      position: fixed;
-      left: 50%;
-      top: 48%;
-      width: min(76vmin, 760px);
-      height: min(76vmin, 760px);
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at center, rgba(0, 0, 0, 1) 0 22%, rgba(7, 11, 23, 0.96) 26%, rgba(93, 160, 255, 0.22) 46%, rgba(124, 70, 200, 0.08) 64%, rgba(0, 0, 0, 0) 76%);
-      box-shadow: 0 0 120px rgba(83, 156, 255, 0.2), 0 0 260px rgba(83, 156, 255, 0.1);
-      pointer-events: none;
-      z-index: -1;
+    .app.has-results .site-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
     }
 
-    .app {
-      width: min(1040px, 94vw);
-      margin: 0 auto;
-      padding: 24px 0 48px;
-      transition: padding-top 0.4s ease;
+    .header-logo {
+      flex-shrink: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      border: none;
+      background: transparent;
+      padding: 0;
+      font-family: inherit;
     }
 
-    .hero {
-      min-height: 82vh;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      transition: min-height 0.4s ease, transform 0.4s ease, padding 0.4s ease;
-    }
+    .header-logo .l-t  { color: var(--logo-blue); }
+    .header-logo .l-h  { color: var(--logo-red); }
+    .header-logo .l-a1 { color: var(--logo-yellow); }
+    .header-logo .l-t2 { color: var(--logo-blue); }
+    .header-logo .l-S  { color: var(--logo-green); }
+    .header-logo .l-e  { color: var(--logo-red); }
+    .header-logo .l-a2 { color: var(--logo-yellow); }
+    .header-logo .l-r  { color: var(--logo-blue); }
+    .header-logo .l-c  { color: var(--logo-green); }
+    .header-logo .l-h2 { color: var(--logo-red); }
 
-    .app.has-results .hero {
-      min-height: 0;
-      padding-top: 14px;
-      padding-bottom: 10px;
-    }
-
-    .hero-inner {
-      width: min(780px, 100%);
-      display: grid;
-      gap: 16px;
-      justify-items: center;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(2rem, 6vw, 4.4rem);
-      line-height: 1.04;
-      letter-spacing: 0.02em;
-      text-shadow: 0 0 30px rgba(98, 169, 255, 0.18);
-    }
-
-    .subtitle {
-      margin: 0;
-      max-width: 60ch;
-      color: var(--muted);
-      font-size: clamp(0.96rem, 1.6vw, 1.08rem);
-      line-height: 1.55;
-    }
-
-    .search-box {
-      width: min(760px, 100%);
+    .header-search-box {
+      flex: 1;
+      max-width: 580px;
       position: relative;
     }
 
-    .input-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: stretch;
+    /* ── Hero (homepage) ──────────────────────────────────── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: clamp(60px, 14vh, 140px);
+      padding-bottom: 40px;
+      text-align: center;
     }
 
-    #searchInput {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 15px 16px;
-      background: rgba(8, 12, 22, 0.82);
+    .app.has-results .hero {
+      display: none;
+    }
+
+    .hero-logo {
+      font-size: clamp(2.6rem, 8vw, 5rem);
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 10px;
+      user-select: none;
+    }
+
+    .hero-logo .l-t  { color: var(--logo-blue); }
+    .hero-logo .l-h  { color: var(--logo-red); }
+    .hero-logo .l-a1 { color: var(--logo-yellow); }
+    .hero-logo .l-t2 { color: var(--logo-blue); }
+    .hero-logo .l-S  { color: var(--logo-green); }
+    .hero-logo .l-e  { color: var(--logo-red); }
+    .hero-logo .l-a2 { color: var(--logo-yellow); }
+    .hero-logo .l-r  { color: var(--logo-blue); }
+    .hero-logo .l-c  { color: var(--logo-green); }
+    .hero-logo .l-h2 { color: var(--logo-red); }
+
+    .hero-tagline {
+      margin: 0 0 28px;
+      font-size: clamp(0.88rem, 1.4vw, 1rem);
+      color: var(--muted);
+    }
+
+    .hero-search-box {
+      width: min(600px, 92vw);
+      position: relative;
+    }
+
+    /* ── Shared search bar styles ─────────────────────────── */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      background: var(--bg);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+      overflow: visible;
+    }
+
+    .search-bar:focus-within {
+      box-shadow: var(--shadow-md);
+      border-color: transparent;
+    }
+
+    .search-icon {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 14px 0 18px;
+      color: #9aa0a6;
+      pointer-events: none;
+    }
+
+    .search-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    #searchInput,
+    #headerSearchInput {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 13px 0;
+      font: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    #headerSearchInput {
+      padding: 10px 0;
+      font-size: 0.97rem;
+    }
+
+    .search-clear {
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #9aa0a6;
+      transition: background 0.15s ease;
+    }
+
+    .search-clear:hover {
+      background: var(--surface-hover);
+    }
+
+    .search-clear svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .search-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
+
+    .search-submit {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin: 4px 6px 4px 0;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--primary);
+      font: inherit;
+      transition: background 0.15s ease;
+    }
+
+    .search-submit:hover {
+      background: var(--surface-hover);
+    }
+
+    .search-submit:disabled {
+      opacity: 0.5;
+      cursor: progress;
+    }
+
+    .search-submit svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Hero extra button row */
+    .hero-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hero-btn {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 18px;
+      background: var(--surface);
       color: var(--text);
       font: inherit;
-      outline: none;
-      box-shadow: var(--shadow);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    }
-
-    #searchInput:focus {
-      border-color: rgba(105, 182, 255, 0.7);
-      box-shadow: 0 0 0 4px rgba(90, 167, 255, 0.18), var(--shadow);
-    }
-
-    .primary-button {
-      border: 1px solid rgba(164, 210, 255, 0.35);
-      border-radius: 16px;
-      min-width: 120px;
-      padding: 0 18px;
-      background: linear-gradient(120deg, var(--primary-strong), var(--primary));
-      color: #041225;
-      font: inherit;
-      font-weight: 800;
+      font-size: 0.9rem;
       cursor: pointer;
-      box-shadow: 0 10px 26px rgba(46, 124, 219, 0.32);
-      transition: transform 0.15s ease, filter 0.2s ease;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
     }
 
-    .primary-button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05);
+    .hero-btn:hover {
+      box-shadow: var(--shadow-sm);
+      border-color: #c6c6c6;
+      background: var(--surface-hover);
     }
 
-    .primary-button:disabled {
-      opacity: 0.75;
-      cursor: progress;
-      transform: none;
-    }
-
-    .status {
-      min-height: 24px;
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.95rem;
+    /* ── Suggestions dropdown ─────────────────────────────── */
+    .suggestions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 2px);
+      display: none;
+      flex-direction: column;
+      padding: 8px 0;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--bg);
+      box-shadow: var(--shadow-md);
+      z-index: 200;
       text-align: left;
+      overflow: hidden;
     }
 
-    .status.loading {
-      color: var(--primary);
-      font-weight: 700;
+    .suggestions.visible {
+      display: flex;
     }
 
-    .status.error {
-      color: var(--error);
-      font-weight: 600;
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: none;
+      padding: 10px 20px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 0.97rem;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.1s ease;
     }
+
+    .suggestion-item::before {
+      content: "";
+      display: block;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+
+    .suggestion-item:hover,
+    .suggestion-item:focus {
+      background: var(--surface-hover);
+      outline: none;
+    }
+
+    /* ── Status bar ───────────────────────────────────────── */
+    .status {
+      min-height: 20px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: left;
+      padding: 0 20px;
+    }
+
+    .status.loading { color: var(--primary); }
+    .status.error   { color: var(--error); }
 
     .loading-row {
       display: inline-flex;
@@ -187,117 +351,101 @@
     }
 
     .spinner {
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      border: 2px solid rgba(117, 185, 255, 0.25);
+      border: 2px solid rgba(26, 115, 232, 0.22);
       border-top-color: var(--primary);
       animation: spin 0.72s linear infinite;
     }
 
-    .suggestions {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: calc(100% + 10px);
-      display: none;
-      flex-direction: column;
-      gap: 6px;
-      padding: 10px;
-      border: 1px solid rgba(177, 208, 255, 0.24);
-      border-radius: 18px;
-      background: rgba(7, 10, 18, 0.93);
-      backdrop-filter: blur(18px);
-      box-shadow: var(--shadow);
-      z-index: 5;
-      text-align: left;
+    /* ── Results layout ───────────────────────────────────── */
+    .results-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 24px 60px;
     }
 
-    .suggestions.visible {
-      display: flex;
-    }
-
-    .suggestion-item {
-      border: 1px solid transparent;
-      border-radius: 12px;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text);
-      font: inherit;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-      text-align: left;
-    }
-
-    .suggestion-item:hover,
-    .suggestion-item:focus {
-      background: rgba(105, 182, 255, 0.12);
-      border-color: rgba(105, 182, 255, 0.35);
-      transform: translateY(-1px);
-      outline: none;
+    .results-count {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 16px;
     }
 
     .results {
       display: grid;
-      gap: 16px;
-      margin-top: 24px;
+      gap: 0;
     }
 
-    .main-result {
-      display: grid;
-      gap: 16px;
-      background: transparent;
-      padding: 0;
+    /* Featured snippet card */
+    .wikipedia-result {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+      background: var(--bg);
     }
 
-    .main-result.with-table {
-      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-      align-items: start;
+    .wikipedia-result h2 {
+      margin: 0 0 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
     }
 
-    .wikipedia-result h2,
-    .related h3 {
-      margin: 0 0 12px;
-      font-size: 1.12rem;
-      color: var(--primary);
+    .wikipedia-result .source-domain {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .source-favicon {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
     }
 
     .result-text {
-      margin: 0;
+      margin: 0 0 12px;
       line-height: 1.7;
-      font-size: 1.05rem;
-      color: #edf2ff;
-      white-space: pre-wrap;
+      font-size: 0.97rem;
+      color: var(--text);
     }
 
     .result-text mark,
     .article-item-snippet mark {
-      background: rgba(105, 182, 255, 0.26);
-      color: #f4f9ff;
-      border-radius: 5px;
-      padding: 0 4px;
-      font-weight: 700;
+      background: rgba(26, 115, 232, 0.12);
+      color: var(--text);
+      border-radius: 3px;
+      padding: 0 2px;
+      font-weight: 600;
     }
 
     .source-link {
       display: inline-flex;
-      margin-top: 12px;
+      align-items: center;
+      gap: 4px;
       color: var(--primary);
       text-decoration: none;
-      font-weight: 700;
+      font-size: 0.9rem;
+      font-weight: 500;
     }
 
     .source-link:hover {
       text-decoration: underline;
     }
 
+    /* Table card */
     .table-wrapper {
       display: none;
-      min-width: 0;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      margin-bottom: 20px;
       overflow: hidden;
     }
 
@@ -306,81 +454,133 @@
     }
 
     .table-container {
-      max-height: 460px;
+      max-height: 420px;
       overflow: auto;
     }
 
     .table-container table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.92rem;
-      background: rgba(4, 7, 14, 0.38);
+      font-size: 0.9rem;
     }
 
     .table-container th,
     .table-container td {
-      border: 1px solid rgba(169, 204, 255, 0.2);
-      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding: 9px 12px;
       text-align: left;
       vertical-align: top;
     }
 
+    .table-container td:last-child,
+    .table-container th:last-child {
+      border-right: none;
+    }
+
+    .table-container tr:last-child td {
+      border-bottom: none;
+    }
+
     .table-container th {
-      background: rgba(83, 158, 255, 0.18);
-      color: #dfeeff;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       position: sticky;
       top: 0;
       z-index: 1;
     }
 
-    .related {
-      border-top: 1px solid rgba(170, 203, 255, 0.22);
-      padding-top: 14px;
+    .table-container tr:hover td {
+      background: var(--surface);
     }
 
-    .article-list {
+    /* Related articles as search result rows */
+    .related {
       display: grid;
-      gap: 10px;
+      gap: 4px;
+    }
+
+    .related-heading {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 0 0 12px;
     }
 
     .article-item {
-      border: 1px solid rgba(166, 202, 255, 0.2);
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      padding: 10px 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-card);
       cursor: pointer;
-      transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+      transition: background 0.12s ease;
     }
 
     .article-item:hover {
-      border-color: rgba(128, 185, 255, 0.5);
-      background: rgba(255, 255, 255, 0.06);
-      transform: translateY(-1px);
+      background: var(--surface);
+    }
+
+    .article-item-source {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0 0 2px;
     }
 
     .article-item-title {
-      margin: 0 0 4px;
+      margin: 0 0 3px;
       color: var(--primary);
-      font-weight: 700;
-      font-size: 0.95rem;
+      font-weight: 500;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: block;
+    }
+
+    .article-item:hover .article-item-title {
+      text-decoration: underline;
     }
 
     .article-item-snippet {
       margin: 0;
       color: var(--muted);
-      font-size: 0.87rem;
-      line-height: 1.45;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* ── Main result layout ───────────────────────────────── */
+    .main-result {
+      display: grid;
+      gap: 0;
+    }
+
+    .main-result.with-table {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+      gap: 20px;
     }
 
     [hidden] {
       display: none !important;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    /* ── Footer ───────────────────────────────────────────── */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 14px 24px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
     }
 
-    @keyframes drift {
+    .app.has-results .site-footer {
+      display: none;
+    }
+
+    @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
@@ -390,98 +590,148 @@
       }
     }
 
-    @media (max-width: 720px) {
-      .app {
-        width: min(96vw, 1040px);
+    @media (max-width: 640px) {
+      .site-header {
+        padding: 8px 14px;
+        gap: 12px;
+      }
+
+      .results-page {
+        padding: 16px 14px 48px;
       }
 
       .hero {
-        min-height: 74vh;
+        padding-top: clamp(40px, 10vh, 80px);
       }
 
-      .input-row {
-        grid-template-columns: 1fr;
-      }
-
-      .primary-button {
-        min-height: 48px;
-      }
-
-      .result-text {
-        font-size: 0.96rem;
+      #searchInput,
+      #headerSearchInput {
+        font-size: 0.94rem;
       }
     }
   </style>
 </head>
 <body>
-  <main class="app" id="app">
-    <section class="hero" id="hero">
-      <div class="hero-inner">
-        <h1>ThatSearch for Students</h1>
-        <p class="subtitle">Eine Suchleiste mit Wikipedia, markierten Kurzantworten und schöner Autovervollständigung.</p>
+  <div class="app" id="app">
 
-        <div class="search-box">
-          <div class="input-row">
-            <input id="searchInput" type="text" placeholder="Suche etwas..." autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions" />
-            <button class="primary-button" id="searchButton" type="button">Suchen</button>
-          </div>
-          <div class="suggestions" id="searchSuggestions" role="listbox" aria-label="Vorschläge"></div>
-          <div class="status" id="searchStatus" aria-live="polite"></div>
+    <!-- Sticky header (shown after search) -->
+    <header class="site-header" id="siteHeader">
+      <button class="header-logo" id="headerLogo" type="button" aria-label="Zurück zur Startseite">
+        <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span>
+      </button>
+      <div class="header-search-box" id="headerSearchBox">
+        <div class="search-bar">
+          <span class="search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input id="headerSearchInput" type="text" placeholder="Suche etwas..." autocomplete="off" aria-label="Suche" />
+          <button class="search-submit" id="headerSearchButton" type="button" aria-label="Suchen">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          </button>
         </div>
+        <div class="suggestions" id="headerSuggestions" role="listbox" aria-label="Vorschläge"></div>
+        <div class="status" id="headerStatus" aria-live="polite"></div>
+      </div>
+    </header>
+
+    <!-- Hero / Homepage -->
+    <section class="hero" id="hero">
+      <div class="hero-logo" aria-label="ThatSearch">
+        <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span>
+      </div>
+      <p class="hero-tagline">Wikipedia-Suche für Schüler · Kurzantworten · Autovervollständigung</p>
+
+      <div class="hero-search-box" id="heroSearchBox">
+        <div class="search-bar">
+          <span class="search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input id="searchInput" type="text" placeholder="Suche etwas..." autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions" />
+          <button class="search-submit" id="searchButton" type="button" aria-label="Suchen">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          </button>
+        </div>
+        <div class="suggestions" id="searchSuggestions" role="listbox" aria-label="Vorschläge"></div>
+        <div class="status" id="searchStatus" aria-live="polite"></div>
+      </div>
+
+      <div class="hero-buttons">
+        <button class="hero-btn" id="searchButtonAlt" type="button">ThatSearch Suche</button>
+        <button class="hero-btn" id="wikiButton" type="button">Zu Wikipedia</button>
       </div>
     </section>
 
-    <section class="results" id="results" hidden>
-      <article class="main-result" id="mainResult">
-        <div class="wikipedia-result" id="wikipediaResult" hidden>
-          <h2>Wikipedia Ergebnis</h2>
-          <p class="result-text" id="resultText"></p>
-          <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">Quelle: Wikipedia</a>
-        </div>
+    <!-- Results -->
+    <main class="results-page" id="resultsPage" hidden>
+      <p class="results-count" id="resultsCount"></p>
+      <section class="results" id="results" hidden>
+        <article class="main-result" id="mainResult">
+          <div class="wikipedia-result" id="wikipediaResult" hidden>
+            <h2>Hervorgehobenes Ergebnis</h2>
+            <div class="source-domain">
+              <img class="source-favicon" src="https://de.wikipedia.org/favicon.ico" alt="" aria-hidden="true" />
+              <span>de.wikipedia.org</span>
+            </div>
+            <p class="result-text" id="resultText"></p>
+            <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">
+              Artikel auf Wikipedia lesen ↗
+            </a>
+          </div>
+          <div class="table-wrapper" id="tableWrapper"></div>
+        </article>
 
-        <div class="table-wrapper" id="tableWrapper"></div>
-      </article>
-
-      <section class="related" id="relatedArticles" hidden>
-        <h3>Weitere Wikipedia Artikel zur Suchanfrage</h3>
-        <div class="article-list" id="articleList"></div>
+        <section class="related" id="relatedArticles" hidden>
+          <p class="related-heading">Weitere Ergebnisse</p>
+          <div id="articleList"></div>
+        </section>
       </section>
-    </section>
-  </main>
+    </main>
+
+    <footer class="site-footer">
+      ThatSearch for Students &mdash; Powered by Wikipedia
+    </footer>
+  </div>
 
   <script>
-    const app = document.getElementById('app');
-    const hero = document.getElementById('hero');
-    const results = document.getElementById('results');
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
+    // ── DOM refs ────────────────────────────────────────────
+    const app              = document.getElementById('app');
+    const resultsPage      = document.getElementById('resultsPage');
+    const resultsCount     = document.getElementById('resultsCount');
+    const results          = document.getElementById('results');
+    const mainResult       = document.getElementById('mainResult');
+    const wikipediaResult  = document.getElementById('wikipediaResult');
+    const resultText       = document.getElementById('resultText');
+    const sourceLink       = document.getElementById('sourceLink');
+    const tableWrapper     = document.getElementById('tableWrapper');
+    const relatedArticles  = document.getElementById('relatedArticles');
+    const articleList      = document.getElementById('articleList');
+    const headerLogo       = document.getElementById('headerLogo');
+    const searchButtonAlt  = document.getElementById('searchButtonAlt');
+    const wikiButton       = document.getElementById('wikiButton');
+
+    // Hero bar
+    const searchInput       = document.getElementById('searchInput');
+    const searchButton      = document.getElementById('searchButton');
     const searchSuggestions = document.getElementById('searchSuggestions');
-    const searchStatus = document.getElementById('searchStatus');
-    const mainResult = document.getElementById('mainResult');
-    const wikipediaResult = document.getElementById('wikipediaResult');
-    const resultText = document.getElementById('resultText');
-    const sourceLink = document.getElementById('sourceLink');
-    const tableWrapper = document.getElementById('tableWrapper');
-    const relatedArticles = document.getElementById('relatedArticles');
-    const articleList = document.getElementById('articleList');
+    const searchStatus      = document.getElementById('searchStatus');
+
+    // Header bar
+    const headerSearchInput  = document.getElementById('headerSearchInput');
+    const headerSearchButton = document.getElementById('headerSearchButton');
+    const headerSuggestions  = document.getElementById('headerSuggestions');
+    const headerStatus       = document.getElementById('headerStatus');
 
     const wikipediaApi = 'https://de.wikipedia.org/w/api.php';
     const localSuggestions = [
-      'berlin',
-      'photosynthese',
-      'schwarze löcher',
-      'universum',
-      'quantencomputer',
-      'energiewende',
-      'evolution',
-      'atom',
-      'schwerkraft',
-      'wasser'
+      'berlin', 'photosynthese', 'schwarze löcher', 'universum',
+      'quantencomputer', 'energiewende', 'evolution', 'atom', 'schwerkraft', 'wasser'
     ];
 
     let autocompleteRequestId = 0;
     let autocompleteDebounce = null;
+    const BLUR_DELAY_MS = 150;
 
+    // ── Helpers ─────────────────────────────────────────────
     function sanitizeText(text) {
       return text
         .replace(/\s+/g, ' ')
@@ -491,13 +741,11 @@
 
     function shortenSummary(text, sentenceCount = 3) {
       const normalized = sanitizeText(text);
-
       if (window.Intl && typeof Intl.Segmenter === 'function') {
         const segmenter = new Intl.Segmenter('de', { granularity: 'sentence' });
         const sentences = Array.from(segmenter.segment(normalized), item => item.segment.trim()).filter(Boolean);
         return sentences.slice(0, sentenceCount).join(' ');
       }
-
       const sentences = normalized.match(/[^.!?]+[.!?]+\s*/g) || [normalized];
       return sentences.slice(0, sentenceCount).join(' ').trim();
     }
@@ -518,53 +766,50 @@
     function highlightImportant(text, query) {
       const safeText = escapeHtml(text || '');
       const tokens = (query || '')
-        .toLowerCase()
-        .split(/\s+/)
-        .map(item => item.trim())
-        .filter(item => item.length >= 3);
-
-      if (tokens.length === 0) {
-        return safeText;
-      }
-
+        .toLowerCase().split(/\s+/).map(t => t.trim()).filter(t => t.length >= 3);
+      if (tokens.length === 0) return safeText;
       const uniqueTokens = [...new Set(tokens)].map(escapeRegExp);
       const regex = new RegExp('(' + uniqueTokens.join('|') + ')', 'gi');
       return safeText.replace(regex, '<mark>$1</mark>');
     }
 
+    // ── Active search bar (hero vs header) ──────────────────
+    function activeInput()       { return app.classList.contains('has-results') ? headerSearchInput  : searchInput; }
+    function activeStatus()      { return app.classList.contains('has-results') ? headerStatus       : searchStatus; }
+    function activeSuggestions() { return app.classList.contains('has-results') ? headerSuggestions  : searchSuggestions; }
+
+    // ── Status ───────────────────────────────────────────────
     function setSearchState(message, isLoading = false, isError = false) {
-      searchStatus.innerHTML = '';
-      searchStatus.className = 'status' + (isLoading ? ' loading' : '') + (isError ? ' error' : '');
-
-      if (!message) {
-        return;
-      }
-
+      const statusEl = activeStatus();
+      statusEl.innerHTML = '';
+      statusEl.className = 'status' + (isLoading ? ' loading' : '') + (isError ? ' error' : '');
+      if (!message) return;
       if (isLoading) {
         const wrapper = document.createElement('span');
         wrapper.className = 'loading-row';
         wrapper.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>' + message + '</span>';
-        searchStatus.appendChild(wrapper);
+        statusEl.appendChild(wrapper);
         return;
       }
-
-      searchStatus.textContent = message;
+      statusEl.textContent = message;
     }
 
+    // ── Suggestions ──────────────────────────────────────────
     function hideSuggestions() {
-      searchSuggestions.classList.remove('visible');
+      [searchSuggestions, headerSuggestions].forEach(el => {
+        el.classList.remove('visible');
+        el.innerHTML = '';
+      });
       searchInput.setAttribute('aria-expanded', 'false');
-      searchSuggestions.innerHTML = '';
+      headerSearchInput.setAttribute('aria-expanded', 'false');
     }
 
     function setSuggestions(items) {
-      searchSuggestions.innerHTML = '';
+      const suggestEl = activeSuggestions();
+      const inputEl   = activeInput();
+      suggestEl.innerHTML = '';
       const unique = [...new Set(items)].slice(0, 8);
-
-      if (unique.length === 0) {
-        hideSuggestions();
-        return;
-      }
+      if (unique.length === 0) { hideSuggestions(); return; }
 
       unique.forEach(item => {
         const option = document.createElement('button');
@@ -573,58 +818,43 @@
         option.setAttribute('role', 'option');
         option.textContent = item;
         option.addEventListener('click', () => {
-          searchInput.value = item;
+          inputEl.value = item;
           hideSuggestions();
-          searchInput.focus();
+          inputEl.focus();
         });
-        searchSuggestions.appendChild(option);
+        suggestEl.appendChild(option);
       });
 
-      searchSuggestions.classList.add('visible');
-      searchInput.setAttribute('aria-expanded', 'true');
+      suggestEl.classList.add('visible');
+      inputEl.setAttribute('aria-expanded', 'true');
     }
 
     async function updateAutocomplete(query) {
       const trimmed = query.trim();
       const base = localSuggestions.filter(item => item.toLowerCase().includes(trimmed.toLowerCase()));
-
-      if (trimmed.length < 2) {
-        setSuggestions(base.length ? base : localSuggestions);
-        return;
-      }
+      if (trimmed.length < 2) { setSuggestions(base.length ? base : localSuggestions); return; }
 
       const requestId = ++autocompleteRequestId;
       try {
         const suggestUrl = new URL(wikipediaApi);
         suggestUrl.search = new URLSearchParams({
-          action: 'opensearch',
-          search: trimmed,
-          limit: '6',
-          namespace: '0',
-          format: 'json',
-          origin: '*'
+          action: 'opensearch', search: trimmed, limit: '6',
+          namespace: '0', format: 'json', origin: '*'
         }).toString();
-
         const response = await fetch(suggestUrl.toString());
-        if (!response.ok) {
-          setSuggestions(base.length ? base : localSuggestions);
-          return;
-        }
-
+        if (!response.ok) { setSuggestions(base.length ? base : localSuggestions); return; }
         const data = await response.json();
         const wikiSuggestions = Array.isArray(data?.[1]) ? data[1] : [];
-        if (requestId === autocompleteRequestId) {
-          setSuggestions([...base, ...wikiSuggestions]);
-        }
-      } catch (error) {
-        if (requestId === autocompleteRequestId) {
-          setSuggestions(base.length ? base : localSuggestions);
-        }
+        if (requestId === autocompleteRequestId) setSuggestions([...base, ...wikiSuggestions]);
+      } catch {
+        if (requestId === autocompleteRequestId) setSuggestions(base.length ? base : localSuggestions);
       }
     }
 
+    // ── Results ──────────────────────────────────────────────
     function clearResults() {
       results.hidden = true;
+      resultsPage.hidden = true;
       wikipediaResult.hidden = true;
       relatedArticles.hidden = true;
       articleList.innerHTML = '';
@@ -638,8 +868,14 @@
 
     function showWikipediaResult(result) {
       app.classList.add('has-results');
+      resultsPage.hidden = false;
       results.hidden = false;
       wikipediaResult.hidden = false;
+
+      // Sync header input with what was searched
+      headerSearchInput.value = result.query;
+
+      resultsCount.textContent = 'Wikipedia-Ergebnisse für „' + result.query + '"';
 
       resultText.innerHTML = highlightImportant(result.text, result.query);
       sourceLink.href = result.url;
@@ -664,7 +900,10 @@
       related.forEach(item => {
         const article = document.createElement('article');
         article.className = 'article-item';
-        article.innerHTML = '<p class="article-item-title"></p><p class="article-item-snippet"></p>';
+        article.innerHTML =
+          '<p class="article-item-source">de.wikipedia.org</p>' +
+          '<p class="article-item-title"></p>' +
+          '<p class="article-item-snippet"></p>';
 
         article.querySelector('.article-item-title').textContent = item.title;
         article.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.snippet, result.query);
@@ -672,68 +911,48 @@
         article.addEventListener('click', () => {
           window.open('https://de.wikipedia.org/?curid=' + item.pageid, '_blank', 'noopener');
         });
-
         articleList.appendChild(article);
       });
 
       relatedArticles.hidden = related.length === 0;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // ── Wikipedia API ────────────────────────────────────────
     async function searchWikipedia(query) {
       const searchUrl = new URL(wikipediaApi);
       searchUrl.search = new URLSearchParams({
-        action: 'query',
-        list: 'search',
-        srsearch: query,
-        srlimit: '8',
-        format: 'json',
-        origin: '*'
+        action: 'query', list: 'search', srsearch: query,
+        srlimit: '8', format: 'json', origin: '*'
       }).toString();
 
       const searchResponse = await fetch(searchUrl.toString());
-      if (!searchResponse.ok) {
-        throw new Error('Wikipedia-Suche fehlgeschlagen.');
-      }
+      if (!searchResponse.ok) throw new Error('Wikipedia-Suche fehlgeschlagen.');
 
       const searchData = await searchResponse.json();
-      const results = searchData?.query?.search || [];
-      if (results.length === 0) {
-        return null;
-      }
+      const searchResults = searchData?.query?.search || [];
+      if (searchResults.length === 0) return null;
 
-      const firstMatch = results[0];
+      const firstMatch = searchResults[0];
 
       const detailUrl = new URL(wikipediaApi);
       detailUrl.search = new URLSearchParams({
-        action: 'query',
-        prop: 'extracts|info',
-        pageids: String(firstMatch.pageid),
-        exintro: '1',
-        explaintext: '1',
-        exsentences: '4',
-        inprop: 'url',
-        format: 'json',
-        origin: '*'
+        action: 'query', prop: 'extracts|info', pageids: String(firstMatch.pageid),
+        exintro: '1', explaintext: '1', exsentences: '4',
+        inprop: 'url', format: 'json', origin: '*'
       }).toString();
 
       const detailResponse = await fetch(detailUrl.toString());
-      if (!detailResponse.ok) {
-        throw new Error('Wikipedia-Details fehlgeschlagen.');
-      }
+      if (!detailResponse.ok) throw new Error('Wikipedia-Details fehlgeschlagen.');
 
       const detailData = await detailResponse.json();
       const page = detailData?.query?.pages?.[firstMatch.pageid];
-      if (!page?.extract) {
-        return null;
-      }
+      if (!page?.extract) return null;
 
       const parseUrl = new URL(wikipediaApi);
       parseUrl.search = new URLSearchParams({
-        action: 'parse',
-        pageid: String(firstMatch.pageid),
-        prop: 'text',
-        format: 'json',
-        origin: '*'
+        action: 'parse', pageid: String(firstMatch.pageid),
+        prop: 'text', format: 'json', origin: '*'
       }).toString();
 
       let tableHtml = '';
@@ -746,16 +965,14 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const table = doc.querySelector('table.wikitable') || doc.querySelector('table.infobox') || doc.querySelector('table');
-            if (table) {
-              tableHtml = table.outerHTML;
-            }
+            if (table) tableHtml = table.outerHTML;
           }
         }
       } catch (error) {
         console.error('Tabellen-Laden fehlgeschlagen:', error);
       }
 
-      const related = results.slice(1, 6).map(item => ({
+      const related = searchResults.slice(1, 6).map(item => ({
         title: item.title,
         snippet: item.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
         pageid: item.pageid
@@ -770,8 +987,9 @@
       };
     }
 
-    async function handleSearch() {
-      const query = searchInput.value.trim();
+    // ── Search handler ───────────────────────────────────────
+    async function handleSearch(sourceInput) {
+      const query = (sourceInput || activeInput()).value.trim();
       if (!query) {
         setSearchState('Bitte gib einen Suchbegriff ein.', false, true);
         clearResults();
@@ -779,9 +997,11 @@
         return;
       }
 
-      setSearchState('Wikipedia wird durchsucht ...', true);
+      setSearchState('Wikipedia wird durchsucht …', true);
       searchButton.disabled = true;
+      headerSearchButton.disabled = true;
       searchInput.disabled = true;
+      headerSearchInput.disabled = true;
       hideSuggestions();
 
       try {
@@ -791,7 +1011,6 @@
           clearResults();
           return;
         }
-
         showWikipediaResult(result);
         setSearchState('');
       } catch (error) {
@@ -800,46 +1019,61 @@
         setSearchState('Fehler beim Laden. Bitte versuche es erneut.', false, true);
       } finally {
         searchButton.disabled = false;
+        headerSearchButton.disabled = false;
         searchInput.disabled = false;
-        searchInput.focus();
+        headerSearchInput.disabled = false;
+        activeInput().focus();
       }
     }
 
-    searchButton.addEventListener('click', handleSearch);
+    // ── Wire up hero bar ─────────────────────────────────────
+    searchButton.addEventListener('click', () => handleSearch(searchInput));
+    searchButtonAlt.addEventListener('click', () => handleSearch(searchInput));
     searchInput.addEventListener('keydown', event => {
-      if (event.key === 'Enter') {
-        handleSearch();
-      }
-
-      if (event.key === 'Escape') {
-        hideSuggestions();
-      }
+      if (event.key === 'Enter') handleSearch(searchInput);
+      if (event.key === 'Escape') hideSuggestions();
     });
-
     searchInput.addEventListener('input', () => {
-      if (autocompleteDebounce) {
-        clearTimeout(autocompleteDebounce);
-      }
+      clearTimeout(autocompleteDebounce);
+      autocompleteDebounce = setTimeout(() => updateAutocomplete(searchInput.value), 180);
+    });
+    searchInput.addEventListener('focus', () => updateAutocomplete(searchInput.value));
+    searchInput.addEventListener('blur', () => window.setTimeout(hideSuggestions, BLUR_DELAY_MS));
 
-      autocompleteDebounce = setTimeout(() => {
-        updateAutocomplete(searchInput.value);
-      }, 180);
+    // ── Wire up header bar ───────────────────────────────────
+    headerSearchButton.addEventListener('click', () => handleSearch(headerSearchInput));
+    headerSearchInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') handleSearch(headerSearchInput);
+      if (event.key === 'Escape') hideSuggestions();
+    });
+    headerSearchInput.addEventListener('input', () => {
+      clearTimeout(autocompleteDebounce);
+      autocompleteDebounce = setTimeout(() => updateAutocomplete(headerSearchInput.value), 180);
+    });
+    headerSearchInput.addEventListener('focus', () => updateAutocomplete(headerSearchInput.value));
+    headerSearchInput.addEventListener('blur', () => window.setTimeout(hideSuggestions, BLUR_DELAY_MS));
+
+    // ── Logo click → back to home ────────────────────────────
+    function goHome() {      clearResults();
+      searchInput.value = '';
+      headerSearchInput.value = '';
+      hideSuggestions();
+      searchInput.focus();
+    }
+    headerLogo.addEventListener('click', goHome);
+
+    wikiButton.addEventListener('click', () => {
+      window.open('https://de.wikipedia.org', '_blank', 'noopener');
     });
 
-    searchInput.addEventListener('focus', () => {
-      updateAutocomplete(searchInput.value);
-    });
-
-    searchInput.addEventListener('blur', () => {
-      window.setTimeout(hideSuggestions, 120);
-    });
-
+    // ── Close suggestions on outside click ───────────────────
     document.addEventListener('click', event => {
-      if (!event.target.closest('.search-box')) {
+      if (!event.target.closest('.hero-search-box') && !event.target.closest('.header-search-box')) {
         hideSuggestions();
       }
     });
 
+    // ── Init ─────────────────────────────────────────────────
     setSuggestions(localSuggestions);
     searchInput.focus();
   </script>
