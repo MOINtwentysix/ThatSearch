@@ -1,549 +1,4 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ThatSearch for Students</title>
-  <style>
-    :root {
-      --bg: #05070d;
-      --text: #edf2ff;
-      --muted: #aeb6cf;
-      --primary: #63b3ff;
-      --primary-strong: #2f8ff6;
-      --line: rgba(179, 208, 255, 0.28);
-      --error: #ff8f8f;
-      --ok: #7fe8a4;
-      --panel: rgba(11, 15, 27, 0.82);
-      --panel-soft: rgba(255, 255, 255, 0.04);
-      --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      color: var(--text);
-      background: radial-gradient(circle at center, #0f1830 0%, #090d18 38%, #05070d 72%, #020308 100%);
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: -20vmax;
-      background:
-        radial-gradient(circle at 50% 48%, rgba(34, 55, 112, 0.62) 0%, rgba(19, 31, 68, 0.42) 13%, rgba(5, 7, 13, 0.98) 24%, rgba(2, 3, 8, 1) 40%),
-        conic-gradient(from 0deg at 50% 49%, rgba(54, 114, 235, 0.22), rgba(67, 24, 126, 0.16), rgba(45, 170, 216, 0.2), rgba(54, 114, 235, 0.22));
-      filter: blur(3px);
-      animation: spinField 34s linear infinite;
-      z-index: -2;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      left: 50%;
-      top: 48%;
-      width: min(78vmin, 760px);
-      height: min(78vmin, 760px);
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at center, rgba(0, 0, 0, 1) 0 22%, rgba(8, 13, 28, 0.95) 26%, rgba(91, 156, 255, 0.2) 48%, rgba(82, 37, 133, 0.09) 62%, rgba(0, 0, 0, 0) 74%);
-      box-shadow: 0 0 120px rgba(79, 145, 255, 0.2), 0 0 220px rgba(56, 118, 244, 0.1);
-      z-index: -1;
-      pointer-events: none;
-    }
-
-    .app {
-      width: min(1080px, 94vw);
-      margin: 0 auto;
-      padding: 24px 0 48px;
-      transition: padding-top 0.45s ease;
-    }
-
-    .hero-search {
-      min-height: 82vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      text-align: center;
-      transition: min-height 0.45s ease, transform 0.45s ease, gap 0.45s ease;
-    }
-
-    .app.has-results .hero-search {
-      min-height: 0;
-      transform: translateY(0);
-      gap: 10px;
-      padding-top: 8px;
-      padding-bottom: 6px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(2rem, 6vw, 4.2rem);
-      line-height: 1.04;
-      letter-spacing: 0.02em;
-      text-shadow: 0 0 30px rgba(88, 146, 255, 0.2);
-    }
-
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      font-size: clamp(0.95rem, 1.6vw, 1.1rem);
-      max-width: 64ch;
-    }
-
-    .search-box {
-      width: min(760px, 100%);
-    }
-
-    .input-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: stretch;
-    }
-
-    #searchInput {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: rgba(10, 15, 28, 0.75);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 15px 16px;
-      font: inherit;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-      box-shadow: var(--shadow);
-    }
-
-    #searchSuggestions {
-      background: #0b1222;
-      color: var(--text);
-    }
-
-    #searchInput:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(91, 167, 255, 0.25);
-      background: rgba(11, 17, 32, 0.88);
-    }
-
-    .primary-button {
-      border: 1px solid rgba(164, 210, 255, 0.35);
-      border-radius: 14px;
-      min-width: 112px;
-      padding: 0 18px;
-      background: linear-gradient(120deg, var(--primary-strong), var(--primary));
-      color: #041225;
-      font: inherit;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.15s ease, filter 0.2s ease;
-      box-shadow: 0 10px 26px rgba(46, 124, 219, 0.32);
-    }
-
-    .primary-button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.06);
-    }
-
-    .primary-button:disabled {
-      opacity: 0.75;
-      cursor: progress;
-      transform: none;
-    }
-
-    .status {
-      min-height: 24px;
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.95rem;
-      text-align: left;
-    }
-
-    .status.error {
-      color: var(--error);
-      font-weight: 600;
-    }
-
-    .status.loading {
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .loading-row {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .spinner {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 2px solid rgba(117, 185, 255, 0.25);
-      border-top-color: var(--primary);
-      animation: spin 0.72s linear infinite;
-    }
-
-    .results {
-      display: grid;
-      gap: 16px;
-      margin-top: 22px;
-    }
-
-    .main-result {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      border: 0;
-      background: transparent;
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none;
-    }
-
-    .main-result.with-table {
-      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-    }
-
-    .wikipedia-result {
-      min-width: 0;
-    }
-
-    .wikipedia-result h2,
-    .calculator-result h2 {
-      margin: 0 0 12px;
-      font-size: 1.14rem;
-      color: var(--primary);
-    }
-
-    .result-text {
-      margin: 0;
-      line-height: 1.68;
-      font-size: 1.06rem;
-      color: #e7edff;
-      white-space: pre-wrap;
-    }
-
-    .result-text mark,
-    .article-item-snippet mark {
-      background: rgba(99, 179, 255, 0.28);
-      color: #eef6ff;
-      border-radius: 4px;
-      padding: 0 3px;
-      font-weight: 700;
-    }
-
-    .main-result.with-table .result-text {
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
-
-    .source-link {
-      display: inline-flex;
-      margin-top: 12px;
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    .source-link:hover {
-      text-decoration: underline;
-    }
-
-    .table-wrapper {
-      min-width: 0;
-      display: none;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--panel-soft);
-      padding: 10px;
-      overflow: hidden;
-    }
-
-    .table-wrapper.visible {
-      display: block;
-    }
-
-    .table-container {
-      max-height: 460px;
-      overflow: auto;
-    }
-
-    .table-container table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.92rem;
-      background: rgba(4, 7, 14, 0.4);
-    }
-
-    .table-container th,
-    .table-container td {
-      border: 1px solid rgba(169, 204, 255, 0.22);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    .table-container th {
-      background: rgba(83, 158, 255, 0.18);
-      color: #dfeeff;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
-    .calculator-output {
-      min-height: 60px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px 14px;
-      background: rgba(7, 11, 22, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tool-result h2 {
-      margin: 0 0 12px;
-      font-size: 1.14rem;
-      color: var(--primary);
-    }
-
-    .tool-result p {
-      margin: 8px 0;
-      color: var(--text);
-    }
-
-    .tool-controls {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 8px;
-    }
-
-    .tool-button {
-      border: 1px solid rgba(164, 210, 255, 0.35);
-      border-radius: 10px;
-      padding: 8px 12px;
-      background: rgba(83, 158, 255, 0.18);
-      color: var(--text);
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .tool-button:hover {
-      background: rgba(83, 158, 255, 0.3);
-    }
-
-    .time-display {
-      font-size: 1.8rem;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      color: #eaf4ff;
-      margin: 0;
-    }
-
-    .expression {
-      font-size: 1.08rem;
-      font-weight: 700;
-      overflow-wrap: anywhere;
-    }
-
-    .calculation-result {
-      color: var(--ok);
-      font-size: 1.05rem;
-      font-weight: 800;
-    }
-
-    .helper-text.error {
-      margin-top: 10px;
-      color: var(--error);
-      font-weight: 600;
-    }
-
-    .related {
-      border-top: 1px solid rgba(170, 203, 255, 0.25);
-      background: transparent;
-      border-radius: 0;
-      padding: 14px 0 0;
-      box-shadow: none;
-    }
-
-    .related h3 {
-      margin: 0 0 10px;
-      color: var(--text);
-      font-size: 1rem;
-    }
-
-    .article-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .article-item {
-      border: 1px solid rgba(166, 202, 255, 0.22);
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 10px;
-      padding: 10px 12px;
-      cursor: pointer;
-      transition: border-color 0.18s ease, background 0.18s ease;
-    }
-
-    .article-item:hover {
-      border-color: rgba(128, 185, 255, 0.55);
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .article-item-title {
-      margin: 0 0 4px;
-      color: var(--primary);
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .article-item-snippet {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.87rem;
-      line-height: 1.45;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes spinField {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @media (max-width: 900px) {
-      .main-result.with-table {
-        grid-template-columns: 1fr;
-      }
-
-      .table-wrapper {
-        margin-top: 2px;
-      }
-    }
-
-    @media (max-width: 720px) {
-      .app {
-        width: min(96vw, 1080px);
-      }
-
-      .hero-search {
-        min-height: 72vh;
-      }
-
-      .input-row {
-        grid-template-columns: 1fr;
-      }
-
-      .primary-button {
-        min-height: 48px;
-      }
-
-      .result-text {
-        font-size: 0.96rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <main class="app" id="app">
-    <section class="hero-search" id="heroSearch">
-      <h1>ThatSearch for Students</h1>
-
-      <div class="search-box">
-        <div class="input-row">
-          <input id="searchInput" type="text" placeholder="Suche etwas..." autocomplete="off" list="searchSuggestions" />
-          <button class="primary-button" id="searchButton" type="button">Suchen</button>
-        </div>
-        <datalist id="searchSuggestions"></datalist>
-        <div class="status" id="searchStatus" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <section class="results" id="results" hidden>
-      <article class="main-result" id="mainResult">
-        <div class="calculator-result" id="calculatorResult" hidden>
-          <h2>Rechnung</h2>
-          <div class="calculator-output">
-            <div class="expression" id="expressionPreview"></div>
-            <div class="calculation-result" id="calculationResultText"></div>
-          </div>
-          <p class="helper-text error" id="calculatorError" hidden></p>
-        </div>
-
-        <div class="wikipedia-result" id="wikipediaResult" hidden>
-          <h2>Wikipedia Ergebnis</h2>
-          <p class="result-text" id="resultText"></p>
-          <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">Quelle: Wikipedia</a>
-        </div>
-
-        <div class="tool-result" id="converterResult" hidden>
-          <h2>Umrechnung</h2>
-          <div class="calculator-output">
-            <div class="expression" id="conversionExpression"></div>
-            <div class="calculation-result" id="conversionResultText"></div>
-          </div>
-          <p class="helper-text error" id="converterError" hidden></p>
-        </div>
-
-        <div class="tool-result" id="stopwatchResult" hidden>
-          <h2>Stopuhr</h2>
-          <p class="time-display" id="stopwatchDisplay">00:00.00</p>
-          <div class="tool-controls">
-            <button class="tool-button" id="stopwatchStart" type="button">Start</button>
-            <button class="tool-button" id="stopwatchStop" type="button">Stop</button>
-            <button class="tool-button" id="stopwatchReset" type="button">Reset</button>
-          </div>
-        </div>
-
-        <div class="tool-result" id="timerResult" hidden>
-          <h2>Timer</h2>
-          <p class="time-display" id="timerDisplay">00:00</p>
-          <p id="timerInfo">Gib z. B. "timer 90s" oder "timer 2m" ein.</p>
-          <div class="tool-controls">
-            <button class="tool-button" id="timerStart" type="button">Start</button>
-            <button class="tool-button" id="timerPause" type="button">Pause</button>
-            <button class="tool-button" id="timerReset" type="button">Reset</button>
-          </div>
-        </div>
-
-        <div class="table-wrapper" id="tableWrapper"></div>
-      </article>
-
-      <section class="related" id="relatedArticles" hidden>
-        <h3>Weitere Wikipedia Artikel zur Suchanfrage</h3>
-        <div class="article-list" id="articleList"></div>
-      </section>
-    </section>
-  </main>
-
   <script>
     const app = document.getElementById('app');
     const results = document.getElementById('results');
@@ -553,33 +8,10 @@
     const searchStatus = document.getElementById('searchStatus');
 
     const mainResult = document.getElementById('mainResult');
-    const calculatorResult = document.getElementById('calculatorResult');
-    const expressionPreview = document.getElementById('expressionPreview');
-    const calculationResultText = document.getElementById('calculationResultText');
-    const calculatorError = document.getElementById('calculatorError');
-
     const wikipediaResult = document.getElementById('wikipediaResult');
     const resultText = document.getElementById('resultText');
     const sourceLink = document.getElementById('sourceLink');
     const tableWrapper = document.getElementById('tableWrapper');
-
-    const converterResult = document.getElementById('converterResult');
-    const conversionExpression = document.getElementById('conversionExpression');
-    const conversionResultText = document.getElementById('conversionResultText');
-    const converterError = document.getElementById('converterError');
-
-    const stopwatchResult = document.getElementById('stopwatchResult');
-    const stopwatchDisplay = document.getElementById('stopwatchDisplay');
-    const stopwatchStart = document.getElementById('stopwatchStart');
-    const stopwatchStop = document.getElementById('stopwatchStop');
-    const stopwatchReset = document.getElementById('stopwatchReset');
-
-    const timerResult = document.getElementById('timerResult');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const timerInfo = document.getElementById('timerInfo');
-    const timerStart = document.getElementById('timerStart');
-    const timerPause = document.getElementById('timerPause');
-    const timerReset = document.getElementById('timerReset');
 
     const relatedArticles = document.getElementById('relatedArticles');
     const articleList = document.getElementById('articleList');
@@ -587,41 +19,20 @@
     const wikipediaApi = 'https://de.wikipedia.org/w/api.php';
 
     const localSuggestions = [
-      'stopuhr',
-      'timer 90s',
-      'timer 2m',
-      '250 ml in l',
-      '3 km in m',
-      '70 kg in g',
       'berlin',
       'photosynthese',
-      '2+2'
+      'schwarze löcher',
+      'universum',
+      'quantencomputer',
+      'energiewende',
+      'evolution',
+      'atom',
+      'schwerkraft',
+      'wasser'
     ];
-
-    const conversionUnits = {
-      ml: { group: 'volume', factor: 0.001 },
-      l: { group: 'volume', factor: 1 },
-      m3: { group: 'volume', factor: 1000 },
-      mm: { group: 'length', factor: 0.001 },
-      cm: { group: 'length', factor: 0.01 },
-      m: { group: 'length', factor: 1 },
-      km: { group: 'length', factor: 1000 },
-      mg: { group: 'mass', factor: 0.000001 },
-      g: { group: 'mass', factor: 0.001 },
-      kg: { group: 'mass', factor: 1 }
-    };
 
     let autocompleteRequestId = 0;
     let autocompleteDebounce = null;
-
-    let stopwatchInterval = null;
-    let stopwatchStartMs = 0;
-    let stopwatchElapsedMs = 0;
-
-    let timerInterval = null;
-    let timerDurationMs = 0;
-    let timerRemainingMs = 0;
-    let timerEndMs = 0;
 
     function sanitizeText(text) {
       return text
@@ -660,181 +71,6 @@
       searchStatus.textContent = message;
     }
 
-    function clearResults() {
-      results.hidden = true;
-      calculatorResult.hidden = true;
-      wikipediaResult.hidden = true;
-      converterResult.hidden = true;
-      stopwatchResult.hidden = true;
-      timerResult.hidden = true;
-      relatedArticles.hidden = true;
-      articleList.innerHTML = '';
-      resultText.textContent = '';
-      sourceLink.href = '#';
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
-      app.classList.remove('has-results');
-    }
-
-    function showCalculatorResult(expression, resultValue, errorMessage = '') {
-      app.classList.add('has-results');
-      results.hidden = false;
-      calculatorResult.hidden = false;
-      wikipediaResult.hidden = true;
-      converterResult.hidden = true;
-      stopwatchResult.hidden = true;
-      timerResult.hidden = true;
-      relatedArticles.hidden = true;
-      articleList.innerHTML = '';
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
-
-      expressionPreview.textContent = expression;
-
-      if (errorMessage) {
-        calculationResultText.textContent = '=';
-        calculatorError.textContent = errorMessage;
-        calculatorError.hidden = false;
-      } else {
-        const printable = Number.isInteger(resultValue) ? resultValue : parseFloat(resultValue.toFixed(10));
-        calculationResultText.textContent = '= ' + printable;
-        calculatorError.hidden = true;
-      }
-    }
-
-    function showWikipediaResult(result) {
-      app.classList.add('has-results');
-      results.hidden = false;
-      calculatorResult.hidden = true;
-      wikipediaResult.hidden = false;
-      converterResult.hidden = true;
-      stopwatchResult.hidden = true;
-      timerResult.hidden = true;
-
-      resultText.innerHTML = highlightImportant(result.text, result.query);
-      sourceLink.href = result.url;
-
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
-
-      if (result.tableHtml) {
-        const container = document.createElement('div');
-        container.className = 'table-container';
-        container.innerHTML = result.tableHtml;
-
-        // Remove potentially disruptive inline styles from Wikipedia table.
-        container.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
-
-        tableWrapper.appendChild(container);
-        tableWrapper.classList.add('visible');
-        mainResult.classList.add('with-table');
-      }
-
-      const related = result.related || [];
-      if (related.length === 0) {
-        relatedArticles.hidden = true;
-        articleList.innerHTML = '';
-        return;
-      }
-
-      articleList.innerHTML = '';
-      related.forEach(item => {
-        const card = document.createElement('article');
-        card.className = 'article-item';
-        card.innerHTML =
-          '<p class="article-item-title"></p>' +
-          '<p class="article-item-snippet"></p>';
-
-        const titleNode = card.querySelector('.article-item-title');
-        const snippetNode = card.querySelector('.article-item-snippet');
-
-        titleNode.textContent = item.title;
-        snippetNode.innerHTML = highlightImportant(item.snippet, result.query);
-
-        card.addEventListener('click', () => {
-          window.open('https://de.wikipedia.org/?curid=' + item.pageid, '_blank', 'noopener');
-        });
-
-        articleList.appendChild(card);
-      });
-
-      relatedArticles.hidden = false;
-    }
-
-    function showConverterResult(result) {
-      app.classList.add('has-results');
-      results.hidden = false;
-      calculatorResult.hidden = true;
-      wikipediaResult.hidden = true;
-      converterResult.hidden = false;
-      stopwatchResult.hidden = true;
-      timerResult.hidden = true;
-      relatedArticles.hidden = true;
-      articleList.innerHTML = '';
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
-
-      conversionExpression.textContent = result.expression;
-      conversionResultText.textContent = '= ' + result.value;
-      converterError.hidden = true;
-    }
-
-    function showConverterError(expression, message) {
-      app.classList.add('has-results');
-      results.hidden = false;
-      calculatorResult.hidden = true;
-      wikipediaResult.hidden = true;
-      converterResult.hidden = false;
-      stopwatchResult.hidden = true;
-      timerResult.hidden = true;
-      relatedArticles.hidden = true;
-      articleList.innerHTML = '';
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
-
-      conversionExpression.textContent = expression;
-      conversionResultText.textContent = '=';
-      converterError.textContent = message;
-      converterError.hidden = false;
-    }
-
-    function showStopwatch() {
-      app.classList.add('has-results');
-      results.hidden = false;
-      calculatorResult.hidden = true;
-      wikipediaResult.hidden = true;
-      converterResult.hidden = true;
-      stopwatchResult.hidden = false;
-      timerResult.hidden = true;
-      relatedArticles.hidden = true;
-      articleList.innerHTML = '';
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
-      renderStopwatch();
-    }
-
-    function showTimer() {
-      app.classList.add('has-results');
-      results.hidden = false;
-      calculatorResult.hidden = true;
-      wikipediaResult.hidden = true;
-      converterResult.hidden = true;
-      stopwatchResult.hidden = true;
-      timerResult.hidden = false;
-      relatedArticles.hidden = true;
-      articleList.innerHTML = '';
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
-      renderTimer();
-    }
-
     function escapeHtml(value) {
       return value
         .replace(/&/g, '&amp;')
@@ -863,168 +99,359 @@
       return safeText.replace(regex, '<mark>$1</mark>');
     }
 
-    function parseConversionQuery(query) {
-      const normalized = query
-        .toLowerCase()
-        .replace(',', '.')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      const match = normalized.match(/^(-?\d+(?:\.\d+)?)\s*([a-z0-9]+)\s*(?:in|zu|nach)\s*([a-z0-9]+)$/i);
-      if (!match) return null;
-
-      const amount = parseFloat(match[1]);
-      const fromUnit = match[2];
-      const toUnit = match[3];
-      return { amount, fromUnit, toUnit };
-    }
-
-    function convertUnits(query) {
-      const parsed = parseConversionQuery(query);
-      if (!parsed) return null;
-
-      const from = conversionUnits[parsed.fromUnit];
-      const to = conversionUnits[parsed.toUnit];
-
-      if (!from || !to) {
-        return { error: 'Unbekannte Einheit. Beispiele: ml, l, m, km, g, kg.' };
-      }
-
-      if (from.group !== to.group) {
-        return { error: 'Diese Einheiten gehoeren nicht zur selben Kategorie.' };
-      }
-
-      const valueInBase = parsed.amount * from.factor;
-      const converted = valueInBase / to.factor;
-      const rounded = Number.isInteger(converted) ? converted : parseFloat(converted.toFixed(10));
-
-      return {
-        expression: parsed.amount + ' ' + parsed.fromUnit + ' in ' + parsed.toUnit,
-        value: rounded + ' ' + parsed.toUnit
-      };
-    }
-
-    function parseTimerDurationMs(query) {
-      const normalized = query.toLowerCase().trim();
-      const match = normalized.match(/timer\s+([\d.,]+)\s*(s|sec|sek|m|min|h)?/);
-      if (!match) return 0;
-
-      const value = parseFloat(match[1].replace(',', '.'));
-      const unit = (match[2] || 's').toLowerCase();
-      if (!Number.isFinite(value) || value <= 0) return 0;
-
-      if (unit === 'h') return Math.round(value * 3600000);
-      if (unit === 'm' || unit === 'min') return Math.round(value * 60000);
-      return Math.round(value * 1000);
-    }
-
-    function formatStopwatch(ms) {
-      const totalHundreds = Math.floor(ms / 10);
-      const hundreds = totalHundreds % 100;
-      const totalSeconds = Math.floor(totalHundreds / 100);
-      const seconds = totalSeconds % 60;
-      const minutes = Math.floor(totalSeconds / 60);
-
-      return String(minutes).padStart(2, '0') + ':' +
-        String(seconds).padStart(2, '0') + '.' +
-        String(hundreds).padStart(2, '0');
-    }
-
-    function formatTimer(ms) {
-      const safeMs = Math.max(0, ms);
-      const totalSeconds = Math.ceil(safeMs / 1000);
-      const seconds = totalSeconds % 60;
-      const minutes = Math.floor(totalSeconds / 60);
-      return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-    }
-
-    function renderStopwatch() {
-      stopwatchDisplay.textContent = formatStopwatch(stopwatchElapsedMs);
-    }
-
-    function renderTimer() {
-      timerDisplay.textContent = formatTimer(timerRemainingMs || timerDurationMs);
-    }
-
-    function startStopwatch() {
-      if (stopwatchInterval) return;
-      stopwatchStartMs = Date.now() - stopwatchElapsedMs;
-      stopwatchInterval = setInterval(() => {
-        stopwatchElapsedMs = Date.now() - stopwatchStartMs;
-        renderStopwatch();
-      }, 25);
-    }
-
-    function stopStopwatch() {
-      if (!stopwatchInterval) return;
-      clearInterval(stopwatchInterval);
-      stopwatchInterval = null;
-      stopwatchElapsedMs = Date.now() - stopwatchStartMs;
-      renderStopwatch();
-    }
-
-    function resetStopwatch() {
-      if (stopwatchInterval) {
-        clearInterval(stopwatchInterval);
-        stopwatchInterval = null;
-      }
-      stopwatchElapsedMs = 0;
-      renderStopwatch();
-    }
-
-    function startTimer() {
-      if (!timerDurationMs) return;
-      if (timerInterval) return;
-
-      if (!timerRemainingMs) {
-        timerRemainingMs = timerDurationMs;
-      }
-
-      timerEndMs = Date.now() + timerRemainingMs;
-      timerInterval = setInterval(() => {
-        timerRemainingMs = Math.max(0, timerEndMs - Date.now());
-        renderTimer();
-        if (timerRemainingMs <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          timerInfo.textContent = 'Timer ist abgelaufen.';
-        }
-      }, 100);
-    }
-
-    function pauseTimer() {
-      if (!timerInterval) return;
-      clearInterval(timerInterval);
-      timerInterval = null;
-      timerRemainingMs = Math.max(0, timerEndMs - Date.now());
-      renderTimer();
-    }
-
-    function resetTimer() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      timerRemainingMs = timerDurationMs;
-      renderTimer();
-      if (timerDurationMs) {
-        timerInfo.textContent = 'Bereit: ' + formatTimer(timerDurationMs);
-      }
+    function hideSuggestions() {
+      searchSuggestions.classList.remove('visible');
+      searchInput.setAttribute('aria-expanded', 'false');
+      searchSuggestions.innerHTML = '';
     }
 
     function setSuggestions(items) {
       searchSuggestions.innerHTML = '';
-      const unique = [...new Set(items)].slice(0, 12);
+      const unique = [...new Set(items)].slice(0, 8);
+
+      if (unique.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
       unique.forEach(item => {
-        const option = document.createElement('option');
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'suggestion-item';
+        option.setAttribute('role', 'option');
+        option.textContent = item;
+        option.addEventListener('click', () => {
+          searchInput.value = item;
+          hideSuggestions();
+          searchInput.focus();
+        });
+        searchSuggestions.appendChild(option);
+      });
+
+      searchSuggestions.classList.add('visible');
+      searchInput.setAttribute('aria-expanded', 'true');
+    }
+
+    async function updateAutocomplete(query) {
+      const trimmed = query.trim();
+      const base = localSuggestions.filter(item => item.toLowerCase().includes(trimmed.toLowerCase()));
+
+      if (trimmed.length < 2) {
+        setSuggestions(base.length ? base : localSuggestions);
+        return;
+      }
+
+      const requestId = ++autocompleteRequestId;
+      try {
+        const suggestUrl = new URL(wikipediaApi);
+        suggestUrl.search = new URLSearchParams({
+          action: 'opensearch',
+          search: trimmed,
+          limit: '6',
+          namespace: '0',
+          format: 'json',
+          origin: '*'
+        }).toString();
+
+        const response = await fetch(suggestUrl.toString());
+        if (!response.ok) {
+          setSuggestions(base.length ? base : localSuggestions);
+          return;
+        }
+
+        const data = await response.json();
+        const wikiSuggestions = Array.isArray(data?.[1]) ? data[1] : [];
+        if (requestId === autocompleteRequestId) {
+          setSuggestions([...base, ...wikiSuggestions]);
+        }
+      } catch (error) {
+        if (requestId === autocompleteRequestId) {
+          setSuggestions(base.length ? base : localSuggestions);
+        }
+      }
+    }
+
+    function clearResults() {
+      results.hidden = true;
+      wikipediaResult.hidden = true;
+      relatedArticles.hidden = true;
+      articleList.innerHTML = '';
+      resultText.textContent = '';
+      sourceLink.href = '#';
+      tableWrapper.innerHTML = '';
+      tableWrapper.classList.remove('visible');
+      mainResult.classList.remove('with-table');
+      app.classList.remove('has-results');
+    }
+
+    function showWikipediaResult(result) {
+      app.classList.add('has-results');
+      results.hidden = false;
+      wikipediaResult.hidden = false;
+
+      resultText.innerHTML = highlightImportant(result.text, result.query);
+      sourceLink.href = result.url;
+
+      tableWrapper.innerHTML = '';
+      tableWrapper.classList.remove('visible');
+      mainResult.classList.remove('with-table');
+
+      if (result.tableHtml) {
+        const container = document.createElement('div');
+        container.className = 'table-container';
+        container.innerHTML = result.tableHtml;
+        container.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
+
+        tableWrapper.appendChild(container);
+        tableWrapper.classList.add('visible');
+        mainResult.classList.add('with-table');
+      }
+
+      const related = result.related || [];
+      articleList.innerHTML = '';
+
+      related.forEach(item => {
+        const card = document.createElement('article');
+        card.className = 'article-item';
+        card.innerHTML = '<p class="article-item-title"></p><p class="article-item-snippet"></p>';
+
+        card.querySelector('.article-item-title').textContent = item.title;
+        card.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.snippet, result.query);
+
+        card.addEventListener('click', () => {
+          window.open('https://de.wikipedia.org/?curid=' + item.pageid, '_blank', 'noopener');
+        });
+
+        articleList.appendChild(card);
+      });
+
+      relatedArticles.hidden = related.length === 0;
+    }
+
+    async function searchWikipedia(query) {
+      const searchUrl = new URL(wikipediaApi);
+      searchUrl.search = new URLSearchParams({
+        action: 'query',
+        list: 'search',
+        srsearch: query,
+        srlimit: '8',
+        format: 'json',
+        origin: '*'
+      }).toString();
+
+      const searchResponse = await fetch(searchUrl.toString());
+      if (!searchResponse.ok) {
+        throw new Error('Wikipedia-Suche fehlgeschlagen.');
+      }
+
+      const searchData = await searchResponse.json();
+      const results = searchData?.query?.search || [];
+      if (results.length === 0) {
+        return null;
+      }
+
+      const firstMatch = results[0];
+
+      const detailUrl = new URL(wikipediaApi);
+      detailUrl.search = new URLSearchParams({
+        action: 'query',
+        prop: 'extracts|info',
+        pageids: String(firstMatch.pageid),
+        exintro: '1',
+        explaintext: '1',
+        exsentences: '4',
+        inprop: 'url',
+        format: 'json',
+        origin: '*'
+      }).toString();
+
+      const detailResponse = await fetch(detailUrl.toString());
+      if (!detailResponse.ok) {
+        throw new Error('Wikipedia-Details fehlgeschlagen.');
+      }
+
+      const detailData = await detailResponse.json();
+      const page = detailData?.query?.pages?.[firstMatch.pageid];
+      if (!page?.extract) {
+        return null;
+      }
+
+      const parseUrl = new URL(wikipediaApi);
+      parseUrl.search = new URLSearchParams({
+        action: 'parse',
+        pageid: String(firstMatch.pageid),
+        prop: 'text',
+        format: 'json',
+        origin: '*'
+      }).toString();
+
+      let tableHtml = '';
+      try {
+        const parseResponse = await fetch(parseUrl.toString());
+        if (parseResponse.ok) {
+          const parseData = await parseResponse.json();
+          const html = parseData?.parse?.text?.['*'];
+
+          if (html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const selectedTable = doc.querySelector('table.wikitable') || doc.querySelector('table.infobox') || doc.querySelector('table');
+
+            if (selectedTable) {
+              tableHtml = selectedTable.outerHTML;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Tabellen-Laden fehlgeschlagen:', error);
+      }
+
+      const related = results.slice(1, 6).map(item => ({
+        title: item.title,
+        snippet: item.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+        pageid: item.pageid
+      }));
+
+      return {
+        text: shortenSummary(page.extract),
+        query,
+        url: page.fullurl || 'https://de.wikipedia.org/?curid=' + firstMatch.pageid,
+        tableHtml,
+        related
+      };
+    }
+
+    async function handleSearch() {
+      const query = searchInput.value.trim();
+      if (!query) {
+        setSearchState('Bitte gib einen Suchbegriff ein.', false, true);
+        clearResults();
+        hideSuggestions();
+        return;
+      }
+
+      setSearchState('Wikipedia wird durchsucht ...', true);
+      searchButton.disabled = true;
+      searchInput.disabled = true;
+      hideSuggestions();
+
+      try {
+        const result = await searchWikipedia(query);
+        if (!result) {
+          setSearchState('Keine passenden Ergebnisse gefunden.', false, true);
+          clearResults();
+          return;
+        }
+
+        showWikipediaResult(result);
+        setSearchState('');
+      } catch (error) {
+        console.error(error);
+        clearResults();
+        setSearchState('Fehler beim Laden. Bitte versuche es erneut.', false, true);
+      } finally {
+        searchButton.disabled = false;
+        searchInput.disabled = false;
+        searchInput.focus();
+      }
+    }
+
+    searchButton.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        handleSearch();
+      }
+      if (event.key === 'Escape') {
+        hideSuggestions();
+      }
+    });
+
+    searchInput.addEventListener('input', () => {
+      if (autocompleteDebounce) {
+        clearTimeout(autocompleteDebounce);
+      }
+
+      autocompleteDebounce = setTimeout(() => {
+        updateAutocomplete(searchInput.value);
+      }, 180);
+    });
+
+    searchInput.addEventListener('focus', () => {
+      updateAutocomplete(searchInput.value);
+    });
+
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.search-box')) {
+        hideSuggestions();
+      }
+    });
+
+    setSuggestions(localSuggestions);
+    searchInput.focus();
+  </script>
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeRegExp(value) {
+      return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function highlightImportant(text, query) {
+      const safeText = escapeHtml(text || '');
+      const tokens = (query || '')
+        .toLowerCase()
+        .split(/\s+/)
+        .map(item => item.trim())
+        .filter(item => item.length >= 3);
+
+      if (tokens.length === 0) return safeText;
+
+      const uniqueTokens = [...new Set(tokens)].map(escapeRegExp);
+        timerInfo.textContent = 'Bereit: ' + formatTimer(timerDurationMs);
+      }
+      searchSuggestions.innerHTML = '';
+      const unique = [...new Set(items)].slice(0, 8);
+
+      if (unique.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      unique.forEach(item => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'suggestion-item';
+        option.setAttribute('role', 'option');
+        option.textContent = item;
+        option.addEventListener('click', () => {
+          searchInput.value = item;
+          hideSuggestions();
+          searchInput.focus();
+        });
+        searchSuggestions.appendChild(option);
+      });
+
+      searchSuggestions.classList.add('visible');
+      searchInput.setAttribute('aria-expanded', 'true');
         option.value = item;
+
+    function hideSuggestions() {
+      searchSuggestions.classList.remove('visible');
+      searchInput.setAttribute('aria-expanded', 'false');
+    }
         searchSuggestions.appendChild(option);
       });
     }
 
     async function updateAutocomplete(query) {
       const trimmed = query.trim();
-      const base = localSuggestions.filter(item => item.toLowerCase().includes(trimmed.toLowerCase()));
+        setSuggestions(base.length ? base : localSuggestions);
 
       if (trimmed.length < 2) {
         setSuggestions(base.length ? base : localSuggestions);
@@ -1331,7 +758,7 @@
     async function handleSearch() {
       const query = searchInput.value.trim();
       if (!query) {
-        setSearchState('Bitte gib einen Suchbegriff oder Rechenausdruck ein.', false, true);
+        setSearchState('Bitte gib einen Suchbegriff ein.', false, true);
         clearResults();
         return;
       }
@@ -1341,52 +768,6 @@
       searchInput.disabled = true;
 
       try {
-        const conversion = convertUnits(query);
-        if (conversion) {
-          if (conversion.error) {
-            showConverterError(query, conversion.error);
-          } else {
-            showConverterResult(conversion);
-          }
-          setSearchState('');
-          return;
-        }
-
-        const lowerQuery = query.toLowerCase();
-        if (lowerQuery.startsWith('stopuhr')) {
-          showStopwatch();
-          setSearchState('');
-          return;
-        }
-
-        if (lowerQuery.startsWith('timer')) {
-          const durationMs = parseTimerDurationMs(query);
-          showTimer();
-          if (durationMs > 0) {
-            timerDurationMs = durationMs;
-            timerRemainingMs = durationMs;
-            timerInfo.textContent = 'Bereit: ' + formatTimer(durationMs);
-            renderTimer();
-            startTimer();
-          } else {
-            timerInfo.textContent = 'Beispiel: timer 90s, timer 2m, timer 1h';
-            timerDurationMs = 0;
-            timerRemainingMs = 0;
-            renderTimer();
-          }
-          setSearchState('');
-          return;
-        }
-
-        if (isCalculatorExpression(query)) {
-          const normalized = query.replace(/,/g, '.');
-          const tokens = tokenize(normalized);
-          const rpn = toRpn(tokens);
-          const value = evaluateRpn(rpn);
-          showCalculatorResult(query, value);
-          return;
-        }
-
         setSearchState('Wikipedia wird durchsucht ...', true);
         const result = await searchWikipedia(query);
 
@@ -1400,13 +781,8 @@
         setSearchState('');
       } catch (error) {
         console.error(error);
-        if (isCalculatorExpression(query)) {
-          showCalculatorResult(query, null, error.message || 'Rechnung fehlgeschlagen.');
-          setSearchState('');
-        } else {
-          clearResults();
-          setSearchState('Fehler beim Laden. Bitte versuche es erneut.', false, true);
-        }
+        clearResults();
+        setSearchState('Fehler beim Laden. Bitte versuche es erneut.', false, true);
       } finally {
         searchButton.disabled = false;
         searchInput.disabled = false;
@@ -1430,13 +806,13 @@
       }, 180);
     });
 
-    stopwatchStart.addEventListener('click', startStopwatch);
-    stopwatchStop.addEventListener('click', stopStopwatch);
-    stopwatchReset.addEventListener('click', resetStopwatch);
+    searchInput.addEventListener('blur', () => {
+      window.setTimeout(hideSuggestions, 120);
+    });
 
-    timerStart.addEventListener('click', startTimer);
-    timerPause.addEventListener('click', pauseTimer);
-    timerReset.addEventListener('click', resetTimer);
+    searchInput.addEventListener('focus', () => {
+      updateAutocomplete(searchInput.value);
+    });
 
     setSuggestions(localSuggestions);
 
