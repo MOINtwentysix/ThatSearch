@@ -1,24 +1,682 @@
 <!DOCTYPE html>
-  <script>
-    const app = document.getElementById('app');
-    const results = document.getElementById('results');
-    const searchInput = document.getElementById('searchInput');
-    searchInput.focus();
-  </script>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThatSearch for Students</title>
+  <style>
+    :root {
+      --bg: #05070d;
+      --text: #eef3ff;
+      --muted: #aab3cb;
+      --primary: #69b6ff;
+      --primary-strong: #2f8ff6;
+      --line: rgba(177, 208, 255, 0.24);
+      --error: #ff9393;
+      --ok: #93efb0;
+      --panel: rgba(10, 15, 26, 0.7);
+      --panel-strong: rgba(9, 13, 23, 0.92);
+      --shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      background:
+        radial-gradient(circle at center, rgba(17, 26, 51, 0.95) 0%, rgba(9, 13, 24, 0.98) 40%, rgba(4, 6, 12, 1) 72%, rgba(1, 2, 5, 1) 100%);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -25vmax;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0 19%, rgba(10, 14, 30, 0.98) 23%, rgba(30, 49, 94, 0.38) 38%, rgba(77, 122, 219, 0.16) 54%, rgba(0, 0, 0, 0) 72%),
+        conic-gradient(from 0deg at 50% 50%, rgba(73, 140, 255, 0.18), rgba(101, 68, 188, 0.14), rgba(61, 187, 225, 0.15), rgba(73, 140, 255, 0.18));
+      filter: blur(4px);
+      animation: drift 42s linear infinite;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      left: 50%;
+      top: 48%;
+      width: min(76vmin, 760px);
+      height: min(76vmin, 760px);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, rgba(0, 0, 0, 1) 0 22%, rgba(7, 11, 23, 0.96) 26%, rgba(93, 160, 255, 0.22) 46%, rgba(124, 70, 200, 0.08) 64%, rgba(0, 0, 0, 0) 76%);
+      box-shadow: 0 0 120px rgba(83, 156, 255, 0.2), 0 0 260px rgba(83, 156, 255, 0.1);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .app {
+      width: min(1040px, 94vw);
+      margin: 0 auto;
+      padding: 24px 0 48px;
+      transition: padding-top 0.4s ease;
+    }
+
+    .hero {
+      min-height: 82vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      transition: min-height 0.4s ease, transform 0.4s ease, padding 0.4s ease;
+    }
+
+    .app.has-results .hero {
+      min-height: 0;
+      padding-top: 14px;
+      padding-bottom: 10px;
+    }
+
+    .hero-inner {
+      width: min(780px, 100%);
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 4.4rem);
+      line-height: 1.04;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 30px rgba(98, 169, 255, 0.18);
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: clamp(0.96rem, 1.6vw, 1.08rem);
+      line-height: 1.55;
+    }
+
+    .search-box {
+      width: min(760px, 100%);
+      position: relative;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    #searchInput {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 15px 16px;
+      background: rgba(8, 12, 22, 0.82);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    #searchInput:focus {
+      border-color: rgba(105, 182, 255, 0.7);
+      box-shadow: 0 0 0 4px rgba(90, 167, 255, 0.18), var(--shadow);
+    }
+
+    .primary-button {
+      border: 1px solid rgba(164, 210, 255, 0.35);
+      border-radius: 16px;
+      min-width: 120px;
+      padding: 0 18px;
+      background: linear-gradient(120deg, var(--primary-strong), var(--primary));
+      color: #041225;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 26px rgba(46, 124, 219, 0.32);
+      transition: transform 0.15s ease, filter 0.2s ease;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .primary-button:disabled {
+      opacity: 0.75;
+      cursor: progress;
+      transform: none;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: left;
+    }
+
+    .status.loading {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .status.error {
+      color: var(--error);
+      font-weight: 600;
+    }
+
+    .loading-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 2px solid rgba(117, 185, 255, 0.25);
+      border-top-color: var(--primary);
+      animation: spin 0.72s linear infinite;
+    }
+
+    .suggestions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 10px);
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px;
+      border: 1px solid rgba(177, 208, 255, 0.24);
+      border-radius: 18px;
+      background: rgba(7, 10, 18, 0.93);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      z-index: 5;
+      text-align: left;
+    }
+
+    .suggestions.visible {
+      display: flex;
+    }
+
+    .suggestion-item {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      text-align: left;
+    }
+
+    .suggestion-item:hover,
+    .suggestion-item:focus {
+      background: rgba(105, 182, 255, 0.12);
+      border-color: rgba(105, 182, 255, 0.35);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .results {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .main-result {
+      display: grid;
+      gap: 16px;
+      background: transparent;
+      padding: 0;
+    }
+
+    .main-result.with-table {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      align-items: start;
+    }
+
+    .wikipedia-result h2,
+    .related h3 {
+      margin: 0 0 12px;
+      font-size: 1.12rem;
+      color: var(--primary);
+    }
+
+    .result-text {
+      margin: 0;
+      line-height: 1.7;
+      font-size: 1.05rem;
+      color: #edf2ff;
+      white-space: pre-wrap;
+    }
+
+    .result-text mark,
+    .article-item-snippet mark {
+      background: rgba(105, 182, 255, 0.26);
+      color: #f4f9ff;
+      border-radius: 5px;
+      padding: 0 4px;
+      font-weight: 700;
+    }
+
+    .source-link {
+      display: inline-flex;
+      margin-top: 12px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .source-link:hover {
+      text-decoration: underline;
+    }
+
+    .table-wrapper {
+      display: none;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .table-wrapper.visible {
+      display: block;
+    }
+
+    .table-container {
+      max-height: 460px;
+      overflow: auto;
+    }
+
+    .table-container table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      background: rgba(4, 7, 14, 0.38);
+    }
+
+    .table-container th,
+    .table-container td {
+      border: 1px solid rgba(169, 204, 255, 0.2);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .table-container th {
+      background: rgba(83, 158, 255, 0.18);
+      color: #dfeeff;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .related {
+      border-top: 1px solid rgba(170, 203, 255, 0.22);
+      padding-top: 14px;
+    }
+
+    .article-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .article-item {
+      border: 1px solid rgba(166, 202, 255, 0.2);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+
+    .article-item:hover {
+      border-color: rgba(128, 185, 255, 0.5);
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-1px);
+    }
+
+    .article-item-title {
+      margin: 0 0 4px;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .article-item-snippet {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.87rem;
+      line-height: 1.45;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes drift {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 900px) {
+      .main-result.with-table {
+        grid-template-columns: 1fr;
       }
     }
 
-    function isCalculatorExpression(input) {
-      const trimmed = input.trim();
-      if (!trimmed) return false;
+    @media (max-width: 720px) {
+      .app {
+        width: min(96vw, 1040px);
+      }
 
-      const mathRegex = /^[\d\s+\-*/().,]*$/;
-      if (!mathRegex.test(trimmed)) return false;
+      .hero {
+        min-height: 74vh;
+      }
 
-      const normalized = trimmed.replace(/,/g, '.');
-      const hasOperator = /[+\-*/()]/.test(normalized);
-      const numberLike = /^\s*\d+(?:\.\d+)?\s*$/.test(normalized);
-      return hasOperator || numberLike;
+      .input-row {
+        grid-template-columns: 1fr;
+      }
+
+      .primary-button {
+        min-height: 48px;
+      }
+
+      .result-text {
+        font-size: 0.96rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <section class="hero" id="hero">
+      <div class="hero-inner">
+        <h1>ThatSearch for Students</h1>
+        <p class="subtitle">Eine Suchleiste mit Wikipedia, markierten Kurzantworten und schöner Autovervollständigung.</p>
+
+        <div class="search-box">
+          <div class="input-row">
+            <input id="searchInput" type="text" placeholder="Suche etwas..." autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions" />
+            <button class="primary-button" id="searchButton" type="button">Suchen</button>
+          </div>
+          <div class="suggestions" id="searchSuggestions" role="listbox" aria-label="Vorschläge"></div>
+          <div class="status" id="searchStatus" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" id="results" hidden>
+      <article class="main-result" id="mainResult">
+        <div class="wikipedia-result" id="wikipediaResult" hidden>
+          <h2>Wikipedia Ergebnis</h2>
+          <p class="result-text" id="resultText"></p>
+          <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">Quelle: Wikipedia</a>
+        </div>
+
+        <div class="table-wrapper" id="tableWrapper"></div>
+      </article>
+
+      <section class="related" id="relatedArticles" hidden>
+        <h3>Weitere Wikipedia Artikel zur Suchanfrage</h3>
+        <div class="article-list" id="articleList"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const app = document.getElementById('app');
+    const hero = document.getElementById('hero');
+    const results = document.getElementById('results');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    const searchStatus = document.getElementById('searchStatus');
+    const mainResult = document.getElementById('mainResult');
+    const wikipediaResult = document.getElementById('wikipediaResult');
+    const resultText = document.getElementById('resultText');
+    const sourceLink = document.getElementById('sourceLink');
+    const tableWrapper = document.getElementById('tableWrapper');
+    const relatedArticles = document.getElementById('relatedArticles');
+    const articleList = document.getElementById('articleList');
+
+    const wikipediaApi = 'https://de.wikipedia.org/w/api.php';
+    const localSuggestions = [
+      'berlin',
+      'photosynthese',
+      'schwarze löcher',
+      'universum',
+      'quantencomputer',
+      'energiewende',
+      'evolution',
+      'atom',
+      'schwerkraft',
+      'wasser'
+    ];
+
+    let autocompleteRequestId = 0;
+    let autocompleteDebounce = null;
+
+    function sanitizeText(text) {
+      return text
+        .replace(/\s+/g, ' ')
+        .replace(/\(\s*[^)]*\s*\)/g, match => match.replace(/\s+/g, ' '))
+        .trim();
+    }
+
+    function shortenSummary(text, sentenceCount = 3) {
+      const normalized = sanitizeText(text);
+
+      if (window.Intl && typeof Intl.Segmenter === 'function') {
+        const segmenter = new Intl.Segmenter('de', { granularity: 'sentence' });
+        const sentences = Array.from(segmenter.segment(normalized), item => item.segment.trim()).filter(Boolean);
+        return sentences.slice(0, sentenceCount).join(' ');
+      }
+
+      const sentences = normalized.match(/[^.!?]+[.!?]+\s*/g) || [normalized];
+      return sentences.slice(0, sentenceCount).join(' ').trim();
+    }
+
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeRegExp(value) {
+      return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function highlightImportant(text, query) {
+      const safeText = escapeHtml(text || '');
+      const tokens = (query || '')
+        .toLowerCase()
+        .split(/\s+/)
+        .map(item => item.trim())
+        .filter(item => item.length >= 3);
+
+      if (tokens.length === 0) {
+        return safeText;
+      }
+
+      const uniqueTokens = [...new Set(tokens)].map(escapeRegExp);
+      const regex = new RegExp('(' + uniqueTokens.join('|') + ')', 'gi');
+      return safeText.replace(regex, '<mark>$1</mark>');
+    }
+
+    function setSearchState(message, isLoading = false, isError = false) {
+      searchStatus.innerHTML = '';
+      searchStatus.className = 'status' + (isLoading ? ' loading' : '') + (isError ? ' error' : '');
+
+      if (!message) {
+        return;
+      }
+
+      if (isLoading) {
+        const wrapper = document.createElement('span');
+        wrapper.className = 'loading-row';
+        wrapper.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>' + message + '</span>';
+        searchStatus.appendChild(wrapper);
+        return;
+      }
+
+      searchStatus.textContent = message;
+    }
+
+    function hideSuggestions() {
+      searchSuggestions.classList.remove('visible');
+      searchInput.setAttribute('aria-expanded', 'false');
+      searchSuggestions.innerHTML = '';
+    }
+
+    function setSuggestions(items) {
+      searchSuggestions.innerHTML = '';
+      const unique = [...new Set(items)].slice(0, 8);
+
+      if (unique.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      unique.forEach(item => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'suggestion-item';
+        option.setAttribute('role', 'option');
+        option.textContent = item;
+        option.addEventListener('click', () => {
+          searchInput.value = item;
+          hideSuggestions();
+          searchInput.focus();
+        });
+        searchSuggestions.appendChild(option);
+      });
+
+      searchSuggestions.classList.add('visible');
+      searchInput.setAttribute('aria-expanded', 'true');
+    }
+
+    async function updateAutocomplete(query) {
+      const trimmed = query.trim();
+      const base = localSuggestions.filter(item => item.toLowerCase().includes(trimmed.toLowerCase()));
+
+      if (trimmed.length < 2) {
+        setSuggestions(base.length ? base : localSuggestions);
+        return;
+      }
+
+      const requestId = ++autocompleteRequestId;
+      try {
+        const suggestUrl = new URL(wikipediaApi);
+        suggestUrl.search = new URLSearchParams({
+          action: 'opensearch',
+          search: trimmed,
+          limit: '6',
+          namespace: '0',
+          format: 'json',
+          origin: '*'
+        }).toString();
+
+        const response = await fetch(suggestUrl.toString());
+        if (!response.ok) {
+          setSuggestions(base.length ? base : localSuggestions);
+          return;
+        }
+
+        const data = await response.json();
+        const wikiSuggestions = Array.isArray(data?.[1]) ? data[1] : [];
+        if (requestId === autocompleteRequestId) {
+          setSuggestions([...base, ...wikiSuggestions]);
+        }
+      } catch (error) {
+        if (requestId === autocompleteRequestId) {
+          setSuggestions(base.length ? base : localSuggestions);
+        }
+      }
+    }
+
+    function clearResults() {
+      results.hidden = true;
+      wikipediaResult.hidden = true;
+      relatedArticles.hidden = true;
+      articleList.innerHTML = '';
+      resultText.textContent = '';
+      sourceLink.href = '#';
+      tableWrapper.innerHTML = '';
+      tableWrapper.classList.remove('visible');
+      mainResult.classList.remove('with-table');
+      app.classList.remove('has-results');
+    }
+
+    function showWikipediaResult(result) {
+      app.classList.add('has-results');
+      results.hidden = false;
+      wikipediaResult.hidden = false;
+
+      resultText.innerHTML = highlightImportant(result.text, result.query);
+      sourceLink.href = result.url;
+
+      tableWrapper.innerHTML = '';
+      tableWrapper.classList.remove('visible');
+      mainResult.classList.remove('with-table');
+
+      if (result.tableHtml) {
+        const container = document.createElement('div');
+        container.className = 'table-container';
+        container.innerHTML = result.tableHtml;
+        container.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
+        tableWrapper.appendChild(container);
+        tableWrapper.classList.add('visible');
+        mainResult.classList.add('with-table');
+      }
+
+      const related = result.related || [];
+      articleList.innerHTML = '';
+
+      related.forEach(item => {
+        const article = document.createElement('article');
+        article.className = 'article-item';
+        article.innerHTML = '<p class="article-item-title"></p><p class="article-item-snippet"></p>';
+
+        article.querySelector('.article-item-title').textContent = item.title;
+        article.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.snippet, result.query);
+
+        article.addEventListener('click', () => {
+          window.open('https://de.wikipedia.org/?curid=' + item.pageid, '_blank', 'noopener');
+        });
+
+        articleList.appendChild(article);
+      });
+
+      relatedArticles.hidden = related.length === 0;
     }
 
     async function searchWikipedia(query) {
@@ -69,7 +727,6 @@
         return null;
       }
 
-      // Load parsed full-page HTML so tables can be extracted reliably.
       const parseUrl = new URL(wikipediaApi);
       parseUrl.search = new URLSearchParams({
         action: 'parse',
@@ -85,18 +742,12 @@
         if (parseResponse.ok) {
           const parseData = await parseResponse.json();
           const html = parseData?.parse?.text?.['*'];
-
           if (html) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-
-            const selectedTable =
-              doc.querySelector('table.wikitable') ||
-              doc.querySelector('table.infobox') ||
-              doc.querySelector('table');
-
-            if (selectedTable) {
-              tableHtml = selectedTable.outerHTML;
+            const table = doc.querySelector('table.wikitable') || doc.querySelector('table.infobox') || doc.querySelector('table');
+            if (table) {
+              tableHtml = table.outerHTML;
             }
           }
         }
@@ -119,178 +770,22 @@
       };
     }
 
-    function tokenize(expression) {
-      const tokens = [];
-      let index = 0;
-
-      while (index < expression.length) {
-        const char = expression[index];
-
-        if (/\s/.test(char)) {
-          index += 1;
-          continue;
-        }
-
-        if (/[0-9.]/.test(char)) {
-          let number = char;
-          index += 1;
-          while (index < expression.length && /[0-9.]/.test(expression[index])) {
-            number += expression[index];
-            index += 1;
-          }
-
-          if ((number.match(/\./g) || []).length > 1 || number === '.') {
-            throw new Error('Ungueltige Zahl.');
-          }
-
-          tokens.push({ type: 'number', value: parseFloat(number) });
-          continue;
-        }
-
-        if ('+-*/()'.includes(char)) {
-          tokens.push({ type: 'operator', value: char });
-          index += 1;
-          continue;
-        }
-
-        throw new Error('Ungueltiges Zeichen: ' + char);
-      }
-
-      return tokens;
-    }
-
-    function precedence(operator) {
-      if (operator === 'u-') return 3;
-      if (operator === '*' || operator === '/') return 2;
-      if (operator === '+' || operator === '-') return 1;
-      return 0;
-    }
-
-    function toRpn(tokens) {
-      const output = [];
-      const stack = [];
-      let previousToken = null;
-
-      for (const token of tokens) {
-        if (token.type === 'number') {
-          output.push(token);
-          previousToken = token;
-          continue;
-        }
-
-        if (token.value === '(') {
-          stack.push(token);
-          previousToken = token;
-          continue;
-        }
-
-        if (token.value === ')') {
-          while (stack.length && stack[stack.length - 1].value !== '(') {
-            output.push(stack.pop());
-          }
-          if (!stack.length) {
-            throw new Error('Klammern stimmen nicht.');
-          }
-          stack.pop();
-          previousToken = token;
-          continue;
-        }
-
-        let operator = token.value;
-        if (operator === '-' && (!previousToken || (previousToken.type === 'operator' && previousToken.value !== ')'))) {
-          operator = 'u-';
-        }
-
-        while (stack.length) {
-          const top = stack[stack.length - 1];
-          if (top.value === '(') break;
-
-          const topPrecedence = precedence(top.value);
-          const currentPrecedence = precedence(operator);
-          const shouldPop = operator === 'u-' ? topPrecedence > currentPrecedence : topPrecedence >= currentPrecedence;
-          if (!shouldPop) break;
-
-          output.push(stack.pop());
-        }
-
-        stack.push({ type: 'operator', value: operator });
-        previousToken = { type: 'operator', value: operator };
-      }
-
-      while (stack.length) {
-        const token = stack.pop();
-        if (token.value === '(' || token.value === ')') {
-          throw new Error('Klammern stimmen nicht.');
-        }
-        output.push(token);
-      }
-
-      return output;
-    }
-
-    function evaluateRpn(tokens) {
-      const stack = [];
-
-      for (const token of tokens) {
-        if (token.type === 'number') {
-          stack.push(token.value);
-          continue;
-        }
-
-        if (token.value === 'u-') {
-          if (!stack.length) throw new Error('Ungueltiger Ausdruck.');
-          stack.push(-stack.pop());
-          continue;
-        }
-
-        const right = stack.pop();
-        const left = stack.pop();
-        if (typeof left !== 'number' || typeof right !== 'number') {
-          throw new Error('Ungueltiger Ausdruck.');
-        }
-
-        switch (token.value) {
-          case '+':
-            stack.push(left + right);
-            break;
-          case '-':
-            stack.push(left - right);
-            break;
-          case '*':
-            stack.push(left * right);
-            break;
-          case '/':
-            if (right === 0) throw new Error('Division durch 0 ist nicht erlaubt.');
-            stack.push(left / right);
-            break;
-          default:
-            throw new Error('Unbekannter Operator.');
-        }
-      }
-
-      if (stack.length !== 1) {
-        throw new Error('Ungueltiger Ausdruck.');
-      }
-
-      return stack[0];
-    }
-
     async function handleSearch() {
       const query = searchInput.value.trim();
       if (!query) {
         setSearchState('Bitte gib einen Suchbegriff ein.', false, true);
         clearResults();
+        hideSuggestions();
         return;
       }
 
-      setSearchState('');
+      setSearchState('Wikipedia wird durchsucht ...', true);
       searchButton.disabled = true;
       searchInput.disabled = true;
+      hideSuggestions();
 
       try {
-        setSearchState('Wikipedia wird durchsucht ...', true);
         const result = await searchWikipedia(query);
-
         if (!result) {
           setSearchState('Keine passenden Ergebnisse gefunden.', false, true);
           clearResults();
@@ -315,27 +810,37 @@
       if (event.key === 'Enter') {
         handleSearch();
       }
+
+      if (event.key === 'Escape') {
+        hideSuggestions();
+      }
     });
 
     searchInput.addEventListener('input', () => {
       if (autocompleteDebounce) {
         clearTimeout(autocompleteDebounce);
       }
+
       autocompleteDebounce = setTimeout(() => {
         updateAutocomplete(searchInput.value);
       }, 180);
-    });
-
-    searchInput.addEventListener('blur', () => {
-      window.setTimeout(hideSuggestions, 120);
     });
 
     searchInput.addEventListener('focus', () => {
       updateAutocomplete(searchInput.value);
     });
 
-    setSuggestions(localSuggestions);
+    searchInput.addEventListener('blur', () => {
+      window.setTimeout(hideSuggestions, 120);
+    });
 
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.search-box')) {
+        hideSuggestions();
+      }
+    });
+
+    setSuggestions(localSuggestions);
     searchInput.focus();
   </script>
 </body>
