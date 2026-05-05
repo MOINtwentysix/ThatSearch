@@ -1590,7 +1590,6 @@
             window.Clerk.mountUserButton(wrapper, {
               afterSignOutUrl: window.location.origin,
               showName: false,
-              userProfileMode: 'modal',
               customMenuItems: [
                 { label: 'Quellen verwalten', onClick: openSourceSettings }
               ]
@@ -1611,7 +1610,20 @@
       }
 
       function onClerkReady() {
-        window.Clerk.load().then(() => {
+        // Intercept Clerk navigation: open UserProfile as a modal instead of
+        // navigating away (this SPA has no /user-profile route).
+        const handleClerkNav = (to) => {
+          if (typeof to === 'string' && to.includes('user-profile')) {
+            window.Clerk.openUserProfile?.();
+          } else if (typeof to === 'string' && to) {
+            window.location.href = to;
+          }
+        };
+
+        window.Clerk.load({
+          routerPush: handleClerkNav,
+          routerReplace: handleClerkNav,
+        }).then(() => {
           // Initial render
           renderAuthAreas(window.Clerk.user);
 
