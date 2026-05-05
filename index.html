@@ -173,8 +173,12 @@
       align-items: center;
       padding: 0 14px 0 18px;
       color: #000000;
+    }
+
+    .search-icon svg {
       width: 18px;
       height: 18px;
+      flex-shrink: 0;
     }
 
     #searchInput,
@@ -711,8 +715,7 @@
     const relatedArticles  = document.getElementById('relatedArticles');
     const articleList      = document.getElementById('articleList');
     const headerLogo       = document.getElementById('headerLogo');
-    const searchButtonAlt  = document.getElementById('searchButtonAlt');
-    const wikiButton       = document.getElementById('wikiButton');
+
 
     // Hero bar
     const searchInput       = document.getElementById('searchInput');
@@ -825,7 +828,7 @@
         option.addEventListener('click', () => {
           inputEl.value = item;
           hideSuggestions();
-          inputEl.focus();
+          handleSearch(inputEl);
         });
         suggestEl.appendChild(option);
       });
@@ -1033,7 +1036,6 @@
 
     // ── Wire up hero bar ─────────────────────────────────────
     searchButton.addEventListener('click', () => handleSearch(searchInput));
-    searchButtonAlt.addEventListener('click', () => handleSearch(searchInput));
     searchInput.addEventListener('keydown', event => {
       if (event.key === 'Enter') handleSearch(searchInput);
       if (event.key === 'Escape') hideSuggestions();
@@ -1066,10 +1068,6 @@
       searchInput.focus();
     }
     headerLogo.addEventListener('click', goHome);
-
-    wikiButton.addEventListener('click', () => {
-      window.open('https://de.wikipedia.org', '_blank', 'noopener');
-    });
 
     // ── Close suggestions on outside click ───────────────────
     document.addEventListener('click', event => {
