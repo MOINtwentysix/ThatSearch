@@ -638,6 +638,25 @@
       max-width: 440px;
     }
 
+    /* ── Header UserButton ─────────────────────────────────── */
+    .header-user-button {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* ── Hero UserButton (fixed top-right on home view) ──────── */
+    .hero-user-button {
+      position: fixed;
+      top: 1.1rem;
+      right: 1.5rem;
+      z-index: 50;
+    }
+
+    /* Hide the hero UserButton when the results header is shown */
+    .app.has-results .hero-user-button {
+      display: none;
+    }
+
     /* ── Sign-out button ──────────────────────────────────── */
     .signout-btn {
       margin-left: auto;
@@ -716,11 +735,14 @@
         <div class="suggestions" id="headerSuggestions" role="listbox" aria-label="Vorschläge"></div>
         <div class="status" id="headerStatus" aria-live="polite"></div>
       </div>
-      <button class="signout-btn" id="signOutBtn" type="button">Abmelden</button>
+      <div id="header-user-button" class="header-user-button"></div>
     </header>
 
     <!-- Hero / Homepage -->
     <section class="hero" id="hero">
+      <!-- UserButton top-right on home view -->
+      <div id="hero-user-button" class="hero-user-button"></div>
+
       <div class="hero-logo" aria-label="ThatSearch for Students">
         <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span>
         <span class="logo-sub">for Students</span>
@@ -1156,16 +1178,22 @@
     (function initClerkGate() {
       const authGate   = document.getElementById('auth-gate');
       const appEl      = document.getElementById('app');
-      const signOutBtn = document.getElementById('signOutBtn');
       let signInMounted = false;
+      let userButtonMounted = false;
 
       function updateUI(user) {
         if (user) {
           authGate.hidden = true;
           appEl.style.display = '';
+          if (!userButtonMounted) {
+            window.Clerk.mountUserButton(document.getElementById('header-user-button'));
+            window.Clerk.mountUserButton(document.getElementById('hero-user-button'));
+            userButtonMounted = true;
+          }
         } else {
           authGate.hidden = false;
           appEl.style.display = 'none';
+          userButtonMounted = false;
           if (!signInMounted) {
             window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
             signInMounted = true;
@@ -1177,13 +1205,8 @@
         window.Clerk.load().then(function () {
           updateUI(window.Clerk.user);
 
-          // 'clerk-loaded' and subsequent state changes are signalled via Clerk's listener API
           window.Clerk.addListener(function (resources) {
             updateUI(resources.user);
-          });
-
-          signOutBtn.addEventListener('click', function () {
-            window.Clerk.signOut();
           });
         });
       }
