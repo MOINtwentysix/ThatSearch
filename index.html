@@ -31,18 +31,11 @@
       --shadow-lg: 0 8px 32px rgba(60, 30, 100, 0.10);
       --radius-pill: 9999px;
       --radius-card: 12px;
-      --logo-1: #7c3aed;
-      --logo-2: #ec4899;
-      --logo-3: #f97316;
-      --logo-4: #0d9488;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html,
-    body {
+    html, body {
       margin: 0;
       height: 100%;
       color: var(--text);
@@ -89,10 +82,6 @@
       font-family: inherit;
     }
 
-    .header-logo .l-t, .header-logo .l-h, .header-logo .l-a1, .header-logo .l-t2,
-    .header-logo .l-S, .header-logo .l-e, .header-logo .l-a2, .header-logo .l-r,
-    .header-logo .l-c, .header-logo .l-h2 { color: #000000; }
-
     .header-logo .logo-sub {
       font-size: 0.6em;
       font-weight: 500;
@@ -108,7 +97,39 @@
       position: relative;
     }
 
-    /* ── Hero (homepage) ──────────────────────────────────── */
+    /* ── Sign-in button (shown when not logged in) ─────────── */
+    .sign-in-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 7px 16px 7px 10px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .sign-in-btn:hover {
+      background: var(--surface-hover);
+      border-color: #c4b8ec;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sign-in-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
     .hero {
       display: flex;
       flex-direction: column;
@@ -119,9 +140,7 @@
       flex: 1;
     }
 
-    .app.has-results .hero {
-      display: none;
-    }
+    .app.has-results .hero { display: none; }
 
     .hero-logo {
       font-size: clamp(2.6rem, 8vw, 5rem);
@@ -131,10 +150,6 @@
       margin-bottom: 10px;
       user-select: none;
     }
-
-    .hero-logo .l-t, .hero-logo .l-h, .hero-logo .l-a1, .hero-logo .l-t2,
-    .hero-logo .l-S, .hero-logo .l-e, .hero-logo .l-a2, .hero-logo .l-r,
-    .hero-logo .l-c, .hero-logo .l-h2 { color: #000000; }
 
     .hero-logo .logo-sub {
       display: block;
@@ -156,7 +171,27 @@
       position: relative;
     }
 
-    /* ── Shared search bar styles ─────────────────────────── */
+    /* ── Auth button area (fixed top-right on hero) ─────────── */
+    .hero-auth-area {
+      position: fixed;
+      top: 1.1rem;
+      right: 1.5rem;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+    }
+
+    .app.has-results .hero-auth-area { display: none; }
+
+    /* Header auth area */
+    .header-auth-area {
+      margin-left: auto;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── Shared search bar ────────────────────────────────── */
     .search-bar {
       display: flex;
       align-items: center;
@@ -182,14 +217,9 @@
       color: #000000;
     }
 
-    .search-icon svg {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-    }
+    .search-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
 
-    #searchInput,
-    #headerSearchInput {
+    #searchInput, #headerSearchInput {
       flex: 1;
       border: none;
       background: transparent;
@@ -200,41 +230,7 @@
       outline: none;
     }
 
-    #headerSearchInput {
-      padding: 10px 0;
-      font-size: 0.97rem;
-    }
-
-    .search-clear {
-      flex-shrink: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: transparent;
-      border-radius: 50%;
-      cursor: pointer;
-      color: #000000;
-    }
-
-    .search-clear:hover {
-      background: var(--surface-hover);
-    }
-
-    .search-clear svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .search-divider {
-      width: 1px;
-      height: 24px;
-      background: var(--border);
-      flex-shrink: 0;
-      margin: 0 4px;
-    }
+    #headerSearchInput { padding: 10px 0; font-size: 0.97rem; }
 
     .search-submit {
       flex-shrink: 0;
@@ -253,48 +249,11 @@
       transition: background 0.15s ease;
     }
 
-    .search-submit:hover {
-      background: var(--surface-hover);
-    }
+    .search-submit:hover { background: var(--surface-hover); }
+    .search-submit:disabled { opacity: 0.5; cursor: progress; }
+    .search-submit svg { width: 20px; height: 20px; }
 
-    .search-submit:disabled {
-      opacity: 0.5;
-      cursor: progress;
-    }
-
-    .search-submit svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    /* Hero extra button row */
-    .hero-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 24px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .hero-btn {
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 9px 18px;
-      background: var(--surface);
-      color: var(--text);
-      font: inherit;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-    }
-
-    .hero-btn:hover {
-      box-shadow: var(--shadow-sm);
-      border-color: #c4b8ec;
-      background: var(--surface-hover);
-    }
-
-    /* ── Suggestions dropdown ─────────────────────────────── */
+    /* ── Suggestions ─────────────────────────────────────── */
     .suggestions {
       position: absolute;
       left: 0;
@@ -312,9 +271,7 @@
       overflow: hidden;
     }
 
-    .suggestions.visible {
-      display: flex;
-    }
+    .suggestions.visible { display: flex; }
 
     .suggestion-item {
       display: flex;
@@ -342,13 +299,12 @@
       background-size: contain;
     }
 
-    .suggestion-item:hover,
-    .suggestion-item:focus {
+    .suggestion-item:hover, .suggestion-item:focus {
       background: var(--surface-hover);
       outline: none;
     }
 
-    /* ── Status bar ───────────────────────────────────────── */
+    /* ── Status ──────────────────────────────────────────── */
     .status {
       min-height: 20px;
       margin-top: 8px;
@@ -376,7 +332,7 @@
       animation: spin 0.72s linear infinite;
     }
 
-    /* ── Results layout ───────────────────────────────────── */
+    /* ── Results ─────────────────────────────────────────── */
     .results-page {
       max-width: 720px;
       margin: 0 auto;
@@ -392,12 +348,8 @@
       margin-bottom: 16px;
     }
 
-    .results {
-      display: grid;
-      gap: 0;
-    }
+    .results { display: grid; gap: 0; }
 
-    /* Featured snippet card */
     .wikipedia-result {
       border: 1px solid var(--border);
       border-radius: var(--radius-card);
@@ -424,11 +376,7 @@
       color: var(--muted);
     }
 
-    .source-favicon {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-    }
+    .source-favicon { width: 16px; height: 16px; border-radius: 4px; }
 
     .result-text {
       margin: 0 0 12px;
@@ -437,8 +385,7 @@
       color: var(--text);
     }
 
-    .result-text mark,
-    .article-item-snippet mark {
+    .result-text mark, .article-item-snippet mark {
       background: rgba(26, 115, 232, 0.12);
       color: var(--text);
       border-radius: 3px;
@@ -456,11 +403,8 @@
       font-weight: 500;
     }
 
-    .source-link:hover {
-      text-decoration: underline;
-    }
+    .source-link:hover { text-decoration: underline; }
 
-    /* Table card */
     .table-wrapper {
       display: none;
       border: 1px solid var(--border);
@@ -469,14 +413,9 @@
       overflow: hidden;
     }
 
-    .table-wrapper.visible {
-      display: block;
-    }
+    .table-wrapper.visible { display: block; }
 
-    .table-container {
-      max-height: 420px;
-      overflow: auto;
-    }
+    .table-container { max-height: 420px; overflow: auto; }
 
     .table-container table {
       width: 100%;
@@ -484,8 +423,7 @@
       font-size: 0.9rem;
     }
 
-    .table-container th,
-    .table-container td {
+    .table-container th, .table-container td {
       border-bottom: 1px solid var(--border);
       border-right: 1px solid var(--border);
       padding: 9px 12px;
@@ -493,14 +431,8 @@
       vertical-align: top;
     }
 
-    .table-container td:last-child,
-    .table-container th:last-child {
-      border-right: none;
-    }
-
-    .table-container tr:last-child td {
-      border-bottom: none;
-    }
+    .table-container td:last-child, .table-container th:last-child { border-right: none; }
+    .table-container tr:last-child td { border-bottom: none; }
 
     .table-container th {
       background: var(--surface);
@@ -514,15 +446,9 @@
       z-index: 1;
     }
 
-    .table-container tr:hover td {
-      background: var(--surface);
-    }
+    .table-container tr:hover td { background: var(--surface); }
 
-    /* Related articles as search result rows */
-    .related {
-      display: grid;
-      gap: 4px;
-    }
+    .related { display: grid; gap: 4px; }
 
     .related-heading {
       font-size: 0.78rem;
@@ -540,9 +466,7 @@
       transition: background 0.12s ease;
     }
 
-    .article-item:hover {
-      background: var(--surface);
-    }
+    .article-item:hover { background: var(--surface); }
 
     .article-item-source {
       font-size: 0.8rem;
@@ -559,9 +483,7 @@
       display: block;
     }
 
-    .article-item:hover .article-item-title {
-      text-decoration: underline;
-    }
+    .article-item:hover .article-item-title { text-decoration: underline; }
 
     .article-item-snippet {
       margin: 0;
@@ -570,11 +492,7 @@
       line-height: 1.5;
     }
 
-    /* ── Main result layout ───────────────────────────────── */
-    .main-result {
-      display: grid;
-      gap: 0;
-    }
+    .main-result { display: grid; gap: 0; }
 
     .main-result.with-table {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -582,11 +500,8 @@
       gap: 20px;
     }
 
-    [hidden] {
-      display: none !important;
-    }
+    [hidden] { display: none !important; }
 
-    /* ── Footer ───────────────────────────────────────────── */
     .site-footer {
       border-top: 1px solid var(--border);
       background: var(--surface);
@@ -596,111 +511,31 @@
       text-align: center;
     }
 
-    .app.has-results .site-footer {
-      display: none;
-    }
+    .app.has-results .site-footer { display: none; }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* ── Auth Gate ────────────────────────────────────────── */
-    #auth-gate {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    #auth-gate .auth-gate-logo {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 28px;
-      user-select: none;
-    }
-
-    #auth-gate .auth-gate-logo .logo-sub {
-      font-size: 0.55em;
-      font-weight: 500;
-      color: var(--muted);
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-
-    #clerk-sign-in {
-      width: 100%;
-      max-width: 440px;
-    }
-
-    /* ── Header UserButton ─────────────────────────────────── */
-    .header-user-button {
-      margin-left: auto;
-      flex-shrink: 0;
-    }
-
-    /* ── Hero UserButton (fixed top-right on home view) ──────── */
-    .hero-user-button {
-      position: fixed;
-      top: 1.1rem;
-      right: 1.5rem;
-      z-index: 50;
-    }
-
-    /* Hide the hero UserButton when the results header is shown */
-    .app.has-results .hero-user-button {
-      display: none;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 900px) {
-      .main-result.with-table {
-        grid-template-columns: 1fr;
-      }
+      .main-result.with-table { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
-      .site-header {
-        padding: 8px 14px;
-        gap: 12px;
-      }
-
-      .results-page {
-        padding: 16px 14px 48px;
-      }
-
-      .hero {
-        padding-top: clamp(40px, 10vh, 80px);
-      }
-
-      #searchInput,
-      #headerSearchInput {
-        font-size: 0.94rem;
-      }
+      .site-header { padding: 8px 14px; gap: 12px; }
+      .results-page { padding: 16px 14px 48px; }
+      .hero { padding-top: clamp(40px, 10vh, 80px); }
+      #searchInput, #headerSearchInput { font-size: 0.94rem; }
+      .sign-in-btn span { display: none; }
+      .sign-in-btn { padding: 7px 10px; }
     }
   </style>
 </head>
 <body>
-  <!-- Auth gate – visible until Clerk confirms the user is signed in -->
-  <div id="auth-gate">
-    <div class="auth-gate-logo">
-      <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span
-        class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span
-        class="l-c">c</span><span class="l-h2">h</span><span class="logo-sub">for Students</span>
-    </div>
-    <div id="clerk-sign-in"></div>
-  </div>
-
-  <div class="app" id="app" style="display:none">
+  <div class="app" id="app">
 
     <!-- Sticky header (shown after search) -->
     <header class="site-header" id="siteHeader">
       <button class="header-logo" id="headerLogo" type="button" aria-label="Zurück zur Startseite">
-        <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span><span class="logo-sub">for Students</span>
+        <span>ThatSearch</span><span class="logo-sub">for Students</span>
       </button>
       <div class="header-search-box" id="headerSearchBox">
         <div class="search-bar">
@@ -715,18 +550,22 @@
         <div class="suggestions" id="headerSuggestions" role="listbox" aria-label="Vorschläge"></div>
         <div class="status" id="headerStatus" aria-live="polite"></div>
       </div>
-      <div id="header-user-button" class="header-user-button"></div>
+      <!-- Auth area in header -->
+      <div class="header-auth-area" id="headerAuthArea"></div>
     </header>
 
     <!-- Hero / Homepage -->
     <section class="hero" id="hero">
-      <!-- UserButton top-right on home view -->
-      <div id="hero-user-button" class="hero-user-button"></div>
+
+      <!-- Auth area fixed top-right on hero -->
+      <div class="hero-auth-area" id="heroAuthArea"></div>
 
       <div class="hero-logo" aria-label="ThatSearch for Students">
-        <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span>
+        <span>ThatSearch</span>
         <span class="logo-sub">for Students</span>
       </div>
+
+      <p class="hero-tagline">Deine Suchmaschine für die Schule – powered by Wikipedia</p>
 
       <div class="hero-search-box" id="heroSearchBox">
         <div class="search-bar">
@@ -741,7 +580,7 @@
         <div class="suggestions" id="searchSuggestions" role="listbox" aria-label="Vorschläge"></div>
         <div class="status" id="searchStatus" aria-live="polite"></div>
       </div>
-      
+
     </section>
 
     <!-- Results -->
@@ -778,19 +617,20 @@
 
   <script>
     // ── DOM refs ────────────────────────────────────────────
-    const app              = document.getElementById('app');
-    const resultsPage      = document.getElementById('resultsPage');
-    const resultsCount     = document.getElementById('resultsCount');
-    const results          = document.getElementById('results');
-    const mainResult       = document.getElementById('mainResult');
-    const wikipediaResult  = document.getElementById('wikipediaResult');
-    const resultText       = document.getElementById('resultText');
-    const sourceLink       = document.getElementById('sourceLink');
-    const tableWrapper     = document.getElementById('tableWrapper');
-    const relatedArticles  = document.getElementById('relatedArticles');
-    const articleList      = document.getElementById('articleList');
-    const headerLogo       = document.getElementById('headerLogo');
-
+    const app             = document.getElementById('app');
+    const resultsPage     = document.getElementById('resultsPage');
+    const resultsCount    = document.getElementById('resultsCount');
+    const results         = document.getElementById('results');
+    const mainResult      = document.getElementById('mainResult');
+    const wikipediaResult = document.getElementById('wikipediaResult');
+    const resultText      = document.getElementById('resultText');
+    const sourceLink      = document.getElementById('sourceLink');
+    const tableWrapper    = document.getElementById('tableWrapper');
+    const relatedArticles = document.getElementById('relatedArticles');
+    const articleList     = document.getElementById('articleList');
+    const headerLogo      = document.getElementById('headerLogo');
+    const heroAuthArea    = document.getElementById('heroAuthArea');
+    const headerAuthArea  = document.getElementById('headerAuthArea');
 
     // Hero bar
     const searchInput       = document.getElementById('searchInput');
@@ -816,10 +656,7 @@
 
     // ── Helpers ─────────────────────────────────────────────
     function sanitizeText(text) {
-      return text
-        .replace(/\s+/g, ' ')
-        .replace(/\(\s*[^)]*\s*\)/g, match => match.replace(/\s+/g, ' '))
-        .trim();
+      return text.replace(/\s+/g, ' ').replace(/\(\s*[^)]*\s*\)/g, m => m.replace(/\s+/g, ' ')).trim();
     }
 
     function shortenSummary(text, sentenceCount = 3) {
@@ -834,12 +671,7 @@
     }
 
     function escapeHtml(value) {
-      return value
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+      return value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
 
     function escapeRegExp(value) {
@@ -848,15 +680,14 @@
 
     function highlightImportant(text, query) {
       const safeText = escapeHtml(text || '');
-      const tokens = (query || '')
-        .toLowerCase().split(/\s+/).map(t => t.trim()).filter(t => t.length >= 3);
+      const tokens = (query || '').toLowerCase().split(/\s+/).map(t => t.trim()).filter(t => t.length >= 3);
       if (tokens.length === 0) return safeText;
       const uniqueTokens = [...new Set(tokens)].map(escapeRegExp);
       const regex = new RegExp('(' + uniqueTokens.join('|') + ')', 'gi');
       return safeText.replace(regex, '<mark>$1</mark>');
     }
 
-    // ── Active search bar (hero vs header) ──────────────────
+    // ── Active search bar ────────────────────────────────────
     function activeInput()       { return app.classList.contains('has-results') ? headerSearchInput  : searchInput; }
     function activeStatus()      { return app.classList.contains('has-results') ? headerStatus       : searchStatus; }
     function activeSuggestions() { return app.classList.contains('has-results') ? headerSuggestions  : searchSuggestions; }
@@ -955,11 +786,8 @@
       results.hidden = false;
       wikipediaResult.hidden = false;
 
-      // Sync header input with what was searched
       headerSearchInput.value = result.query;
-
       resultsCount.textContent = 'Wikipedia-Ergebnisse für „' + result.query + '"';
-
       resultText.innerHTML = highlightImportant(result.text, result.query);
       sourceLink.href = result.url;
 
@@ -979,7 +807,6 @@
 
       const related = result.related || [];
       articleList.innerHTML = '';
-
       related.forEach(item => {
         const article = document.createElement('article');
         article.className = 'article-item';
@@ -987,10 +814,8 @@
           '<p class="article-item-source">de.wikipedia.org</p>' +
           '<p class="article-item-title"></p>' +
           '<p class="article-item-snippet"></p>';
-
         article.querySelector('.article-item-title').textContent = item.title;
         article.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.snippet, result.query);
-
         article.addEventListener('click', () => {
           window.open('https://de.wikipedia.org/?curid=' + item.pageid, '_blank', 'noopener');
         });
@@ -1027,7 +852,6 @@
 
       const detailResponse = await fetch(detailUrl.toString());
       if (!detailResponse.ok) throw new Error('Wikipedia-Details fehlgeschlagen.');
-
       const detailData = await detailResponse.json();
       const page = detailData?.query?.pages?.[firstMatch.pageid];
       if (!page?.extract) return null;
@@ -1111,9 +935,9 @@
 
     // ── Wire up hero bar ─────────────────────────────────────
     searchButton.addEventListener('click', () => handleSearch(searchInput));
-    searchInput.addEventListener('keydown', event => {
-      if (event.key === 'Enter') handleSearch(searchInput);
-      if (event.key === 'Escape') hideSuggestions();
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleSearch(searchInput);
+      if (e.key === 'Escape') hideSuggestions();
     });
     searchInput.addEventListener('input', () => {
       clearTimeout(autocompleteDebounce);
@@ -1124,9 +948,9 @@
 
     // ── Wire up header bar ───────────────────────────────────
     headerSearchButton.addEventListener('click', () => handleSearch(headerSearchInput));
-    headerSearchInput.addEventListener('keydown', event => {
-      if (event.key === 'Enter') handleSearch(headerSearchInput);
-      if (event.key === 'Escape') hideSuggestions();
+    headerSearchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleSearch(headerSearchInput);
+      if (e.key === 'Escape') hideSuggestions();
     });
     headerSearchInput.addEventListener('input', () => {
       clearTimeout(autocompleteDebounce);
@@ -1136,7 +960,8 @@
     headerSearchInput.addEventListener('blur', () => window.setTimeout(hideSuggestions, BLUR_DELAY_MS));
 
     // ── Logo click → back to home ────────────────────────────
-    function goHome() {      clearResults();
+    function goHome() {
+      clearResults();
       searchInput.value = '';
       headerSearchInput.value = '';
       hideSuggestions();
@@ -1155,43 +980,47 @@
     setSuggestions(localSuggestions);
     searchInput.focus();
 
-    // ── Clerk Auth Gate ───────────────────────────────────────
-    (function initClerkGate() {
-      const authGate   = document.getElementById('auth-gate');
-      const appEl      = document.getElementById('app');
-      let signInMounted = false;
-      let userButtonMounted = false;
+    // ── Clerk: optional auth ─────────────────────────────────
+    (function initClerk() {
+      // Sign-in button SVG (person icon)
+      const PERSON_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`;
 
-      function updateUI(user) {
-        if (user) {
-          authGate.hidden = true;
-          appEl.style.display = '';
-          if (!userButtonMounted) {
-            const ubOptions = {
+      // Render the correct UI into both auth areas based on login state
+      function renderAuthAreas(user) {
+        [heroAuthArea, headerAuthArea].forEach((area, i) => {
+          area.innerHTML = '';
+
+          if (user) {
+            // Mount Clerk's UserButton into a wrapper div
+            const wrapper = document.createElement('div');
+            area.appendChild(wrapper);
+            window.Clerk.mountUserButton(wrapper, {
               afterSignOutUrl: window.location.origin,
               showName: false
-            };
-            window.Clerk.mountUserButton(document.getElementById('header-user-button'), ubOptions);
-            window.Clerk.mountUserButton(document.getElementById('hero-user-button'), ubOptions);
-            userButtonMounted = true;
+            });
+          } else {
+            // Show a "Anmelden" button that opens Clerk's sign-in modal
+            const btn = document.createElement('button');
+            btn.className = 'sign-in-btn';
+            btn.type = 'button';
+            btn.setAttribute('aria-label', 'Anmelden');
+            btn.innerHTML = PERSON_ICON + '<span>Anmelden</span>';
+            btn.addEventListener('click', () => {
+              window.Clerk.openSignIn({});
+            });
+            area.appendChild(btn);
           }
-        } else {
-          authGate.hidden = false;
-          appEl.style.display = 'none';
-          userButtonMounted = false;
-          if (!signInMounted) {
-            window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
-            signInMounted = true;
-          }
-        }
+        });
       }
 
       function onClerkReady() {
-        window.Clerk.load().then(function () {
-          updateUI(window.Clerk.user);
+        window.Clerk.load().then(() => {
+          // Initial render
+          renderAuthAreas(window.Clerk.user);
 
-          window.Clerk.addListener(function (resources) {
-            updateUI(resources.user);
+          // Listen for auth state changes (sign in / sign out)
+          window.Clerk.addListener(({ user }) => {
+            renderAuthAreas(user);
           });
         });
       }
@@ -1199,11 +1028,8 @@
       if (window.Clerk) {
         onClerkReady();
       } else {
-        // The Clerk script is loaded async; wait for its native load event
-        var clerkScript = document.querySelector('script[data-clerk-publishable-key]');
-        if (clerkScript) {
-          clerkScript.addEventListener('load', onClerkReady);
-        }
+        const clerkScript = document.querySelector('script[data-clerk-publishable-key]');
+        if (clerkScript) clerkScript.addEventListener('load', onClerkReady);
       }
     }());
   </script>
