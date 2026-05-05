@@ -14,8 +14,8 @@
       --surface-hover: #ede9fe;
       --border: #e0d9f7;
       --border-focus: #7c3aed;
-      --text: #1e1b2e;
-      --muted: #6b6880;
+      --text: #000000;
+      --muted: #000000;
       --primary: #7c3aed;
       --primary-hover: #6d28d9;
       --error: #e11d48;
@@ -76,16 +76,18 @@
       font-family: inherit;
     }
 
-    .header-logo .l-t  { color: var(--logo-1); }
-    .header-logo .l-h  { color: var(--logo-2); }
-    .header-logo .l-a1 { color: var(--logo-3); }
-    .header-logo .l-t2 { color: var(--logo-4); }
-    .header-logo .l-S  { color: var(--logo-1); }
-    .header-logo .l-e  { color: var(--logo-2); }
-    .header-logo .l-a2 { color: var(--logo-3); }
-    .header-logo .l-r  { color: var(--logo-4); }
-    .header-logo .l-c  { color: var(--logo-1); }
-    .header-logo .l-h2 { color: var(--logo-2); }
+    .header-logo .l-t, .header-logo .l-h, .header-logo .l-a1, .header-logo .l-t2,
+    .header-logo .l-S, .header-logo .l-e, .header-logo .l-a2, .header-logo .l-r,
+    .header-logo .l-c, .header-logo .l-h2 { color: #000000; }
+
+    .header-logo .logo-sub {
+      font-size: 0.6em;
+      font-weight: 500;
+      letter-spacing: 0;
+      color: #000000;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
 
     .header-search-box {
       flex: 1;
@@ -116,16 +118,18 @@
       user-select: none;
     }
 
-    .hero-logo .l-t  { color: var(--logo-1); }
-    .hero-logo .l-h  { color: var(--logo-2); }
-    .hero-logo .l-a1 { color: var(--logo-3); }
-    .hero-logo .l-t2 { color: var(--logo-4); }
-    .hero-logo .l-S  { color: var(--logo-1); }
-    .hero-logo .l-e  { color: var(--logo-2); }
-    .hero-logo .l-a2 { color: var(--logo-3); }
-    .hero-logo .l-r  { color: var(--logo-4); }
-    .hero-logo .l-c  { color: var(--logo-1); }
-    .hero-logo .l-h2 { color: var(--logo-2); }
+    .hero-logo .l-t, .hero-logo .l-h, .hero-logo .l-a1, .hero-logo .l-t2,
+    .hero-logo .l-S, .hero-logo .l-e, .hero-logo .l-a2, .hero-logo .l-r,
+    .hero-logo .l-c, .hero-logo .l-h2 { color: #000000; }
+
+    .hero-logo .logo-sub {
+      display: block;
+      font-size: clamp(0.9rem, 2vw, 1.4rem);
+      font-weight: 500;
+      letter-spacing: 0;
+      color: #000000;
+      margin-top: 2px;
+    }
 
     .hero-tagline {
       margin: 0 0 28px;
@@ -161,7 +165,7 @@
       display: flex;
       align-items: center;
       padding: 0 14px 0 18px;
-      color: #a89ec8;
+      color: #000000;
       width: 18px;
       height: 18px;
     }
@@ -194,7 +198,7 @@
       background: transparent;
       border-radius: 50%;
       cursor: pointer;
-      color: #a89ec8;
+      color: #000000;
     }
 
     .search-clear:hover {
@@ -315,7 +319,7 @@
       width: 18px;
       height: 18px;
       flex-shrink: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a89ec8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-size: contain;
     }
@@ -612,7 +616,7 @@
     <!-- Sticky header (shown after search) -->
     <header class="site-header" id="siteHeader">
       <button class="header-logo" id="headerLogo" type="button" aria-label="Zurück zur Startseite">
-        <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span>
+        <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span><span class="logo-sub">for Students</span>
       </button>
       <div class="header-search-box" id="headerSearchBox">
         <div class="search-bar">
@@ -631,8 +635,9 @@
 
     <!-- Hero / Homepage -->
     <section class="hero" id="hero">
-      <div class="hero-logo" aria-label="ThatSearch">
+      <div class="hero-logo" aria-label="ThatSearch for Students">
         <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span class="l-c">c</span><span class="l-h2">h</span>
+        <span class="logo-sub">for Students</span>
       </div>
       <p class="hero-tagline">Wikipedia-Suche für Schüler · Kurzantworten · Autovervollständigung</p>
 
@@ -651,7 +656,7 @@
       </div>
 
       <div class="hero-buttons">
-        <button class="hero-btn" id="searchButtonAlt" type="button">ThatSearch Suche</button>
+        <button class="hero-btn" id="searchButtonAlt" type="button">ThatSearch for Students – Suche</button>
         <button class="hero-btn" id="wikiButton" type="button">Zu Wikipedia</button>
       </div>
     </section>
