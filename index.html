@@ -527,6 +527,92 @@
       .sign-in-btn span { display: none; }
       .sign-in-btn { padding: 7px 10px; }
     }
+
+    /* ── Additional source sections ───────────────────── */
+    .source-items { display: grid; gap: 8px; margin-top: 8px; }
+
+    .source-item {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+    }
+
+    a.source-item-title {
+      display: block;
+      margin: 0 0 4px;
+      font-weight: 500;
+      font-size: 0.97rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a.source-item-title:hover { text-decoration: underline; }
+
+    .source-item-meta {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .source-item-desc {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .nasa-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .nasa-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+    }
+
+    .nasa-item img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .nasa-item-caption {
+      font-size: 0.8rem;
+      padding: 6px 8px;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    .country-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 10px 0;
+    }
+
+    .country-card + .country-card { border-top: 1px solid var(--border); }
+
+    .country-flag-img {
+      width: 60px;
+      height: auto;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .country-info { margin: 0; }
+    .country-info dt { font-size: 0.78rem; color: var(--muted); margin: 4px 0 1px; }
+    .country-info dd { margin: 0; font-size: 0.92rem; }
   </style>
 </head>
 <body>
@@ -565,7 +651,7 @@
         <span class="logo-sub">for Students</span>
       </div>
 
-      <p class="hero-tagline">Deine Suchmaschine für die Schule – powered by Wikipedia</p>
+      <p class="hero-tagline">Deine Suchmaschine für die Schule – powered by Wikipedia, Wikidata, Open Library &amp; mehr</p>
 
       <div class="hero-search-box" id="heroSearchBox">
         <div class="search-bar">
@@ -606,11 +692,20 @@
           <p class="related-heading">Weitere Ergebnisse</p>
           <div id="articleList"></div>
         </section>
+
+        <!-- Additional source sections -->
+        <section id="wiktionarySection" hidden></section>
+        <section id="wikidataSection" hidden></section>
+        <section id="duckduckgoSection" hidden></section>
+        <section id="openLibrarySection" hidden></section>
+        <section id="restCountriesSection" hidden></section>
+        <section id="nasaSection" hidden></section>
+        <section id="crossrefSection" hidden></section>
       </section>
     </main>
 
     <footer class="site-footer">
-      ThatSearch for Students &mdash; Powered by Wikipedia &mdash;
+      ThatSearch for Students &mdash; Powered by Wikipedia, Wiktionary, Wikidata, DuckDuckGo, Open Library, REST Countries, NASA &amp; Crossref &mdash;
       <a href="/daten" style="color:inherit;text-decoration:underline;">Datenschutz</a>
     </footer>
   </div>
@@ -631,6 +726,19 @@
     const headerLogo      = document.getElementById('headerLogo');
     const heroAuthArea    = document.getElementById('heroAuthArea');
     const headerAuthArea  = document.getElementById('headerAuthArea');
+
+    // Additional source sections
+    const wiktionarySection    = document.getElementById('wiktionarySection');
+    const wikidataSection      = document.getElementById('wikidataSection');
+    const duckduckgoSection    = document.getElementById('duckduckgoSection');
+    const openLibrarySection   = document.getElementById('openLibrarySection');
+    const restCountriesSection = document.getElementById('restCountriesSection');
+    const nasaSection          = document.getElementById('nasaSection');
+    const crossrefSection      = document.getElementById('crossrefSection');
+    const extraSections = [
+      wiktionarySection, wikidataSection, duckduckgoSection,
+      openLibrarySection, restCountriesSection, nasaSection, crossrefSection
+    ];
 
     // Hero bar
     const searchInput       = document.getElementById('searchInput');
@@ -778,6 +886,7 @@
       tableWrapper.classList.remove('visible');
       mainResult.classList.remove('with-table');
       app.classList.remove('has-results');
+      extraSections.forEach(s => { s.hidden = true; s.innerHTML = ''; });
     }
 
     function showWikipediaResult(result) {
@@ -787,7 +896,6 @@
       wikipediaResult.hidden = false;
 
       headerSearchInput.value = result.query;
-      resultsCount.textContent = 'Wikipedia-Ergebnisse für „' + result.query + '"';
       resultText.innerHTML = highlightImportant(result.text, result.query);
       sourceLink.href = result.url;
 
@@ -823,7 +931,6 @@
       });
 
       relatedArticles.hidden = related.length === 0;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ── Wikipedia API ────────────────────────────────────────
@@ -894,6 +1001,274 @@
       };
     }
 
+    // ── Generic source section renderer ─────────────────────
+    function renderSourceSection(sectionEl, titleText, faviconSrc, domain, contentHtml) {
+      sectionEl.innerHTML =
+        '<div class="wikipedia-result">' +
+          '<h2>' + escapeHtml(titleText) + '</h2>' +
+          '<div class="source-domain">' +
+            '<img class="source-favicon" src="' + escapeHtml(faviconSrc) + '" alt="" aria-hidden="true" />' +
+            '<span>' + escapeHtml(domain) + '</span>' +
+          '</div>' +
+          contentHtml +
+        '</div>';
+      sectionEl.hidden = false;
+    }
+
+    // ── Wiktionary API ───────────────────────────────────────
+    async function searchWiktionary(query) {
+      const searchUrl = new URL('https://de.wiktionary.org/w/api.php');
+      searchUrl.search = new URLSearchParams({
+        action: 'query', list: 'search', srsearch: query,
+        srlimit: '3', format: 'json', origin: '*'
+      }).toString();
+      const resp = await fetch(searchUrl.toString());
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      const hits = data?.query?.search || [];
+      if (!hits.length) return null;
+
+      const first = hits[0];
+      const extractUrl = new URL('https://de.wiktionary.org/w/api.php');
+      extractUrl.search = new URLSearchParams({
+        action: 'query', prop: 'extracts|info', pageids: String(first.pageid),
+        exintro: '1', explaintext: '1', inprop: 'url', format: 'json', origin: '*'
+      }).toString();
+      const extractResp = await fetch(extractUrl.toString());
+      if (!extractResp.ok) return { hits };
+      const extractData = await extractResp.json();
+      const page = extractData?.query?.pages?.[first.pageid];
+      return {
+        hits,
+        extract: page?.extract || '',
+        url: page?.fullurl || 'https://de.wiktionary.org/?curid=' + first.pageid,
+        title: first.title
+      };
+    }
+
+    function renderWiktionary(data, query) {
+      let html = '';
+      if (data.extract) {
+        html += '<p class="result-text">' + highlightImportant(shortenSummary(data.extract, 4), query) + '</p>' +
+          '<a class="source-link" href="' + escapeHtml(data.url) + '" target="_blank" rel="noopener noreferrer">Eintrag auf Wiktionary lesen ↗</a>';
+      } else {
+        html = '<div class="source-items">' +
+          data.hits.map(h =>
+            '<div class="source-item"><p class="source-item-title">' + escapeHtml(h.title) + '</p>' +
+            '<p class="source-item-desc">' + highlightImportant((h.snippet || '').replace(/<[^>]*>/g, ''), query) + '</p></div>'
+          ).join('') +
+          '</div>';
+      }
+      renderSourceSection(wiktionarySection, 'Wörterbuch (Wiktionary)', 'https://de.wiktionary.org/favicon.ico', 'de.wiktionary.org', html);
+    }
+
+    // ── Wikidata API ─────────────────────────────────────────
+    async function searchWikidata(query) {
+      const url = new URL('https://www.wikidata.org/w/api.php');
+      url.search = new URLSearchParams({
+        action: 'wbsearchentities', search: query, language: 'de',
+        limit: '5', format: 'json', origin: '*'
+      }).toString();
+      const resp = await fetch(url.toString());
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      const items = data?.search || [];
+      if (!items.length) return null;
+      return items.map(item => ({
+        id: item.id,
+        label: item.label || item.id,
+        description: item.description || '',
+        url: 'https://www.wikidata.org/wiki/' + item.id
+      }));
+    }
+
+    function renderWikidata(items, query) {
+      const html = '<div class="source-items">' +
+        items.map(item =>
+          '<div class="source-item">' +
+            '<a class="source-item-title" href="' + escapeHtml(item.url) + '" target="_blank" rel="noopener noreferrer">' +
+              escapeHtml(item.label) +
+              ' <small style="color:var(--muted);font-weight:400;">(' + escapeHtml(item.id) + ')</small>' +
+            '</a>' +
+            (item.description ? '<p class="source-item-desc">' + highlightImportant(item.description, query) + '</p>' : '') +
+          '</div>'
+        ).join('') +
+      '</div>';
+      renderSourceSection(wikidataSection, 'Wikidata', 'https://www.wikidata.org/favicon.ico', 'wikidata.org', html);
+    }
+
+    // ── DuckDuckGo API ───────────────────────────────────────
+    async function searchDuckDuckGo(query) {
+      const url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(query) + '&format=json&no_html=1&skip_disambig=1';
+      const resp = await fetch(url);
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      const abstract = data?.AbstractText || '';
+      const related = (data?.RelatedTopics || [])
+        .filter(t => t.Text && t.FirstURL)
+        .slice(0, 4)
+        .map(t => ({ text: t.Text, url: t.FirstURL }));
+      if (!abstract && !related.length) return null;
+      return {
+        abstract,
+        abstractSource: data?.AbstractSource || '',
+        abstractUrl: data?.AbstractURL || '',
+        related
+      };
+    }
+
+    function renderDuckDuckGo(data, query) {
+      let html = '';
+      if (data.abstract) {
+        html += '<p class="result-text">' + highlightImportant(data.abstract, query) + '</p>';
+        if (data.abstractUrl) {
+          html += '<a class="source-link" href="' + escapeHtml(data.abstractUrl) + '" target="_blank" rel="noopener noreferrer">Quelle: ' + escapeHtml(data.abstractSource || 'DuckDuckGo') + ' ↗</a>';
+        }
+      }
+      if (data.related.length) {
+        html += '<div class="source-items" style="margin-top:12px;">' +
+          data.related.map(t =>
+            '<div class="source-item">' +
+              '<a class="source-item-title" href="' + escapeHtml(t.url) + '" target="_blank" rel="noopener noreferrer">' +
+                escapeHtml(t.text.split(' – ')[0].slice(0, 80)) +
+              '</a>' +
+            '</div>'
+          ).join('') +
+        '</div>';
+      }
+      renderSourceSection(duckduckgoSection, 'DuckDuckGo Instant Answer', 'https://duckduckgo.com/favicon.ico', 'duckduckgo.com', html);
+    }
+
+    // ── Open Library API ─────────────────────────────────────
+    async function searchOpenLibrary(query) {
+      const url = 'https://openlibrary.org/search.json?q=' + encodeURIComponent(query) + '&limit=5&fields=title,author_name,first_publish_year,key';
+      const resp = await fetch(url);
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      const docs = data?.docs || [];
+      if (!docs.length) return null;
+      return docs.slice(0, 5).map(doc => ({
+        title: doc.title || '',
+        authors: (doc.author_name || []).slice(0, 3).join(', '),
+        year: doc.first_publish_year || '',
+        url: 'https://openlibrary.org' + (doc.key || '')
+      }));
+    }
+
+    function renderOpenLibrary(books, query) {
+      const html = '<div class="source-items">' +
+        books.map(book =>
+          '<div class="source-item">' +
+            '<a class="source-item-title" href="' + escapeHtml(book.url) + '" target="_blank" rel="noopener noreferrer">' + highlightImportant(book.title, query) + '</a>' +
+            '<p class="source-item-meta">' + escapeHtml(book.authors) + (book.year ? ' · ' + book.year : '') + '</p>' +
+          '</div>'
+        ).join('') +
+      '</div>';
+      renderSourceSection(openLibrarySection, 'Bücher (Open Library)', 'https://openlibrary.org/favicon.ico', 'openlibrary.org', html);
+    }
+
+    // ── REST Countries API ───────────────────────────────────
+    async function searchRestCountries(query) {
+      const url = 'https://restcountries.com/v3.1/name/' + encodeURIComponent(query) + '?fields=name,capital,region,population,flags,languages,area';
+      const resp = await fetch(url);
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      if (!Array.isArray(data) || !data.length) return null;
+      return data.slice(0, 3).map(c => ({
+        name: c.name?.common || '',
+        official: c.name?.official || '',
+        capital: c.capital?.[0] || '',
+        region: c.region || '',
+        population: c.population ? c.population.toLocaleString('de-DE') : '',
+        flag: c.flags?.svg || c.flags?.png || '',
+        flagAlt: c.flags?.alt || c.name?.common || '',
+        languages: Object.values(c.languages || {}).join(', '),
+        area: c.area ? c.area.toLocaleString('de-DE') + ' km²' : ''
+      }));
+    }
+
+    function renderRestCountries(countries) {
+      const html = countries.map(c =>
+        '<div class="country-card">' +
+          (c.flag ? '<img class="country-flag-img" src="' + escapeHtml(c.flag) + '" alt="' + escapeHtml(c.flagAlt) + '" />' : '') +
+          '<dl class="country-info">' +
+            '<dd style="font-size:1.05rem;font-weight:600;">' + escapeHtml(c.name) + '</dd>' +
+            '<dt>Offizieller Name</dt><dd>' + escapeHtml(c.official) + '</dd>' +
+            (c.capital ? '<dt>Hauptstadt</dt><dd>' + escapeHtml(c.capital) + '</dd>' : '') +
+            '<dt>Region</dt><dd>' + escapeHtml(c.region) + '</dd>' +
+            (c.population ? '<dt>Bevölkerung</dt><dd>' + escapeHtml(c.population) + '</dd>' : '') +
+            (c.languages ? '<dt>Sprachen</dt><dd>' + escapeHtml(c.languages) + '</dd>' : '') +
+            (c.area ? '<dt>Fläche</dt><dd>' + escapeHtml(c.area) + '</dd>' : '') +
+          '</dl>' +
+        '</div>'
+      ).join('');
+      renderSourceSection(restCountriesSection, 'Länderinformationen (REST Countries)', 'https://restcountries.com/favicon.ico', 'restcountries.com', html);
+    }
+
+    // ── NASA Images API ──────────────────────────────────────
+    async function searchNasa(query) {
+      const url = 'https://images-api.nasa.gov/search?q=' + encodeURIComponent(query) + '&media_type=image&page_size=4';
+      const resp = await fetch(url);
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      const items = data?.collection?.items || [];
+      if (!items.length) return null;
+      return items.slice(0, 4).map(item => ({
+        title: item.data?.[0]?.title || '',
+        thumb: item.links?.[0]?.href || '',
+        nasaId: item.data?.[0]?.nasa_id || ''
+      }));
+    }
+
+    function renderNasa(items, query) {
+      const html = '<div class="nasa-grid">' +
+        items.map(item =>
+          '<div class="nasa-item">' +
+            (item.thumb ? '<img src="' + escapeHtml(item.thumb) + '" alt="' + escapeHtml(item.title) + '" loading="lazy" />' : '') +
+            '<p class="nasa-item-caption">' + highlightImportant(item.title, query) + '</p>' +
+          '</div>'
+        ).join('') +
+      '</div>';
+      renderSourceSection(nasaSection, 'NASA Bildarchiv', 'https://www.nasa.gov/favicon.ico', 'images-api.nasa.gov', html);
+    }
+
+    // ── Crossref API ─────────────────────────────────────────
+    async function searchCrossref(query) {
+      const url = 'https://api.crossref.org/works?query=' + encodeURIComponent(query) + '&rows=5&select=title,author,published,DOI,container-title';
+      const resp = await fetch(url);
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      const items = data?.message?.items || [];
+      if (!items.length) return null;
+      return items
+        .map(item => ({
+          title: item.title?.[0] || '',
+          authors: (item.author || []).slice(0, 3)
+            .map(a => [a.given, a.family].filter(Boolean).join(' ')).join(', '),
+          year: item.published?.['date-parts']?.[0]?.[0] || '',
+          doi: item.DOI || '',
+          journal: item['container-title']?.[0] || ''
+        }))
+        .filter(item => item.title)
+        .slice(0, 5);
+    }
+
+    function renderCrossref(papers, query) {
+      const html = '<div class="source-items">' +
+        papers.map(paper =>
+          '<div class="source-item">' +
+            '<a class="source-item-title" href="https://doi.org/' + encodeURIComponent(paper.doi) + '" target="_blank" rel="noopener noreferrer">' + highlightImportant(paper.title, query) + '</a>' +
+            '<p class="source-item-meta">' +
+              (paper.authors ? escapeHtml(paper.authors) : '') +
+              (paper.year ? (paper.authors ? ' · ' : '') + paper.year : '') +
+              (paper.journal ? ' · ' + escapeHtml(paper.journal) : '') +
+            '</p>' +
+          '</div>'
+        ).join('') +
+      '</div>';
+      renderSourceSection(crossrefSection, 'Wissenschaftliche Artikel (Crossref)', 'https://crossref.org/favicon.ico', 'crossref.org', html);
+    }
+
     // ── Search handler ───────────────────────────────────────
     async function handleSearch(sourceInput) {
       const query = (sourceInput || activeInput()).value.trim();
@@ -904,22 +1279,77 @@
         return;
       }
 
-      setSearchState('Wikipedia wird durchsucht …', true);
+      setSearchState('Quellen werden durchsucht …', true);
       searchButton.disabled = true;
       headerSearchButton.disabled = true;
       searchInput.disabled = true;
       headerSearchInput.disabled = true;
       hideSuggestions();
+      clearResults();
 
       try {
-        const result = await searchWikipedia(query);
-        if (!result) {
+        const [wikiRes, wiktRes, wikidataRes, ddgRes, olRes, countriesRes, nasaRes, crossrefRes] =
+          await Promise.allSettled([
+            searchWikipedia(query),
+            searchWiktionary(query),
+            searchWikidata(query),
+            searchDuckDuckGo(query),
+            searchOpenLibrary(query),
+            searchRestCountries(query),
+            searchNasa(query),
+            searchCrossref(query)
+          ]);
+
+        let anyResult = false;
+
+        if (wikiRes.status === 'fulfilled' && wikiRes.value) {
+          showWikipediaResult(wikiRes.value);
+          anyResult = true;
+        }
+        if (wiktRes.status === 'fulfilled' && wiktRes.value) {
+          renderWiktionary(wiktRes.value, query);
+          anyResult = true;
+        }
+        if (wikidataRes.status === 'fulfilled' && wikidataRes.value) {
+          renderWikidata(wikidataRes.value, query);
+          anyResult = true;
+        }
+        if (ddgRes.status === 'fulfilled' && ddgRes.value) {
+          renderDuckDuckGo(ddgRes.value, query);
+          anyResult = true;
+        }
+        if (olRes.status === 'fulfilled' && olRes.value) {
+          renderOpenLibrary(olRes.value, query);
+          anyResult = true;
+        }
+        if (countriesRes.status === 'fulfilled' && countriesRes.value) {
+          renderRestCountries(countriesRes.value);
+          anyResult = true;
+        }
+        if (nasaRes.status === 'fulfilled' && nasaRes.value) {
+          renderNasa(nasaRes.value, query);
+          anyResult = true;
+        }
+        if (crossrefRes.status === 'fulfilled' && crossrefRes.value) {
+          renderCrossref(crossrefRes.value, query);
+          anyResult = true;
+        }
+
+        if (!anyResult) {
           setSearchState('Keine passenden Ergebnisse gefunden.', false, true);
-          clearResults();
           return;
         }
-        showWikipediaResult(result);
+
+        // Ensure results page is visible (may already be set by showWikipediaResult)
+        if (!app.classList.contains('has-results')) {
+          app.classList.add('has-results');
+          resultsPage.hidden = false;
+          results.hidden = false;
+          headerSearchInput.value = query;
+        }
+        resultsCount.textContent = 'Ergebnisse für „' + query + '"';
         setSearchState('');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (error) {
         console.error(error);
         clearResults();
