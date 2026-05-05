@@ -7,6 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_bWFpbi1waG9lbml4LTQ2LmNsZXJrLmFjY291bnRzLmRldiQ"
+    src="https://main-phoenix-46.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
   <style>
     :root {
       --bg: #ffffff;
@@ -597,6 +604,60 @@
       to { transform: rotate(360deg); }
     }
 
+    /* ── Auth Gate ────────────────────────────────────────── */
+    #auth-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #auth-gate .auth-gate-logo {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 28px;
+      user-select: none;
+    }
+
+    #auth-gate .auth-gate-logo .logo-sub {
+      font-size: 0.55em;
+      font-weight: 500;
+      color: var(--muted);
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    #clerk-sign-in {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    /* ── Sign-out button ──────────────────────────────────── */
+    .signout-btn {
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .signout-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-focus);
+    }
+
     @media (max-width: 900px) {
       .main-result.with-table {
         grid-template-columns: 1fr;
@@ -625,7 +686,17 @@
   </style>
 </head>
 <body>
-  <div class="app" id="app">
+  <!-- Auth gate – visible until Clerk confirms the user is signed in -->
+  <div id="auth-gate">
+    <div class="auth-gate-logo">
+      <span class="l-t">T</span><span class="l-h">h</span><span class="l-a1">a</span><span class="l-t2">t</span><span
+        class="l-S">S</span><span class="l-e">e</span><span class="l-a2">a</span><span class="l-r">r</span><span
+        class="l-c">c</span><span class="l-h2">h</span><span class="logo-sub">for Students</span>
+    </div>
+    <div id="clerk-sign-in"></div>
+  </div>
+
+  <div class="app" id="app" style="display:none">
 
     <!-- Sticky header (shown after search) -->
     <header class="site-header" id="siteHeader">
@@ -645,6 +716,7 @@
         <div class="suggestions" id="headerSuggestions" role="listbox" aria-label="Vorschläge"></div>
         <div class="status" id="headerStatus" aria-live="polite"></div>
       </div>
+      <button class="signout-btn" id="signOutBtn" type="button">Abmelden</button>
     </header>
 
     <!-- Hero / Homepage -->
@@ -1079,6 +1151,50 @@
     // ── Init ─────────────────────────────────────────────────
     setSuggestions(localSuggestions);
     searchInput.focus();
+
+    // ── Clerk Auth Gate ───────────────────────────────────────
+    (function initClerkGate() {
+      const authGate   = document.getElementById('auth-gate');
+      const appEl      = document.getElementById('app');
+      const signOutBtn = document.getElementById('signOutBtn');
+      let signInMounted = false;
+
+      function updateUI(user) {
+        if (user) {
+          authGate.hidden = true;
+          appEl.style.display = '';
+        } else {
+          authGate.hidden = false;
+          appEl.style.display = 'none';
+          if (!signInMounted) {
+            window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
+            signInMounted = true;
+          }
+        }
+      }
+
+      function onClerkReady() {
+        window.Clerk.load().then(function () {
+          updateUI(window.Clerk.user);
+
+          // 'clerk-loaded' and subsequent state changes are signalled via Clerk's listener API
+          window.Clerk.addListener(function (resources) {
+            updateUI(resources.user);
+          });
+
+          signOutBtn.addEventListener('click', function () {
+            window.Clerk.signOut();
+          });
+        });
+      }
+
+      if (window.Clerk) {
+        onClerkReady();
+      } else {
+        // 'clerk-loaded' is a custom event emitted by the Clerk SDK once it is ready
+        document.addEventListener('clerk-loaded', onClerkReady);
+      }
+    }());
   </script>
 </body>
 </html>
