@@ -613,6 +613,112 @@
     .country-info { margin: 0; }
     .country-info dt { font-size: 0.78rem; color: var(--muted); margin: 4px 0 1px; }
     .country-info dd { margin: 0; font-size: 0.92rem; }
+
+    /* ── Source settings modal ─────────────────────────── */
+    .settings-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .settings-modal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px 28px;
+      width: min(440px, 100%);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .settings-modal h3 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .settings-modal-desc {
+      margin: 0 0 16px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .source-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 0.95rem;
+      user-select: none;
+    }
+
+    .source-toggle-row:last-child { border-bottom: none; }
+
+    .source-toggle-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .settings-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-settings {
+      border-radius: var(--radius-pill);
+      padding: 8px 20px;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-settings-cancel {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+    }
+
+    .btn-settings-cancel:hover { background: var(--surface); }
+
+    .btn-settings-save {
+      border: none;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-settings-save:hover { background: var(--primary-hover); }
+
+    .settings-gear-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+      margin-right: 6px;
+      padding: 0;
+    }
+
+    .settings-gear-btn:hover { background: var(--surface-hover); }
+    .settings-gear-btn svg { width: 16px; height: 16px; }
   </style>
 </head>
 <body>
@@ -673,27 +779,8 @@
     <main class="results-page" id="resultsPage" hidden>
       <p class="results-count" id="resultsCount"></p>
       <section class="results" id="results" hidden>
-        <article class="main-result" id="mainResult">
-          <div class="wikipedia-result" id="wikipediaResult" hidden>
-            <h2>Hervorgehobenes Ergebnis</h2>
-            <div class="source-domain">
-              <img class="source-favicon" src="https://de.wikipedia.org/favicon.ico" alt="" aria-hidden="true" />
-              <span>de.wikipedia.org</span>
-            </div>
-            <p class="result-text" id="resultText"></p>
-            <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">
-              Artikel auf Wikipedia lesen ↗
-            </a>
-          </div>
-          <div class="table-wrapper" id="tableWrapper"></div>
-        </article>
-
-        <section class="related" id="relatedArticles" hidden>
-          <p class="related-heading">Weitere Ergebnisse</p>
-          <div id="articleList"></div>
-        </section>
-
-        <!-- Additional source sections -->
+        <!-- Source result sections (all rendered dynamically) -->
+        <section id="wikipediaSection" hidden></section>
         <section id="wiktionarySection" hidden></section>
         <section id="wikidataSection" hidden></section>
         <section id="duckduckgoSection" hidden></section>
@@ -708,6 +795,19 @@
       ThatSearch for Students &mdash; Powered by Wikipedia &amp; 7 weiteren Quellen &mdash;
       <a href="/daten" style="color:inherit;text-decoration:underline;">Datenschutz</a>
     </footer>
+
+    <!-- Source settings modal -->
+    <div id="sourceSettingsModal" class="settings-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+      <div class="settings-modal">
+        <h3 id="settingsModalTitle">Quellen verwalten</h3>
+        <p class="settings-modal-desc">Wähle aus, welche Quellen bei der Suche verwendet werden sollen. Die Einstellungen werden lokal gespeichert.</p>
+        <div id="sourceToggleList"></div>
+        <div class="settings-modal-actions">
+          <button class="btn-settings btn-settings-cancel" id="settingsCancelBtn" type="button">Abbrechen</button>
+          <button class="btn-settings btn-settings-save" id="settingsSaveBtn" type="button">Speichern</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -716,18 +816,12 @@
     const resultsPage     = document.getElementById('resultsPage');
     const resultsCount    = document.getElementById('resultsCount');
     const results         = document.getElementById('results');
-    const mainResult      = document.getElementById('mainResult');
-    const wikipediaResult = document.getElementById('wikipediaResult');
-    const resultText      = document.getElementById('resultText');
-    const sourceLink      = document.getElementById('sourceLink');
-    const tableWrapper    = document.getElementById('tableWrapper');
-    const relatedArticles = document.getElementById('relatedArticles');
-    const articleList     = document.getElementById('articleList');
     const headerLogo      = document.getElementById('headerLogo');
     const heroAuthArea    = document.getElementById('heroAuthArea');
     const headerAuthArea  = document.getElementById('headerAuthArea');
 
-    // Additional source sections
+    // Source sections
+    const wikipediaSection     = document.getElementById('wikipediaSection');
     const wiktionarySection    = document.getElementById('wiktionarySection');
     const wikidataSection      = document.getElementById('wikidataSection');
     const duckduckgoSection    = document.getElementById('duckduckgoSection');
@@ -735,10 +829,16 @@
     const restCountriesSection = document.getElementById('restCountriesSection');
     const nasaSection          = document.getElementById('nasaSection');
     const crossrefSection      = document.getElementById('crossrefSection');
-    const extraSections = [
-      wiktionarySection, wikidataSection, duckduckgoSection,
+    const allSections = [
+      wikipediaSection, wiktionarySection, wikidataSection, duckduckgoSection,
       openLibrarySection, restCountriesSection, nasaSection, crossrefSection
     ];
+
+    // Settings modal
+    const sourceSettingsModal = document.getElementById('sourceSettingsModal');
+    const sourceToggleList    = document.getElementById('sourceToggleList');
+    const settingsCancelBtn   = document.getElementById('settingsCancelBtn');
+    const settingsSaveBtn     = document.getElementById('settingsSaveBtn');
 
     // Hero bar
     const searchInput       = document.getElementById('searchInput');
@@ -761,6 +861,69 @@
     let autocompleteRequestId = 0;
     let autocompleteDebounce = null;
     const BLUR_DELAY_MS = 150;
+
+    // ── Source configuration ─────────────────────────────────
+    const SOURCES = [
+      { key: 'wikipedia',   label: 'Wikipedia'                     },
+      { key: 'wiktionary',  label: 'Wiktionary (Wörterbuch)'       },
+      { key: 'wikidata',    label: 'Wikidata'                      },
+      { key: 'duckduckgo',  label: 'DuckDuckGo Instant Answer'     },
+      { key: 'openlibrary', label: 'Open Library (Bücher)'         },
+      { key: 'countries',   label: 'REST Countries (Länder)'       },
+      { key: 'nasa',        label: 'NASA Bildarchiv'               },
+      { key: 'crossref',    label: 'Crossref (Wissenschaft)'       },
+    ];
+
+    const SOURCES_STORAGE_KEY = 'thatsearch_source_prefs';
+
+    function loadSourcePrefs() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SOURCES_STORAGE_KEY) || 'null');
+        if (saved && typeof saved === 'object') return saved;
+      } catch {}
+      return {};
+    }
+
+    function saveSourcePrefs(prefs) {
+      localStorage.setItem(SOURCES_STORAGE_KEY, JSON.stringify(prefs));
+    }
+
+    function isSourceEnabled(key) {
+      return loadSourcePrefs()[key] !== false;
+    }
+
+    // ── Source settings modal ────────────────────────────────
+    function openSourceSettings() {
+      const prefs = loadSourcePrefs();
+      sourceToggleList.innerHTML = '';
+      SOURCES.forEach(src => {
+        const label = document.createElement('label');
+        label.className = 'source-toggle-row';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.name = src.key;
+        cb.checked = prefs[src.key] !== false;
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(src.label));
+        sourceToggleList.appendChild(label);
+      });
+      sourceSettingsModal.hidden = false;
+    }
+
+    settingsCancelBtn.addEventListener('click', () => { sourceSettingsModal.hidden = true; });
+
+    settingsSaveBtn.addEventListener('click', () => {
+      const prefs = {};
+      sourceToggleList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        prefs[cb.name] = cb.checked;
+      });
+      saveSourcePrefs(prefs);
+      sourceSettingsModal.hidden = true;
+    });
+
+    sourceSettingsModal.addEventListener('click', e => {
+      if (e.target === sourceSettingsModal) sourceSettingsModal.hidden = true;
+    });
 
     // ── Helpers ─────────────────────────────────────────────
     function sanitizeText(text) {
@@ -877,60 +1040,48 @@
     function clearResults() {
       results.hidden = true;
       resultsPage.hidden = true;
-      wikipediaResult.hidden = true;
-      relatedArticles.hidden = true;
-      articleList.innerHTML = '';
-      resultText.textContent = '';
-      sourceLink.href = '#';
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
       app.classList.remove('has-results');
-      extraSections.forEach(s => { s.hidden = true; s.innerHTML = ''; });
+      allSections.forEach(s => { s.hidden = true; s.innerHTML = ''; });
     }
 
-    function showWikipediaResult(result) {
-      app.classList.add('has-results');
-      resultsPage.hidden = false;
-      results.hidden = false;
-      wikipediaResult.hidden = false;
-
-      headerSearchInput.value = result.query;
-      resultText.innerHTML = highlightImportant(result.text, result.query);
-      sourceLink.href = result.url;
-
-      tableWrapper.innerHTML = '';
-      tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table');
+    function renderWikipedia(result) {
+      let html = '<p class="result-text">' + highlightImportant(result.text, result.query) + '</p>' +
+        '<a class="source-link" href="' + escapeHtml(result.url) + '" target="_blank" rel="noopener noreferrer">Artikel auf Wikipedia lesen ↗</a>';
 
       if (result.tableHtml) {
-        const container = document.createElement('div');
-        container.className = 'table-container';
-        container.innerHTML = result.tableHtml;
-        container.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
-        tableWrapper.appendChild(container);
-        tableWrapper.classList.add('visible');
-        mainResult.classList.add('with-table');
+        html += '<div class="table-wrapper visible" style="margin-top:16px;"><div class="table-container">' + result.tableHtml + '</div></div>';
       }
 
       const related = result.related || [];
-      articleList.innerHTML = '';
-      related.forEach(item => {
-        const article = document.createElement('article');
-        article.className = 'article-item';
-        article.innerHTML =
-          '<p class="article-item-source">de.wikipedia.org</p>' +
-          '<p class="article-item-title"></p>' +
-          '<p class="article-item-snippet"></p>';
-        article.querySelector('.article-item-title').textContent = item.title;
-        article.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.snippet, result.query);
-        article.addEventListener('click', () => {
-          window.open('https://de.wikipedia.org/?curid=' + item.pageid, '_blank', 'noopener');
+      if (related.length) {
+        html += '<div class="related" style="margin-top:16px;"><p class="related-heading">Weitere Wikipedia-Artikel</p>';
+        related.forEach(item => {
+          html +=
+            '<div class="article-item" data-pageid="' + escapeHtml(String(item.pageid)) + '" role="button" tabindex="0">' +
+              '<p class="article-item-source">de.wikipedia.org</p>' +
+              '<p class="article-item-title">' + escapeHtml(item.title) + '</p>' +
+              '<p class="article-item-snippet">' + highlightImportant(item.snippet, result.query) + '</p>' +
+            '</div>';
         });
-        articleList.appendChild(article);
-      });
+        html += '</div>';
+      }
 
-      relatedArticles.hidden = related.length === 0;
+      renderSourceSection(wikipediaSection, 'Wikipedia', 'https://de.wikipedia.org/favicon.ico', 'de.wikipedia.org', html);
+
+      // Sanitize injected table styles
+      wikipediaSection.querySelectorAll('.table-container [style]').forEach(n => n.removeAttribute('style'));
+
+      // Wire up related article click handlers
+      wikipediaSection.querySelectorAll('.article-item[data-pageid]').forEach(el => {
+        const pid = el.dataset.pageid;
+        el.addEventListener('click', () => window.open('https://de.wikipedia.org/?curid=' + pid, '_blank', 'noopener'));
+        el.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.open('https://de.wikipedia.org/?curid=' + pid, '_blank', 'noopener');
+          }
+        });
+      });
     }
 
     // ── Wikipedia API ────────────────────────────────────────
@@ -1288,22 +1439,23 @@
       clearResults();
 
       try {
+        const on = key => isSourceEnabled(key);
         const [wikiRes, wiktRes, wikidataRes, ddgRes, olRes, countriesRes, nasaRes, crossrefRes] =
           await Promise.allSettled([
-            searchWikipedia(query),
-            searchWiktionary(query),
-            searchWikidata(query),
-            searchDuckDuckGo(query),
-            searchOpenLibrary(query),
-            searchRestCountries(query),
-            searchNasa(query),
-            searchCrossref(query)
+            on('wikipedia')   ? searchWikipedia(query)     : Promise.resolve(null),
+            on('wiktionary')  ? searchWiktionary(query)    : Promise.resolve(null),
+            on('wikidata')    ? searchWikidata(query)      : Promise.resolve(null),
+            on('duckduckgo')  ? searchDuckDuckGo(query)    : Promise.resolve(null),
+            on('openlibrary') ? searchOpenLibrary(query)   : Promise.resolve(null),
+            on('countries')   ? searchRestCountries(query) : Promise.resolve(null),
+            on('nasa')        ? searchNasa(query)          : Promise.resolve(null),
+            on('crossref')    ? searchCrossref(query)      : Promise.resolve(null),
           ]);
 
         let anyResult = false;
 
         if (wikiRes.status === 'fulfilled' && wikiRes.value) {
-          showWikipediaResult(wikiRes.value);
+          renderWikipedia(wikiRes.value);
           anyResult = true;
         }
         if (wiktRes.status === 'fulfilled' && wiktRes.value) {
@@ -1340,13 +1492,10 @@
           return;
         }
 
-        // Ensure results page is visible (may already be set by showWikipediaResult)
-        if (!app.classList.contains('has-results')) {
-          app.classList.add('has-results');
-          resultsPage.hidden = false;
-          results.hidden = false;
-          headerSearchInput.value = query;
-        }
+        app.classList.add('has-results');
+        resultsPage.hidden = false;
+        results.hidden = false;
+        headerSearchInput.value = query;
         resultsCount.textContent = 'Ergebnisse für „' + query + '"';
         setSearchState('');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1415,18 +1564,33 @@
       // Sign-in button SVG (person icon)
       const PERSON_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`;
 
+      // Gear icon SVG
+      const GEAR_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+
       // Render the correct UI into both auth areas based on login state
       function renderAuthAreas(user) {
-        [heroAuthArea, headerAuthArea].forEach((area, i) => {
+        [heroAuthArea, headerAuthArea].forEach((area) => {
           area.innerHTML = '';
 
+          // Always show the gear/settings button
+          const gearBtn = document.createElement('button');
+          gearBtn.className = 'settings-gear-btn';
+          gearBtn.type = 'button';
+          gearBtn.setAttribute('aria-label', 'Quellen verwalten');
+          gearBtn.innerHTML = GEAR_ICON;
+          gearBtn.addEventListener('click', openSourceSettings);
+          area.appendChild(gearBtn);
+
           if (user) {
-            // Mount Clerk's UserButton into a wrapper div
+            // Mount Clerk's UserButton with a "Quellen verwalten" menu item
             const wrapper = document.createElement('div');
             area.appendChild(wrapper);
             window.Clerk.mountUserButton(wrapper, {
               afterSignOutUrl: window.location.origin,
-              showName: false
+              showName: false,
+              customMenuItems: [
+                { label: 'Quellen verwalten', onClick: openSourceSettings }
+              ]
             });
           } else {
             // Show a "Anmelden" button that opens Clerk's sign-in modal
