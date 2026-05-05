@@ -1191,8 +1191,11 @@
       if (window.Clerk) {
         onClerkReady();
       } else {
-        // 'clerk-loaded' is a custom event emitted by the Clerk SDK once it is ready
-        document.addEventListener('clerk-loaded', onClerkReady);
+        // The Clerk script is loaded async; wait for its native load event
+        var clerkScript = document.querySelector('script[data-clerk-publishable-key]');
+        if (clerkScript) {
+          clerkScript.addEventListener('load', onClerkReady);
+        }
       }
     }());
   </script>
