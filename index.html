@@ -625,6 +625,8 @@
     const wikipediaResult = document.getElementById('wikipediaResult');
     const resultText      = document.getElementById('resultText');
     const sourceLink      = document.getElementById('sourceLink');
+    const sourceFavicon   = document.getElementById('sourceFavicon');
+    const sourceDomain    = document.getElementById('sourceDomain');
     const tableWrapper    = document.getElementById('tableWrapper');
     const relatedArticles = document.getElementById('relatedArticles');
     const articleList     = document.getElementById('articleList');
@@ -656,7 +658,7 @@
 
     // ── Helpers ─────────────────────────────────────────────
     function sanitizeText(text) {
-      return text.replace(/\s+/g, ' ').replace(/\(\s*[^)]*\s*\)/g, m => m.replace(/\s+/g, ' ')).trim();
+      return String(text || '').replace(/\s+/g, ' ').replace(/\(\s*[^)]*\s*\)/g, m => m.replace(/\s+/g, ' ')).trim();
     }
 
     function shortenSummary(text, sentenceCount = 3) {
@@ -685,6 +687,14 @@
       const uniqueTokens = [...new Set(tokens)].map(escapeRegExp);
       const regex = new RegExp('(' + uniqueTokens.join('|') + ')', 'gi');
       return safeText.replace(regex, '<mark>$1</mark>');
+    }
+
+    function getDomain(url) {
+      try {
+        return new URL(url).hostname;
+      } catch {
+        return '';
+      }
     }
 
     // ── Active search bar ────────────────────────────────────
@@ -774,50 +784,57 @@
       articleList.innerHTML = '';
       resultText.textContent = '';
       sourceLink.href = '#';
+      sourceDomain.textContent = '';
       tableWrapper.innerHTML = '';
       tableWrapper.classList.remove('visible');
       mainResult.classList.remove('with-table');
       app.classList.remove('has-results');
     }
 
-    function showWikipediaResult(result) {
+    function showSearchResult(main, related, query) {
       app.classList.add('has-results');
       resultsPage.hidden = false;
       results.hidden = false;
       wikipediaResult.hidden = false;
 
-      headerSearchInput.value = result.query;
-      resultsCount.textContent = 'Wikipedia-Ergebnisse für „' + result.query + '"';
-      resultText.innerHTML = highlightImportant(result.text, result.query);
-      sourceLink.href = result.url;
+      const sourceCount = new Set([main, ...related].map(item => item.sourceName)).size;
+      headerSearchInput.value = query;
+      resultsCount.textContent = [main, ...related].length + ' Ergebnisse aus ' + sourceCount + ' Quellen für „' + query + '"';
+      resultText.innerHTML = highlightImportant((main.title ? main.title + ' — ' : '') + main.text, query);
+      sourceLink.href = main.url;
+      sourceLink.textContent = main.sourceName + ' öffnen ↗';
+      sourceDomain.textContent = main.sourceDomain;
+      if (main.sourceDomain) {
+        sourceFavicon.src = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(main.sourceDomain) + '&sz=32';
+      }
 
       tableWrapper.innerHTML = '';
       tableWrapper.classList.remove('visible');
       mainResult.classList.remove('with-table');
 
-      if (result.tableHtml) {
+      if (main.tableHtml) {
         const container = document.createElement('div');
         container.className = 'table-container';
-        container.innerHTML = result.tableHtml;
+        container.innerHTML = main.tableHtml;
         container.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
         tableWrapper.appendChild(container);
         tableWrapper.classList.add('visible');
         mainResult.classList.add('with-table');
       }
 
-      const related = result.related || [];
       articleList.innerHTML = '';
       related.forEach(item => {
         const article = document.createElement('article');
         article.className = 'article-item';
         article.innerHTML =
-          '<p class="article-item-source">de.wikipedia.org</p>' +
+          '<p class="article-item-source"></p>' +
           '<p class="article-item-title"></p>' +
           '<p class="article-item-snippet"></p>';
-        article.querySelector('.article-item-title').textContent = item.title;
-        article.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.snippet, result.query);
+        article.querySelector('.article-item-source').textContent = item.sourceDomain || item.sourceName;
+        article.querySelector('.article-item-title').textContent = item.title || item.sourceName;
+        article.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.text, query);
         article.addEventListener('click', () => {
-          window.open('https://de.wikipedia.org/?curid=' + item.pageid, '_blank', 'noopener');
+          window.open(item.url, '_blank', 'noopener');
         });
         articleList.appendChild(article);
       });
@@ -826,7 +843,19 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ── Wikipedia API ────────────────────────────────────────
+    function normalizeResult(sourceName, url, title, text, tableHtml = '') {
+      if (!url || !text) return null;
+      const sourceDomainValue = getDomain(url);
+      return {
+        sourceName,
+        sourceDomain: sourceDomainValue,
+        url,
+        title: sanitizeText(title || ''),
+        text: shortenSummary(text, 2),
+        tableHtml
+      };
+    }
+
     async function searchWikipedia(query) {
       const searchUrl = new URL(wikipediaApi);
       searchUrl.search = new URLSearchParams({
@@ -835,11 +864,10 @@
       }).toString();
 
       const searchResponse = await fetch(searchUrl.toString());
-      if (!searchResponse.ok) throw new Error('Wikipedia-Suche fehlgeschlagen.');
-
+      if (!searchResponse.ok) return [];
       const searchData = await searchResponse.json();
       const searchResults = searchData?.query?.search || [];
-      if (searchResults.length === 0) return null;
+      if (searchResults.length === 0) return [];
 
       const firstMatch = searchResults[0];
 
@@ -851,10 +879,10 @@
       }).toString();
 
       const detailResponse = await fetch(detailUrl.toString());
-      if (!detailResponse.ok) throw new Error('Wikipedia-Details fehlgeschlagen.');
+      if (!detailResponse.ok) return [];
       const detailData = await detailResponse.json();
       const page = detailData?.query?.pages?.[firstMatch.pageid];
-      if (!page?.extract) return null;
+      if (!page?.extract) return [];
 
       const parseUrl = new URL(wikipediaApi);
       parseUrl.search = new URLSearchParams({
@@ -879,19 +907,182 @@
         console.error('Tabellen-Laden fehlgeschlagen:', error);
       }
 
-      const related = searchResults.slice(1, 6).map(item => ({
-        title: item.title,
-        snippet: item.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
-        pageid: item.pageid
-      }));
+      const result = normalizeResult(
+        'Wikipedia',
+        page.fullurl || 'https://de.wikipedia.org/?curid=' + firstMatch.pageid,
+        page.title || firstMatch.title,
+        page.extract,
+        tableHtml
+      );
 
-      return {
-        text: shortenSummary(page.extract),
-        query,
-        url: page.fullurl || 'https://de.wikipedia.org/?curid=' + firstMatch.pageid,
-        tableHtml,
-        related
-      };
+      const related = searchResults.slice(1, 3)
+        .map(item => normalizeResult(
+          'Wikipedia',
+          'https://de.wikipedia.org/?curid=' + item.pageid,
+          item.title,
+          item.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+        ))
+        .filter(Boolean);
+
+      return result ? [result, ...related] : related;
+    }
+
+    async function searchWiktionary(query) {
+      const api = 'https://de.wiktionary.org/w/api.php';
+      const url = new URL(api);
+      url.search = new URLSearchParams({
+        action: 'query', list: 'search', srsearch: query, srlimit: '1', format: 'json', origin: '*'
+      }).toString();
+      const response = await fetch(url.toString());
+      if (!response.ok) return [];
+      const data = await response.json();
+      const first = data?.query?.search?.[0];
+      if (!first) return [];
+      const result = normalizeResult(
+        'Wiktionary',
+        'https://de.wiktionary.org/?curid=' + first.pageid,
+        first.title,
+        first.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+      );
+      return result ? [result] : [];
+    }
+
+    async function searchWikidata(query) {
+      const api = new URL('https://www.wikidata.org/w/api.php');
+      api.search = new URLSearchParams({
+        action: 'wbsearchentities', search: query, language: 'de', limit: '1', format: 'json', origin: '*'
+      }).toString();
+      const response = await fetch(api.toString());
+      if (!response.ok) return [];
+      const data = await response.json();
+      const first = data?.search?.[0];
+      if (!first) return [];
+      const result = normalizeResult(
+        'Wikidata',
+        first.concepturi || 'https://www.wikidata.org/wiki/' + first.id,
+        first.label || first.id,
+        first.description || 'Eintrag in Wikidata'
+      );
+      return result ? [result] : [];
+    }
+
+    async function searchDuckDuckGo(query) {
+      const api = new URL('https://api.duckduckgo.com/');
+      api.search = new URLSearchParams({
+        q: query, format: 'json', no_html: '1', no_redirect: '1', t: 'ThatSearch'
+      }).toString();
+      const response = await fetch(api.toString());
+      if (!response.ok) return [];
+      const data = await response.json();
+      const abstractText = sanitizeText(data?.AbstractText || '');
+      const abstractUrl = data?.AbstractURL || '';
+      if (!abstractText || !abstractUrl) return [];
+      const result = normalizeResult(
+        'DuckDuckGo',
+        abstractUrl,
+        data?.Heading || 'DuckDuckGo',
+        abstractText
+      );
+      return result ? [result] : [];
+    }
+
+    async function searchOpenLibrary(query) {
+      const api = new URL('https://openlibrary.org/search.json');
+      api.search = new URLSearchParams({ q: query, limit: '1' }).toString();
+      const response = await fetch(api.toString());
+      if (!response.ok) return [];
+      const data = await response.json();
+      const first = data?.docs?.[0];
+      if (!first?.key) return [];
+      const meta = [
+        first.author_name?.[0] ? 'Autor: ' + first.author_name[0] : '',
+        first.first_publish_year ? 'Erstveröffentlichung: ' + first.first_publish_year : ''
+      ].filter(Boolean).join(' · ');
+      const result = normalizeResult(
+        'Open Library',
+        'https://openlibrary.org' + first.key,
+        first.title || 'Open Library',
+        meta || 'Treffer in Open Library'
+      );
+      return result ? [result] : [];
+    }
+
+    async function searchRestCountries(query) {
+      const api = 'https://restcountries.com/v3.1/name/' + encodeURIComponent(query) + '?fields=name,capital,region,population,cca2';
+      const response = await fetch(api);
+      if (!response.ok) return [];
+      const countries = await response.json();
+      const first = Array.isArray(countries) ? countries[0] : null;
+      if (!first?.name?.common) return [];
+      const text = [
+        first.capital?.[0] ? 'Hauptstadt: ' + first.capital[0] : '',
+        first.region ? 'Region: ' + first.region : '',
+        Number.isFinite(first.population) ? 'Einwohner: ' + first.population.toLocaleString('de-DE') : ''
+      ].filter(Boolean).join(' · ');
+      const result = normalizeResult(
+        'REST Countries',
+        'https://restcountries.com/v3.1/name/' + encodeURIComponent(first.name.common),
+        first.name.common,
+        text || 'Länderdaten über REST Countries'
+      );
+      return result ? [result] : [];
+    }
+
+    async function searchNasa(query) {
+      const api = new URL('https://images-api.nasa.gov/search');
+      api.search = new URLSearchParams({ q: query, media_type: 'image' }).toString();
+      const response = await fetch(api.toString());
+      if (!response.ok) return [];
+      const data = await response.json();
+      const first = data?.collection?.items?.[0]?.data?.[0];
+      if (!first) return [];
+      const nasaUrl = first.nasa_id ? 'https://images.nasa.gov/details-' + first.nasa_id : 'https://images.nasa.gov/';
+      const result = normalizeResult(
+        'NASA',
+        nasaUrl,
+        first.title || 'NASA',
+        first.description || 'Treffer aus der NASA Image API'
+      );
+      return result ? [result] : [];
+    }
+
+    async function searchCrossref(query) {
+      const api = new URL('https://api.crossref.org/works');
+      api.search = new URLSearchParams({ 'query.bibliographic': query, rows: '1' }).toString();
+      const response = await fetch(api.toString());
+      if (!response.ok) return [];
+      const data = await response.json();
+      const first = data?.message?.items?.[0];
+      if (!first) return [];
+      const title = first.title?.[0] || 'Crossref';
+      const author = first.author?.[0] ? [first.author[0].given, first.author[0].family].filter(Boolean).join(' ') : '';
+      const year = first.created?.['date-parts']?.[0]?.[0];
+      const text = [author, year ? 'Jahr: ' + year : '', first.publisher ? 'Verlag: ' + first.publisher : ''].filter(Boolean).join(' · ');
+      const result = normalizeResult(
+        'Crossref',
+        first.URL || (first.DOI ? 'https://doi.org/' + first.DOI : ''),
+        title,
+        text || 'Wissenschaftlicher Treffer in Crossref'
+      );
+      return result ? [result] : [];
+    }
+
+    async function searchAllSources(query) {
+      const results = await Promise.allSettled([
+        searchWikipedia(query),
+        searchWiktionary(query),
+        searchWikidata(query),
+        searchDuckDuckGo(query),
+        searchOpenLibrary(query),
+        searchRestCountries(query),
+        searchNasa(query),
+        searchCrossref(query)
+      ]);
+
+      return results
+        .filter(item => item.status === 'fulfilled')
+        .flatMap(item => item.value)
+        .filter(item => item && item.url && item.text);
     }
 
     // ── Search handler ───────────────────────────────────────
@@ -904,7 +1095,7 @@
         return;
       }
 
-      setSearchState('Wikipedia wird durchsucht …', true);
+      setSearchState('Quellen werden durchsucht …', true);
       searchButton.disabled = true;
       headerSearchButton.disabled = true;
       searchInput.disabled = true;
@@ -912,13 +1103,14 @@
       hideSuggestions();
 
       try {
-        const result = await searchWikipedia(query);
-        if (!result) {
+        const sourceResults = await searchAllSources(query);
+        if (sourceResults.length === 0) {
           setSearchState('Keine passenden Ergebnisse gefunden.', false, true);
           clearResults();
           return;
         }
-        showWikipediaResult(result);
+        const [main, ...related] = sourceResults;
+        showSearchResult(main, related.slice(0, 10), query);
         setSearchState('');
       } catch (error) {
         console.error(error);
