@@ -565,7 +565,7 @@
         <span class="logo-sub">for Students</span>
       </div>
 
-      <p class="hero-tagline">Deine Suchmaschine für die Schule – powered by öffentliche APIs</p>
+      <p class="hero-tagline">Deine Suchmaschine für die Schule – unterstützt von öffentlichen APIs</p>
 
       <div class="hero-search-box" id="heroSearchBox">
         <div class="search-bar">
@@ -610,7 +610,7 @@
     </main>
 
     <footer class="site-footer">
-      ThatSearch for Students &mdash; Powered by öffentliche APIs &mdash;
+      ThatSearch for Students &mdash; Unterstützt von öffentlichen APIs &mdash;
       <a href="/daten" style="color:inherit;text-decoration:underline;">Datenschutz</a>
     </footer>
   </div>
@@ -658,7 +658,7 @@
 
     // ── Helpers ─────────────────────────────────────────────
     function sanitizeText(text) {
-      return String(text || '').replace(/\s+/g, ' ').trim();
+      return String(text || '').replace(/\s+/g, ' ').replace(/\(\s*[^)]*\s*\)/g, m => m.replace(/\s+/g, ' ')).trim();
     }
 
     function shortenSummary(text, sentenceCount = 3) {
@@ -804,10 +804,14 @@
       const sourceCount = new Set([main, ...related].map(item => item.sourceName)).size;
       headerSearchInput.value = query;
       resultsCount.textContent = [main, ...related].length + ' Ergebnisse aus ' + sourceCount + ' Quellen für „' + query + '"';
-      resultText.innerHTML = highlightImportant((main.title ? main.title + ' — ' : '') + main.text, query);
+      resultText.innerHTML = highlightImportant([main.title, main.text].filter(Boolean).join(' — '), query);
       sourceLink.href = main.url;
       sourceLink.textContent = main.sourceName + ' öffnen ↗';
       sourceDomain.textContent = main.sourceDomain;
+      sourceFavicon.onerror = () => {
+        sourceFavicon.onerror = null;
+        sourceFavicon.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"></svg>';
+      };
       if (main.sourceDomain) {
         sourceFavicon.src = 'https://' + main.sourceDomain + '/favicon.ico';
       }
@@ -835,7 +839,7 @@
           '<p class="article-item-title"></p>' +
           '<p class="article-item-snippet"></p>';
         article.querySelector('.article-item-source').textContent = item.sourceDomain || item.sourceName;
-        article.querySelector('.article-item-title').textContent = item.title || item.sourceName;
+        article.querySelector('.article-item-title').textContent = item.title || ('Treffer von ' + item.sourceName);
         article.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.text, query);
         article.addEventListener('click', () => {
           window.open(item.url, '_blank', 'noopener');
@@ -1021,7 +1025,7 @@
       const text = [
         first.capital?.[0] ? 'Hauptstadt: ' + first.capital[0] : '',
         first.region ? 'Region: ' + first.region : '',
-        Number.isFinite(first.population) ? 'Einwohner: ' + first.population.toLocaleString('de-DE') : ''
+        Number.isFinite(first.population) ? 'Einwohner: ' + (window.Intl ? first.population.toLocaleString('de-DE') : String(first.population)) : ''
       ].filter(Boolean).join(' · ');
       const result = normalizeResult(
         'REST Countries',
