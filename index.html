@@ -1076,16 +1076,26 @@
       return result ? [result] : [];
     }
 
+    function withTimeout(promise, timeoutMs = 1500) {
+      let timeoutId = null;
+      const timeoutPromise = new Promise(resolve => {
+        timeoutId = window.setTimeout(() => resolve([]), timeoutMs);
+      });
+      return Promise.race([promise, timeoutPromise]).finally(() => {
+        if (timeoutId !== null) window.clearTimeout(timeoutId);
+      });
+    }
+
     async function searchAllSources(query) {
       const results = await Promise.allSettled([
-        searchWikipedia(query),
-        searchWiktionary(query),
-        searchWikidata(query),
-        searchDuckDuckGo(query),
-        searchOpenLibrary(query),
-        searchRestCountries(query),
-        searchNasa(query),
-        searchCrossref(query)
+        withTimeout(searchWikipedia(query)),
+        withTimeout(searchWiktionary(query)),
+        withTimeout(searchWikidata(query)),
+        withTimeout(searchDuckDuckGo(query)),
+        withTimeout(searchOpenLibrary(query)),
+        withTimeout(searchRestCountries(query)),
+        withTimeout(searchNasa(query)),
+        withTimeout(searchCrossref(query))
       ]);
 
       return results
@@ -1185,13 +1195,35 @@
     (function initClerk() {
       // Sign-in button SVG (person icon)
       const PERSON_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`;
+      const AUTH_AREAS = [heroAuthArea, headerAuthArea];
+
+      function createSignInButton() {
+        const btn = document.createElement('button');
+        btn.className = 'sign-in-btn';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Anmelden');
+        btn.innerHTML = PERSON_ICON + '<span>Anmelden</span>';
+        btn.addEventListener('click', () => {
+          if (window.Clerk && typeof window.Clerk.openSignIn === 'function') {
+            window.Clerk.openSignIn({});
+          }
+        });
+        return btn;
+      }
+
+      function renderSignInFallback() {
+        AUTH_AREAS.forEach(area => {
+          area.innerHTML = '';
+          area.appendChild(createSignInButton());
+        });
+      }
 
       // Render the correct UI into both auth areas based on login state
       function renderAuthAreas(user) {
-        [heroAuthArea, headerAuthArea].forEach((area, i) => {
+        AUTH_AREAS.forEach(area => {
           area.innerHTML = '';
 
-          if (user) {
+          if (user && window.Clerk && typeof window.Clerk.mountUserButton === 'function') {
             // Mount Clerk's UserButton into a wrapper div
             const wrapper = document.createElement('div');
             area.appendChild(wrapper);
@@ -1200,16 +1232,7 @@
               showName: false
             });
           } else {
-            // Show a "Anmelden" button that opens Clerk's sign-in modal
-            const btn = document.createElement('button');
-            btn.className = 'sign-in-btn';
-            btn.type = 'button';
-            btn.setAttribute('aria-label', 'Anmelden');
-            btn.innerHTML = PERSON_ICON + '<span>Anmelden</span>';
-            btn.addEventListener('click', () => {
-              window.Clerk.openSignIn({});
-            });
-            area.appendChild(btn);
+            area.appendChild(createSignInButton());
           }
         });
       }
@@ -1225,6 +1248,9 @@
           });
         });
       }
+
+      // Show fallback instantly so buttons are never missing while Clerk loads
+      renderSignInFallback();
 
       if (window.Clerk) {
         onClerkReady();
