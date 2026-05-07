@@ -657,6 +657,7 @@
     const BLUR_DELAY_MS = 150;
     const languageToolCorrectionsCache = new Map();
     const LANGUAGE_TOOL_CACHE_LIMIT = 100;
+    const LANGUAGE_TOOL_TIMEOUT_MS = 1200;
 
     // ── Helpers ─────────────────────────────────────────────
     function sanitizeText(text) {
@@ -1108,14 +1109,23 @@
       }
 
       try {
-        const response = await fetch('https://api.languagetool.org/v2/check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: new URLSearchParams({
-            text: cleanedQuery,
-            language: 'de-DE'
-          }).toString()
-        });
+        const abortController = new AbortController();
+        let response = null;
+        let timeoutId = null;
+        try {
+          timeoutId = window.setTimeout(() => abortController.abort(), LANGUAGE_TOOL_TIMEOUT_MS);
+          response = await fetch('https://api.languagetool.org/v2/check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            signal: abortController.signal,
+            body: new URLSearchParams({
+              text: cleanedQuery,
+              language: 'de-DE'
+            }).toString()
+          });
+        } finally {
+          if (timeoutId !== null) window.clearTimeout(timeoutId);
+        }
         if (!response.ok) {
           console.error('LanguageTool correction failed: HTTP', response.status);
           return { correctedQuery: cleanedQuery, wasCorrected: false };
