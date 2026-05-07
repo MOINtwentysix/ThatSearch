@@ -565,7 +565,7 @@
         <span class="logo-sub">for Students</span>
       </div>
 
-      <p class="hero-tagline">Deine Suchmaschine für die Schule – powered by Wikipedia</p>
+      <p class="hero-tagline">Deine Suchmaschine für die Schule – powered by öffentlichen APIs</p>
 
       <div class="hero-search-box" id="heroSearchBox">
         <div class="search-bar">
@@ -591,12 +591,12 @@
           <div class="wikipedia-result" id="wikipediaResult" hidden>
             <h2>Hervorgehobenes Ergebnis</h2>
             <div class="source-domain">
-              <img class="source-favicon" src="https://de.wikipedia.org/favicon.ico" alt="" aria-hidden="true" />
-              <span>de.wikipedia.org</span>
+              <img class="source-favicon" id="sourceFavicon" src="https://de.wikipedia.org/favicon.ico" alt="" aria-hidden="true" />
+              <span id="sourceDomain">de.wikipedia.org</span>
             </div>
             <p class="result-text" id="resultText"></p>
             <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">
-              Artikel auf Wikipedia lesen ↗
+              Quelle öffnen ↗
             </a>
           </div>
           <div class="table-wrapper" id="tableWrapper"></div>
@@ -610,7 +610,7 @@
     </main>
 
     <footer class="site-footer">
-      ThatSearch for Students &mdash; Powered by Wikipedia &mdash;
+      ThatSearch for Students &mdash; Powered by öffentlichen APIs &mdash;
       <a href="/daten" style="color:inherit;text-decoration:underline;">Datenschutz</a>
     </footer>
   </div>
