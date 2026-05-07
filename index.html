@@ -632,7 +632,7 @@
       <p class="results-count" id="resultsCount"></p>
       <section class="results" id="results" hidden>
         <article class="word-card" id="wordCard" hidden>
-          <h2>Worterklärung</h2>
+          <h2 id="wordCardHeading">Worterklärung</h2>
           <p class="word-card-term" id="wordCardTerm"></p>
           <p class="word-card-definition" id="wordCardDefinition"></p>
           <a class="source-link" id="wordCardLink" href="#" target="_blank" rel="noopener noreferrer">Quelle öffnen ↗</a>
@@ -676,6 +676,7 @@
     const wikipediaResult = document.getElementById('wikipediaResult');
     const resultText      = document.getElementById('resultText');
     const wordCard        = document.getElementById('wordCard');
+    const wordCardHeading = document.getElementById('wordCardHeading');
     const wordCardTerm    = document.getElementById('wordCardTerm');
     const wordCardDefinition = document.getElementById('wordCardDefinition');
     const wordCardLink    = document.getElementById('wordCardLink');
@@ -712,7 +713,7 @@
     const BLUR_DELAY_MS = 150;
     const languageToolCorrectionsCache = new Map();
     const LANGUAGE_TOOL_CACHE_LIMIT = 100;
-    const LANGUAGE_TOOL_TIMEOUT_MS = 1200;
+    const LANGUAGE_TOOL_API_TIMEOUT_MS = 1200;
 
     // ── Helpers ─────────────────────────────────────────────
     function sanitizeText(text) {
@@ -896,11 +897,13 @@
       sourceLink.textContent = main.sourceName + ' öffnen ↗';
       sourceDomain.textContent = main.sourceDomain;
       if (wordDefinition && wordDefinition.term && wordDefinition.definition) {
+        wordCardHeading.setAttribute('aria-label', `Worterklärung zu ${wordDefinition.term}`);
         wordCardTerm.textContent = wordDefinition.term;
         wordCardDefinition.innerHTML = highlightImportant(wordDefinition.definition, query);
         wordCardLink.href = wordDefinition.url || '#';
         wordCard.hidden = false;
       } else {
+        wordCardHeading.removeAttribute('aria-label');
         wordCard.hidden = true;
       }
       sourceFavicon.onerror = () => {
@@ -1202,7 +1205,7 @@
       if (cachedCorrection) return cachedCorrection;
 
       function setLanguageToolCache(key, value) {
-        if (!languageToolCorrectionsCache.has(key) && languageToolCorrectionsCache.size >= LANGUAGE_TOOL_CACHE_LIMIT) {
+        if (languageToolCorrectionsCache.size >= LANGUAGE_TOOL_CACHE_LIMIT) {
           const oldestKey = languageToolCorrectionsCache.keys().next().value;
           if (oldestKey) languageToolCorrectionsCache.delete(oldestKey);
         }
@@ -1214,7 +1217,7 @@
         let response = null;
         let timeoutId = null;
         try {
-          timeoutId = window.setTimeout(() => abortController.abort(), LANGUAGE_TOOL_TIMEOUT_MS);
+          timeoutId = window.setTimeout(() => abortController.abort(), LANGUAGE_TOOL_API_TIMEOUT_MS);
           response = await fetch('https://api.languagetool.org/v2/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
@@ -1313,9 +1316,8 @@
           }
         }
 
-        const effectiveQuery = originalQuery;
-        const sourceResults = await searchAllSources(effectiveQuery);
-        const wordDefinitionCard = extractWordDefinitionCard(effectiveQuery, sourceResults);
+        const sourceResults = await searchAllSources(originalQuery);
+        const wordDefinitionCard = extractWordDefinitionCard(originalQuery, sourceResults);
 
         if (sourceResults.length === 0) {
           clearResults();
@@ -1328,7 +1330,7 @@
         }
 
         const [main, ...related] = sourceResults;
-        showSearchResult(main, related.slice(0, 10), effectiveQuery, wordDefinitionCard);
+        showSearchResult(main, related.slice(0, 10), originalQuery, wordDefinitionCard);
         if (suggestedQuery) {
           setCorrectionSuggestion(originalQuery, suggestedQuery);
         } else {
