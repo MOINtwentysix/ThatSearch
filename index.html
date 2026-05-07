@@ -385,6 +385,50 @@
       color: var(--text);
     }
 
+    .word-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 18px 22px;
+      margin-bottom: 20px;
+      background: var(--surface);
+    }
+
+    .word-card h2 {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .word-card-term {
+      margin: 0 0 8px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .word-card-definition {
+      margin: 0 0 10px;
+      line-height: 1.7;
+      font-size: 0.97rem;
+      color: var(--text);
+    }
+
+    .status-suggestion-btn {
+      border: none;
+      background: transparent;
+      color: var(--primary);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .status-suggestion-btn:hover { color: var(--primary-hover); }
+
     .result-text mark, .article-item-snippet mark {
       background: rgba(26, 115, 232, 0.12);
       color: var(--text);
@@ -587,6 +631,13 @@
     <main class="results-page" id="resultsPage" hidden>
       <p class="results-count" id="resultsCount"></p>
       <section class="results" id="results" hidden>
+        <article class="word-card" id="wordCard" hidden>
+          <h2>Worterklärung</h2>
+          <p class="word-card-term" id="wordCardTerm"></p>
+          <p class="word-card-definition" id="wordCardDefinition"></p>
+          <a class="source-link" id="wordCardLink" href="#" target="_blank" rel="noopener noreferrer">Quelle öffnen ↗</a>
+        </article>
+
         <article class="main-result" id="mainResult">
           <div class="wikipedia-result" id="wikipediaResult" hidden>
             <h2>Hervorgehobenes Ergebnis</h2>
@@ -624,6 +675,10 @@
     const mainResult      = document.getElementById('mainResult');
     const wikipediaResult = document.getElementById('wikipediaResult');
     const resultText      = document.getElementById('resultText');
+    const wordCard        = document.getElementById('wordCard');
+    const wordCardTerm    = document.getElementById('wordCardTerm');
+    const wordCardDefinition = document.getElementById('wordCardDefinition');
+    const wordCardLink    = document.getElementById('wordCardLink');
     const sourceLink      = document.getElementById('sourceLink');
     const sourceFavicon   = document.getElementById('sourceFavicon');
     const sourceDomain    = document.getElementById('sourceDomain');
@@ -721,6 +776,28 @@
       statusEl.textContent = message;
     }
 
+    function setCorrectionSuggestion(originalQuery, suggestedQuery) {
+      const statusEl = activeStatus();
+      statusEl.innerHTML = '';
+      statusEl.className = 'status';
+      const prefix = document.createElement('span');
+      prefix.textContent = 'Meintest du ';
+      const suggestionButton = document.createElement('button');
+      suggestionButton.type = 'button';
+      suggestionButton.className = 'status-suggestion-btn';
+      suggestionButton.textContent = `„${suggestedQuery}“`;
+      suggestionButton.addEventListener('click', () => {
+        searchInput.value = suggestedQuery;
+        headerSearchInput.value = suggestedQuery;
+        handleSearch(activeInput(), suggestedQuery);
+      });
+      const suffix = document.createElement('span');
+      suffix.textContent = ` statt „${originalQuery}“?`;
+      statusEl.appendChild(prefix);
+      statusEl.appendChild(suggestionButton);
+      statusEl.appendChild(suffix);
+    }
+
     // ── Suggestions ──────────────────────────────────────────
     function hideSuggestions() {
       [searchSuggestions, headerSuggestions].forEach(el => {
@@ -783,9 +860,13 @@
       results.hidden = true;
       resultsPage.hidden = true;
       wikipediaResult.hidden = true;
+      wordCard.hidden = true;
       relatedArticles.hidden = true;
       articleList.innerHTML = '';
       resultText.textContent = '';
+      wordCardTerm.textContent = '';
+      wordCardDefinition.textContent = '';
+      wordCardLink.href = '#';
       sourceLink.href = '#';
       sourceDomain.textContent = '';
       tableWrapper.innerHTML = '';
@@ -794,7 +875,7 @@
       app.classList.remove('has-results');
     }
 
-    function showSearchResult(main, related, query) {
+    function showSearchResult(main, related, query, wordDefinition = null) {
       if (!main) {
         clearResults();
         return;
@@ -814,6 +895,14 @@
       sourceLink.href = main.url;
       sourceLink.textContent = main.sourceName + ' öffnen ↗';
       sourceDomain.textContent = main.sourceDomain;
+      if (wordDefinition && wordDefinition.term && wordDefinition.definition) {
+        wordCardTerm.textContent = wordDefinition.term;
+        wordCardDefinition.innerHTML = highlightImportant(wordDefinition.definition, query);
+        wordCardLink.href = wordDefinition.url || '#';
+        wordCard.hidden = false;
+      } else {
+        wordCard.hidden = true;
+      }
       sourceFavicon.onerror = () => {
         sourceFavicon.onerror = null;
         sourceFavicon.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"></svg>';
@@ -959,6 +1048,18 @@
         first.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
       );
       return result ? [result] : [];
+    }
+
+    function extractWordDefinitionCard(query, sourceResults) {
+      const normalizedQuery = sanitizeText(query);
+      if (!normalizedQuery || /\s/.test(normalizedQuery)) return null;
+      const wiktionaryResult = sourceResults.find(item => item.sourceName === 'Wiktionary' && item.text);
+      if (!wiktionaryResult) return null;
+      return {
+        term: sanitizeText(wiktionaryResult.title || normalizedQuery),
+        definition: sanitizeText(wiktionaryResult.text),
+        url: wiktionaryResult.url
+      };
     }
 
     async function searchWikidata(query) {
@@ -1187,8 +1288,8 @@
     }
 
     // ── Search handler ───────────────────────────────────────
-    async function handleSearch(sourceInput) {
-      const originalQuery = (sourceInput || activeInput()).value.trim();
+    async function handleSearch(sourceInput, forcedQuery = '') {
+      const originalQuery = sanitizeText(forcedQuery || (sourceInput || activeInput()).value.trim());
       if (!originalQuery) {
         setSearchState('Bitte gib einen Suchbegriff ein.', false, true);
         clearResults();
@@ -1204,20 +1305,32 @@
       hideSuggestions();
 
       try {
-        const correction = await correctQueryWithLanguageTool(originalQuery);
-        const effectiveQuery = correction.correctedQuery || originalQuery;
+        let suggestedQuery = '';
+        if (!forcedQuery) {
+          const correction = await correctQueryWithLanguageTool(originalQuery);
+          if (correction.wasCorrected && correction.correctedQuery) {
+            suggestedQuery = correction.correctedQuery;
+          }
+        }
+
+        const effectiveQuery = originalQuery;
         const sourceResults = await searchAllSources(effectiveQuery);
+        const wordDefinitionCard = extractWordDefinitionCard(effectiveQuery, sourceResults);
 
         if (sourceResults.length === 0) {
-          setSearchState('Keine passenden Ergebnisse gefunden.', false, true);
           clearResults();
+          if (suggestedQuery) {
+            setCorrectionSuggestion(originalQuery, suggestedQuery);
+          } else {
+            setSearchState('Keine passenden Ergebnisse gefunden.', false, true);
+          }
           return;
         }
 
         const [main, ...related] = sourceResults;
-        showSearchResult(main, related.slice(0, 10), effectiveQuery);
-        if (correction.wasCorrected) {
-          setSearchState(`Eingabe korrigiert: „${originalQuery}“ → „${effectiveQuery}“.`);
+        showSearchResult(main, related.slice(0, 10), effectiveQuery, wordDefinitionCard);
+        if (suggestedQuery) {
+          setCorrectionSuggestion(originalQuery, suggestedQuery);
         } else {
           setSearchState('');
         }
