@@ -1201,6 +1201,7 @@
       const PERSON_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`;
       const AUTH_AREAS = [heroAuthArea, headerAuthArea];
       const CLERK_SCRIPT_SELECTOR = 'script[data-clerk-publishable-key]';
+      const CLERK_PRELOAD_TIMEOUT_MS = 1200;
       let clerkReadyPromise = null;
       let hasAuthListener = false;
 
@@ -1230,6 +1231,11 @@
           };
           clerkScript.addEventListener('load', onLoad);
           clerkScript.addEventListener('error', onError);
+          if (window.Clerk) {
+            cleanup();
+            resolve(window.Clerk);
+            return;
+          }
           timeoutId = window.setTimeout(() => {
             cleanup();
             reject(new Error('Clerk Timeout'));
@@ -1308,7 +1314,7 @@
       renderSignInFallback();
       const preloadClerk = () => ensureClerkLoaded().catch(() => {});
       if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(preloadClerk, { timeout: 1200 });
+        window.requestIdleCallback(preloadClerk, { timeout: CLERK_PRELOAD_TIMEOUT_MS });
       } else {
         window.setTimeout(preloadClerk, 250);
       }
