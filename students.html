@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ThatSearch</title>
+  <title>ThatSearch for Students</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -389,18 +389,6 @@
       box-sizing: border-box;
     }
 
-    .word-card,
-    .wikipedia-result,
-    .table-wrapper {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .word-card:hover,
-    .wikipedia-result:hover {
-      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-      transform: translateY(-2px);
-    }
-
     .results-count {
       font-size: 0.82rem;
       color: var(--muted);
@@ -418,6 +406,12 @@
       backdrop-filter: blur(16px) saturate(180%);
       -webkit-backdrop-filter: blur(16px) saturate(180%);
       box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .wikipedia-result:hover {
+      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
     }
 
     .wikipedia-result h2 {
@@ -456,6 +450,12 @@
       backdrop-filter: blur(16px) saturate(180%);
       -webkit-backdrop-filter: blur(16px) saturate(180%);
       box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .word-card:hover {
+      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
     }
 
     .word-card h2 {
@@ -710,7 +710,7 @@
     <!-- Sticky header (shown after search) -->
     <header class="site-header" id="siteHeader">
       <button class="header-logo" id="headerLogo" type="button" aria-label="Zurück zur Startseite">
-        <span>ThatSearch</span>
+        <span>ThatSearch</span><span class="logo-sub">for Students</span>
       </button>
       <div class="header-search-box" id="headerSearchBox">
         <div class="search-bar">
@@ -735,16 +735,17 @@
       <div class="hero-auth-area" id="heroAuthArea"></div>
 
       <div class="mode-toggle" id="modeToggle">
-        <span class="mode-toggle-btn active">ThatSearch</span>
-        <a href="students.html" class="mode-toggle-btn">ThatSearch for Students</a>
+        <a href="index.html" class="mode-toggle-btn">ThatSearch</a>
+        <span class="mode-toggle-btn active">ThatSearch for Students</span>
         <a href="orbit.html" class="mode-toggle-btn">Orbit <span style="font-size:0.7em;background:linear-gradient(135deg,#f97316,#facc15);color:#000;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:2px;">BETA</span></a>
       </div>
 
-      <div class="hero-logo" aria-label="ThatSearch">
+      <div class="hero-logo" aria-label="ThatSearch for Students">
         <span>ThatSearch</span>
+        <span class="logo-sub">for Students</span>
       </div>
 
-      <p class="hero-tagline">Deine Suchmaschine</p>
+      <p class="hero-tagline">Deine Suchmaschine für die Schule</p>
 
       <div class="hero-search-box" id="heroSearchBox">
         <div class="search-bar">
@@ -796,7 +797,7 @@
     </main>
 
     <footer class="site-footer">
-      ThatSearch &mdash; Unterstützt von öffentlichen APIs &mdash;
+      ThatSearch for Students &mdash; Unterstützt von öffentlichen APIs &mdash;
       <a href="/daten" style="color:inherit;text-decoration:underline;">Datenschutz</a>
     </footer>
   </div>
