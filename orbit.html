@@ -39,7 +39,7 @@
       --glass-blur: 20px;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     html, body {
       margin: 0;
@@ -51,17 +51,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      height: 100%;
-      color: var(--text);
-      background: var(--bg);
-      font-family: "Inter", "Segoe UI", Arial, sans-serif;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+    .app { -webkit-overflow-scrolling: touch; }
 
     .app {
       display: flex;
@@ -75,65 +65,6 @@
       width: 100%; height: 100%;
       z-index: 0;
       pointer-events: none;
-    }
-
-    .app.has-results #starCanvas { opacity: 0.4; transition: opacity 0.6s; }
-
-    /* ── Header ── */
-    .site-header {
-      display: none;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10, 14, 26, 0.75);
-      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 24px;
-      transition: all 0.3s ease;
-    }
-
-    .app.has-results .site-header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .header-logo {
-      flex-shrink: 0;
-      font-size: 1.3rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      text-decoration: none;
-      cursor: pointer;
-      user-select: none;
-      border: none;
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      padding: 0;
-      font-family: inherit;
-    }
-
-    .header-logo .beta-badge {
-      font-size: 0.5em;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      background: linear-gradient(135deg, #f97316, #facc15);
-      color: #000;
-      padding: 2px 7px;
-      border-radius: 6px;
-      vertical-align: middle;
-      margin-left: 6px;
-      text-transform: uppercase;
-      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
-    }
-
-    .header-search-box {
-      flex: 1;
-      max-width: 580px;
-      position: relative;
     }
 
     .sign-in-btn {
@@ -182,15 +113,19 @@
       flex-shrink: 0;
     }
 
-    .app.has-results .hero { display: none; }
-
     .hero-logo {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 6px;
       font-size: clamp(2.6rem, 7vw, 4.5rem);
       font-weight: 800;
       letter-spacing: -2px;
       line-height: 1;
       margin-bottom: 4px;
       user-select: none;
+    }
+
+    .hero-logo .logo-text {
       background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--primary) 25%, var(--accent-violet) 50%, var(--primary) 75%, var(--accent-cyan) 100%);
       background-size: 200% 200%;
       -webkit-background-clip: text;
@@ -200,36 +135,15 @@
       filter: drop-shadow(0 0 20px rgba(124, 106, 239, 0.3));
     }
 
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .hero-logo .logo-sub {
+    .logo-sub {
       display: block;
       font-size: clamp(0.65rem, 1.4vw, 0.95rem);
       font-weight: 500;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      -webkit-text-fill-color: var(--text-secondary);
       color: var(--text-secondary);
-      margin-top: 6px;
-    }
-
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .hero-logo .logo-sub {
-      display: block;
-      font-size: clamp(0.65rem, 1.4vw, 0.95rem);
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      -webkit-text-fill-color: var(--text-secondary);
-      color: var(--text-secondary);
-      margin-top: 6px;
+      margin-top: 4px;
+      text-align: center;
     }
 
     .hero-tagline {
@@ -237,19 +151,6 @@
       font-size: clamp(0.9rem, 1.5vw, 1.05rem);
       color: var(--text-secondary);
       font-weight: 400;
-    }
-
-    .hero-search-box {
-      width: min(560px, 92vw);
-      position: relative;
-    }
-
-    .hero-search-box .search-bar {
-      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    }
-
-    .hero-search-box .search-bar:focus-within {
-      box-shadow: var(--shadow-lg), 0 0 0 3px rgba(124, 106, 239, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
     .hero-auth-area {
@@ -260,166 +161,6 @@
       display: flex;
       align-items: center;
     }
-
-    .app.has-results .hero-auth-area { display: none; }
-
-    .header-auth-area {
-      margin-left: auto;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-    }
-
-    /* ── Search Bar ── */
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: visible;
-    }
-
-    .search-bar:focus-within {
-      box-shadow: 0 0 0 3px rgba(124, 106, 239, 0.2), var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      border-color: var(--border-focus);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .search-bar:focus-within {
-      box-shadow: 0 0 0 1px var(--border-focus), var(--shadow-md);
-      border-color: var(--border-focus);
-    }
-
-    .search-icon {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      padding: 0 14px 0 18px;
-      color: var(--text-secondary);
-    }
-
-    .search-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-    #searchInput, #headerSearchInput {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 13px 0;
-      font: inherit;
-      font-size: 1rem;
-      color: var(--text);
-      outline: none;
-    }
-
-    #headerSearchInput { padding: 10px 0; font-size: 0.97rem; }
-
-    .search-submit {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      margin: 4px 6px 4px 0;
-      border: none;
-      background: transparent;
-      border-radius: 50%;
-      cursor: pointer;
-      color: var(--primary);
-      font: inherit;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .search-submit:hover {
-      background: rgba(124, 106, 239, 0.15);
-      transform: scale(1.05);
-    }
-    .search-submit:disabled { opacity: 0.5; cursor: progress; }
-    .search-submit svg { width: 20px; height: 20px; }
-
-    /* ── Suggestions ── */
-    .suggestions {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: calc(100% + 2px);
-      display: none;
-      flex-direction: column;
-      padding: 8px 0;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      background: rgba(15, 21, 37, 0.92);
-      backdrop-filter: blur(24px) saturate(200%);
-      -webkit-backdrop-filter: blur(24px) saturate(200%);
-      box-shadow: var(--shadow-lg);
-      z-index: 200;
-      text-align: left;
-      overflow: hidden;
-    }
-
-    .suggestions.visible { display: flex; }
-
-    .suggestion-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border: none;
-      padding: 10px 20px;
-      background: transparent;
-      color: var(--text);
-      font: inherit;
-      font-size: 0.97rem;
-      cursor: pointer;
-      text-align: left;
-      transition: background 0.1s;
-    }
-
-    .suggestion-item::before {
-      content: "";
-      display: block;
-      width: 18px; height: 18px;
-      flex-shrink: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b8fa3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: contain;
-    }
-
-    .suggestion-item:hover, .suggestion-item:focus {
-      background: rgba(124, 106, 239, 0.12);
-      outline: none;
-    }
-
-    /* ── Status ── */
-    .status {
-      min-height: 20px;
-      margin-top: 8px;
-      color: var(--text-secondary);
-      font-size: 0.88rem;
-      text-align: left;
-      padding: 0 20px;
-    }
-
-    .status.loading { color: var(--primary); }
-    .status.error   { color: var(--error); }
-
-    .loading-row { display: inline-flex; align-items: center; gap: 8px; }
-
-    .spinner {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 2px solid rgba(124, 106, 239, 0.25);
-      border-top-color: var(--accent-cyan);
-      animation: spin 0.72s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Mode Toggle ── */
     .mode-toggle {
@@ -438,8 +179,6 @@
       gap: 2px;
       box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
-
-    .app.has-results .mode-toggle { top: 12px; }
 
     .mode-toggle-btn {
       border: none;
@@ -468,18 +207,6 @@
       background: rgba(124, 106, 239, 0.1);
     }
 
-    .mode-toggle-btn.active {
-      background: linear-gradient(135deg, var(--primary), #a78bfa);
-      color: #fff;
-      cursor: default;
-    }
-
-    .mode-toggle-btn:hover:not(.active) {
-      color: var(--text);
-      background: var(--surface-hover);
-    }
-
-    /* ── Results ── */
     .results-page {
       max-width: 720px;
       margin: 0 auto;
@@ -487,215 +214,6 @@
       flex: 1;
       width: 100%;
     }
-
-    .results-count {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .results { display: grid; gap: 0; }
-
-    .wikipedia-result {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 20px 22px;
-      margin-bottom: 20px;
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .wikipedia-result:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      transform: translateY(-2px);
-    }
-
-    .wikipedia-result h2 {
-      margin: 0 0 4px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
-    }
-
-    .wikipedia-result .source-domain {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      font-size: 0.88rem;
-      color: var(--text-secondary);
-    }
-
-    .source-favicon { width: 16px; height: 16px; border-radius: 4px; }
-
-    .result-text {
-      margin: 0 0 12px;
-      line-height: 1.7;
-      font-size: 0.97rem;
-      color: var(--text);
-    }
-
-    .word-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 18px 22px;
-      margin-bottom: 20px;
-      background: rgba(124, 106, 239, 0.06);
-      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .word-card:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      transform: translateY(-2px);
-    }
-
-    .word-card h2 {
-      margin: 0 0 8px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
-    }
-
-    .word-card-term { margin: 0 0 8px; font-size: 1.3rem; font-weight: 700; color: var(--text); }
-    .word-card-definition { margin: 0 0 10px; line-height: 1.7; font-size: 0.97rem; color: var(--text); }
-
-    .status-suggestion-btn {
-      border: none;
-      background: transparent;
-      color: var(--primary);
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 6px;
-      text-decoration: underline;
-      transition: all 0.2s ease;
-    }
-
-    .status-suggestion-btn:hover {
-      color: var(--accent-cyan);
-      background: rgba(124, 106, 239, 0.12);
-    }
-
-    .result-text mark, .article-item-snippet mark {
-      background: rgba(124, 106, 239, 0.25);
-      color: var(--text);
-      border-radius: 4px;
-      padding: 0 3px;
-      font-weight: 600;
-    }
-
-    .source-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      color: var(--primary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-
-    .source-link:hover {
-      text-decoration: underline;
-      transform: translateX(2px);
-      color: var(--accent-cyan);
-    }
-
-    .table-wrapper {
-      display: none;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      margin-bottom: 20px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .table-wrapper.visible { display: block; }
-    .table-container { max-height: 420px; overflow: auto; }
-    .table-container table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-
-    .table-container th, .table-container td {
-      border-bottom: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      padding: 9px 12px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    .table-container td:last-child, .table-container th:last-child { border-right: none; }
-    .table-container tr:last-child td { border-bottom: none; }
-
-    .table-container th {
-      background: rgba(124, 106, 239, 0.08);
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
-    .table-container tr:hover td { background: rgba(124, 106, 239, 0.05); }
-
-    .related { display: grid; gap: 4px; }
-
-    .related-heading {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
-      margin: 0 0 12px;
-    }
-
-    .article-item {
-      padding: 12px 16px;
-      border-radius: var(--radius-card);
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .article-item:hover {
-      background: rgba(124, 106, 239, 0.08);
-      transform: translateX(4px);
-    }
-    .article-item-source { font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 2px; }
-
-    .article-item-title {
-      margin: 0 0 3px;
-      color: var(--primary);
-      font-weight: 500;
-      font-size: 1.05rem;
-      text-decoration: none;
-      display: block;
-    }
-
-    .article-item:hover .article-item-title { text-decoration: underline; }
-
-    .article-item-snippet { margin: 0; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
-
-    .main-result { display: grid; gap: 0; }
-    .main-result.with-table { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 20px; }
-
-    [hidden] { display: none !important; }
 
     .site-footer {
       border-top: 1px solid var(--border);
@@ -708,47 +226,48 @@
       text-align: center;
     }
 
-    .app.has-results .site-footer { display: none; }
-
-    @media (max-width: 900px) {
-      .main-result.with-table { grid-template-columns: 1fr; }
+    @media (max-width: 640px) {
+      .hero { padding-top: clamp(24px, 6vh, 48px); }
+      .hero-logo { font-size: clamp(2rem, 6vw, 3rem); }
+      .hero-tagline { font-size: 0.85rem; margin-bottom: 20px; }
+      .sign-in-btn span { display: none; }
+      .sign-in-btn { padding: 6px 8px; }
+      .sign-in-btn svg { width: 22px; height: 22px; }
+      .mode-toggle { padding: 2px; gap: 1px; }
+      .mode-toggle-btn { font-size: 0.7rem; padding: 4px 8px; }
     }
 
-    @media (max-width: 640px) {
-      .site-header { padding: 8px 14px; gap: 12px; }
-      .results-page { padding: 16px 14px 48px; }
-      .hero { padding-top: clamp(30px, 8vh, 60px); }
-      #searchInput, #headerSearchInput { font-size: 0.94rem; }
-      .sign-in-btn span { display: none; }
-      .sign-in-btn { padding: 7px 10px; }
-      .mode-toggle-btn { font-size: 0.72rem; padding: 4px 10px; }
+    @media (max-width: 480px) {
+      .mode-toggle {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        white-space: nowrap;
+        max-width: calc(100vw - 60px);
+        justify-content: flex-start;
+      }
+      .mode-toggle::-webkit-scrollbar { display: none; }
+      .hero { padding-top: 18px; }
+      #discoveryGrid { gap: 12px; grid-template-columns: 1fr; }
+      .planets-scroll { gap: 8px; }
+      .planet-item { width: 100px; padding: 10px 8px; }
+      .planet-item .planet-dot { width: 32px; height: 32px; }
+      #jwc .jwst-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .logo-sub { font-size: 0.6rem; }
+      .hero-tagline { font-size: 0.8rem; margin-bottom: 16px; }
+      .hero-auth-area { top: 0.6rem; right: 0.8rem; }
+    }
+
+    @media (max-width: 380px) {
+      .mode-toggle-btn { font-size: 0.65rem; padding: 3px 6px; }
+      .planet-item { width: 90px; }
+      #jwc .jwst-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
   <div class="app" id="app">
     <canvas id="starCanvas"></canvas>
-
-    <header class="site-header" id="siteHeader">
-      <button class="header-logo" id="headerLogo" type="button" aria-label="Back to homepage">
-        <span>Orbit</span>
-        <span class="beta-badge">BETA</span>
-      </button>
-      <div class="header-search-box" id="headerSearchBox">
-        <div class="search-bar">
-          <span class="search-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </span>
-          <input id="headerSearchInput" type="text" placeholder="Explore the universe..." autocomplete="off" aria-label="Search" />
-          <button class="search-submit" id="headerSearchButton" type="button" aria-label="Search">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-          </button>
-        </div>
-        <div class="suggestions" id="headerSuggestions" role="listbox" aria-label="Suggestions"></div>
-        <div class="status" id="headerStatus" aria-live="polite"></div>
-      </div>
-      <div class="header-auth-area" id="headerAuthArea"></div>
-    </header>
 
     <section class="hero" id="hero">
       <div class="hero-auth-area" id="heroAuthArea"></div>
@@ -760,25 +279,11 @@
       </div>
 
       <div class="hero-logo" aria-label="Orbit">
-        <span>Orbit</span>
-        <span class="logo-sub">Discover Beyond Earth</span>
+        <span class="logo-text">Orbit</span>
+        <span class="beta-badge" style="font-size:0.55rem;background:linear-gradient(135deg,#f97316,#facc15);color:#000;padding:5px;border-radius:3px;vertical-align:super;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;line-height:1;margin-top:0.3em;">BETA</span>
       </div>
+      <span class="logo-sub">Discover Beyond Earth</span>
 
-      <p class="hero-tagline">Explore the universe — space missions, planets, astronomy &amp; more</p>
-
-      <div class="hero-search-box" id="heroSearchBox">
-        <div class="search-bar">
-          <span class="search-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </span>
-          <input id="searchInput" type="text" placeholder="Explore the universe..." autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions" />
-          <button class="search-submit" id="searchButton" type="button" aria-label="Search">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-          </button>
-        </div>
-        <div class="suggestions" id="searchSuggestions" role="listbox" aria-label="Suggestions"></div>
-        <div class="status" id="searchStatus" aria-live="polite"></div>
-      </div>
     </section>
 
     <main class="results-page" id="orbitContent">
@@ -883,35 +388,6 @@
       </section>
     </main>
 
-    <main class="results-page" id="resultsPage" hidden>
-      <p class="results-count" id="resultsCount"></p>
-      <section class="results" id="results" hidden>
-        <article class="word-card" id="wordCard" hidden>
-          <h2 id="wordCardHeading">Word Definition</h2>
-          <p class="word-card-term" id="wordCardTerm"></p>
-          <p class="word-card-definition" id="wordCardDefinition"></p>
-          <a class="source-link" id="wordCardLink" href="#" target="_blank" rel="noopener noreferrer">Open source ↗</a>
-        </article>
-
-        <article class="main-result" id="mainResult">
-          <div class="wikipedia-result" id="wikipediaResult" hidden>
-            <h2>Featured Result</h2>
-            <div class="source-domain">
-              <img class="source-favicon" id="sourceFavicon" src="" alt="" aria-hidden="true" />
-              <span id="sourceDomain">en.wikipedia.org</span>
-            </div>
-            <p class="result-text" id="resultText"></p>
-            <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">Open source ↗</a>
-          </div>
-          <div class="table-wrapper" id="tableWrapper"></div>
-        </article>
-
-        <section class="related" id="relatedArticles" hidden>
-          <p class="related-heading">More results</p>
-          <div id="articleList"></div>
-        </section>
-      </section>
-    </main>
 
     <footer class="site-footer">
       Orbit (BETA) — Discover Beyond Earth —
@@ -921,6 +397,16 @@
 
   <style>
     /* ── Orbit-specific discovery card styles ── */
+    #orbitContent {
+      max-width: 960px;
+    }
+
+    #discoveryGrid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
     .discovery-card {
       border: 1px solid var(--border);
       border-radius: var(--radius-card);
@@ -936,11 +422,6 @@
       border-color: rgba(255, 255, 255, 0.15);
       box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
       transform: translateY(-2px);
-    }
-
-    .discovery-card:hover {
-      border-color: rgba(255,255,255,0.14);
-      box-shadow: var(--shadow-md);
     }
 
     .discovery-card .card-header {
@@ -1072,8 +553,6 @@
       transform: translateY(-1px);
     }
 
-    .fact-btn:hover { background: var(--surface-hover); border-color: rgba(255,255,255,0.15); }
-
     .planets-scroll {
       display: flex;
       gap: 12px;
@@ -1105,8 +584,6 @@
       transform: translateY(-4px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     }
-
-    .planet-item:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-2px); }
 
     .planet-item .planet-dot {
       width: 44px; height: 44px;
@@ -1242,35 +719,7 @@
     ];
 
     // === DOM REFS ===
-    const app             = document.getElementById('app');
-    const resultsPage     = document.getElementById('resultsPage');
-    const resultsCount    = document.getElementById('resultsCount');
-    const results         = document.getElementById('results');
-    const mainResult      = document.getElementById('mainResult');
-    const wikipediaResult = document.getElementById('wikipediaResult');
-    const resultText      = document.getElementById('resultText');
-    const wordCard        = document.getElementById('wordCard');
-    const wordCardHeading = document.getElementById('wordCardHeading');
-    const wordCardTerm    = document.getElementById('wordCardTerm');
-    const wordCardDefinition = document.getElementById('wordCardDefinition');
-    const wordCardLink    = document.getElementById('wordCardLink');
-    const sourceLink      = document.getElementById('sourceLink');
-    const sourceFavicon   = document.getElementById('sourceFavicon');
-    const sourceDomain    = document.getElementById('sourceDomain');
-    const tableWrapper    = document.getElementById('tableWrapper');
-    const relatedArticles = document.getElementById('relatedArticles');
-    const articleList     = document.getElementById('articleList');
-    const headerLogo      = document.getElementById('headerLogo');
-    const heroAuthArea    = document.getElementById('heroAuthArea');
-    const headerAuthArea  = document.getElementById('headerAuthArea');
-    const searchInput       = document.getElementById('searchInput');
-    const searchButton      = document.getElementById('searchButton');
-    const searchSuggestions = document.getElementById('searchSuggestions');
-    const searchStatus      = document.getElementById('searchStatus');
-    const headerSearchInput  = document.getElementById('headerSearchInput');
-    const headerSearchButton = document.getElementById('headerSearchButton');
-    const headerSuggestions  = document.getElementById('headerSuggestions');
-    const headerStatus       = document.getElementById('headerStatus');
+    const heroAuthArea = document.getElementById('heroAuthArea');
 
     const apodContent     = document.getElementById('apodContent');
     const missionsContent = document.getElementById('missionsContent');
@@ -1280,33 +729,26 @@
     const factText        = document.getElementById('factText');
     const newFactBtn      = document.getElementById('newFactBtn');
 
-    const wikipediaApi = 'https://en.wikipedia.org/w/api.php';
-    const localSuggestions = ['mars', 'jupiter', 'international space station', 'black holes', 'milky way', 'james webb', 'apollo 11', 'solar system', 'andromeda', 'supernova', 'exoplanets', 'spacex'];
-
-    let autocompleteRequestId = 0;
-    let autocompleteDebounce = null;
-    const BLUR_DELAY_MS = 150;
-    const languageToolCorrectionsCache = new Map();
-    const LANGUAGE_TOOL_CACHE_LIMIT = 100;
-    const LANGUAGE_TOOL_API_TIMEOUT_MS = 1200;
-
     // === STAR CANVAS ===
     const canvas = document.getElementById('starCanvas');
     let ctx, stars = [], animId = null;
+
+    const isMobile = window.innerWidth < 640;
 
     function initStars() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       ctx = canvas.getContext('2d');
       stars = [];
-      const count = Math.floor((canvas.width * canvas.height) / 3500);
+      const divisor = isMobile ? 6000 : 3500;
+      const count = Math.floor((canvas.width * canvas.height) / divisor);
       for (let i = 0; i < count; i++) {
         stars.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 1.6 + 0.2,
-          opacity: Math.random() * 0.7 + 0.2,
-          twinkleSpeed: Math.random() * 0.015 + 0.004,
+          size: isMobile ? Math.random() * 1.2 + 0.2 : Math.random() * 1.6 + 0.2,
+          opacity: Math.random() * 0.5 + 0.2,
+          twinkleSpeed: isMobile ? Math.random() * 0.008 + 0.002 : Math.random() * 0.015 + 0.004,
           twinklePhase: Math.random() * Math.PI * 2
         });
       }
@@ -1316,20 +758,23 @@
     function drawStars() {
       if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
-      grad.addColorStop(0, 'rgba(15, 23, 60, 0)');
-      grad.addColorStop(1, 'rgba(10, 14, 26, 0.6)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (!isMobile) {
+        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
+        grad.addColorStop(0, 'rgba(15, 23, 60, 0)');
+        grad.addColorStop(1, 'rgba(10, 14, 26, 0.6)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       stars.forEach(star => {
         star.twinklePhase += star.twinkleSpeed;
-        const alpha = star.opacity * (Math.sin(star.twinklePhase) * 0.3 + 0.7);
+        const alpha = star.opacity * (Math.sin(star.twinklePhase) * 0.25 + 0.75);
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
         ctx.fill();
-        if (star.size > 1.2) {
+        if (!isMobile && star.size > 1.2) {
           ctx.beginPath();
           ctx.arc(star.x, star.y, star.size * 2.5, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(124, 106, 239, ' + (alpha * 0.06) + ')';
@@ -1343,314 +788,7 @@
     initStars();
 
     // === HELPERS ===
-    function sanitizeText(text) { return String(text || '').replace(/\s+/g, ' ').replace(/\(\s*[^)]*\s*\)/g, m => m.replace(/\s+/g, ' ')).trim(); }
-
-    function shortenSummary(text, sentenceCount = 3) {
-      const normalized = sanitizeText(text);
-      if (window.Intl && typeof Intl.Segmenter === 'function') {
-        const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
-        return Array.from(segmenter.segment(normalized), item => item.segment.trim()).filter(Boolean).slice(0, sentenceCount).join(' ');
-      }
-      return (normalized.match(/[^.!?]+[.!?]+\s*/g) || [normalized]).slice(0, sentenceCount).join(' ').trim();
-    }
-
     function escapeHtml(v) { return v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-    function escapeRegExp(v) { return v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-    function highlightImportant(text, query) {
-      const safe = escapeHtml(text || '');
-      const tokens = (query || '').toLowerCase().split(/\s+/).map(t => t.trim()).filter(t => t.length >= 3);
-      if (!tokens.length) return safe;
-      return safe.replace(new RegExp('(' + [...new Set(tokens)].map(escapeRegExp).join('|') + ')', 'gi'), '<mark>$1</mark>');
-    }
-
-    function getDomain(url) { try { return new URL(url).hostname; } catch { return ''; } }
-
-    function activeInput()       { return app.classList.contains('has-results') ? headerSearchInput  : searchInput; }
-    function activeStatus()      { return app.classList.contains('has-results') ? headerStatus       : searchStatus; }
-    function activeSuggestions() { return app.classList.contains('has-results') ? headerSuggestions  : searchSuggestions; }
-
-    function setSearchState(message, isLoading = false, isError = false) {
-      const el = activeStatus();
-      el.innerHTML = '';
-      el.className = 'status' + (isLoading ? ' loading' : '') + (isError ? ' error' : '');
-      if (!message) return;
-      if (isLoading) { el.innerHTML = '<span class="loading-row"><span class="spinner" aria-hidden="true"></span><span>' + message + '</span></span>'; return; }
-      el.textContent = message;
-    }
-
-    function setCorrectionSuggestion(original, suggested) {
-      const el = activeStatus();
-      el.innerHTML = '';
-      el.className = 'status';
-      el.appendChild(document.createTextNode('Did you mean '));
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'status-suggestion-btn';
-      btn.textContent = '\u201E' + suggested + '\u201C';
-      btn.addEventListener('click', () => { searchInput.value = suggested; headerSearchInput.value = suggested; handleSearch(activeInput(), suggested); });
-      el.appendChild(btn);
-      el.appendChild(document.createTextNode(' instead of \u201E' + original + '\u201C?'));
-    }
-
-    function hideSuggestions() {
-      [searchSuggestions, headerSuggestions].forEach(el => { el.classList.remove('visible'); el.innerHTML = ''; });
-      searchInput.setAttribute('aria-expanded', 'false');
-      headerSearchInput.setAttribute('aria-expanded', 'false');
-    }
-
-    function setSuggestions(items) {
-      const suggestEl = activeSuggestions();
-      const inputEl = activeInput();
-      suggestEl.innerHTML = '';
-      const unique = [...new Set(items)].slice(0, 8);
-      if (!unique.length) { hideSuggestions(); return; }
-      unique.forEach(item => {
-        const option = document.createElement('button');
-        option.type = 'button';
-        option.className = 'suggestion-item';
-        option.setAttribute('role', 'option');
-        option.textContent = item;
-        option.addEventListener('click', () => { inputEl.value = item; hideSuggestions(); handleSearch(inputEl); });
-        suggestEl.appendChild(option);
-      });
-      suggestEl.classList.add('visible');
-      inputEl.setAttribute('aria-expanded', 'true');
-    }
-
-    async function updateAutocomplete(query) {
-      const trimmed = query.trim();
-      const base = localSuggestions.filter(i => i.toLowerCase().includes(trimmed.toLowerCase()));
-      if (trimmed.length < 2) { setSuggestions(base.length ? base : localSuggestions); return; }
-      const id = ++autocompleteRequestId;
-      try {
-        const u = new URL(wikipediaApi);
-        u.search = new URLSearchParams({ action: 'opensearch', search: trimmed, limit: '6', namespace: '0', format: 'json', origin: '*' }).toString();
-        const r = await fetch(u.toString());
-        if (!r.ok) { setSuggestions(base.length ? base : localSuggestions); return; }
-        const d = await r.json();
-        const w = Array.isArray(d?.[1]) ? d[1] : [];
-        if (id === autocompleteRequestId) setSuggestions([...base, ...w]);
-      } catch { if (id === autocompleteRequestId) setSuggestions(base.length ? base : localSuggestions); }
-    }
-
-    function clearResults() {
-      results.hidden = true; resultsPage.hidden = true; wikipediaResult.hidden = true;
-      wordCard.hidden = true; relatedArticles.hidden = true; articleList.innerHTML = '';
-      resultText.textContent = ''; wordCardTerm.textContent = ''; wordCardDefinition.textContent = '';
-      wordCardLink.href = '#'; sourceLink.href = '#'; sourceDomain.textContent = '';
-      tableWrapper.innerHTML = ''; tableWrapper.classList.remove('visible');
-      mainResult.classList.remove('with-table'); app.classList.remove('has-results');
-    }
-
-    function showSearchResult(main, related, query, wordDef = null) {
-      if (!main) { clearResults(); return; }
-      app.classList.add('has-results'); resultsPage.hidden = false; results.hidden = false; wikipediaResult.hidden = false;
-      const sc = new Set([main, ...related].map(i => i.sourceName)).size;
-      const rc = [main, ...related].length;
-      headerSearchInput.value = query;
-      resultsCount.textContent = rc + ' ' + (rc === 1 ? 'Result' : 'Results') + ' from ' + sc + ' ' + (sc === 1 ? 'Source' : 'Sources') + ' for \u201E' + query + '\u201C';
-      resultText.innerHTML = highlightImportant([main.title, main.text].filter(Boolean).join(' \u2014 '), query);
-      sourceLink.href = main.url;
-      sourceLink.textContent = 'Open ' + main.sourceName + ' \u2197';
-      sourceDomain.textContent = main.sourceDomain;
-      if (wordDef?.term && wordDef?.definition) {
-        wordCardHeading.setAttribute('aria-label', 'Word definition for ' + wordDef.term);
-        wordCardTerm.textContent = wordDef.term;
-        wordCardDefinition.innerHTML = highlightImportant(wordDef.definition, query);
-        wordCardLink.href = wordDef.url || '#';
-        wordCard.hidden = false;
-      } else { wordCardHeading.removeAttribute('aria-label'); wordCard.hidden = true; }
-      sourceFavicon.onerror = () => { sourceFavicon.onerror = null; sourceFavicon.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"></svg>'; };
-      if (main.sourceDomain) sourceFavicon.src = 'https://' + main.sourceDomain + '/favicon.ico';
-      tableWrapper.innerHTML = ''; tableWrapper.classList.remove('visible'); mainResult.classList.remove('with-table');
-      if (main.tableHtml) {
-        const c = document.createElement('div'); c.className = 'table-container'; c.innerHTML = main.tableHtml;
-        c.querySelectorAll('[style]').forEach(n => n.removeAttribute('style'));
-        tableWrapper.appendChild(c); tableWrapper.classList.add('visible'); mainResult.classList.add('with-table');
-      }
-      articleList.innerHTML = '';
-      related.forEach(item => {
-        const a = document.createElement('article'); a.className = 'article-item';
-        a.innerHTML = '<p class="article-item-source"></p><p class="article-item-title"></p><p class="article-item-snippet"></p>';
-        a.querySelector('.article-item-source').textContent = item.sourceDomain || item.sourceName;
-        a.querySelector('.article-item-title').textContent = item.title || ('Result from ' + item.sourceName);
-        a.querySelector('.article-item-snippet').innerHTML = highlightImportant(item.text, query);
-        a.addEventListener('click', () => window.open(item.url, '_blank', 'noopener'));
-        articleList.appendChild(a);
-      });
-      relatedArticles.hidden = !related.length;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function normalizeResult(sourceName, url, title, text, tableHtml = '') {
-      if (!url || !text) return null;
-      return { sourceName, sourceDomain: getDomain(url), url, title: sanitizeText(title || ''), text: shortenSummary(text, 2), tableHtml };
-    }
-
-    // === SEARCH ===
-    async function searchWikipedia(query) {
-      const searchUrl = new URL(wikipediaApi);
-      searchUrl.search = new URLSearchParams({ action: 'query', list: 'search', srsearch: query, srlimit: '8', format: 'json', origin: '*' }).toString();
-      const sr = await fetch(searchUrl.toString());
-      if (!sr.ok) return [];
-      const sd = await sr.json();
-      const srs = sd?.query?.search || [];
-      if (!srs.length) return [];
-      const fm = srs[0];
-      const du = new URL(wikipediaApi);
-      du.search = new URLSearchParams({ action: 'query', prop: 'extracts|info', pageids: String(fm.pageid), exintro: '1', explaintext: '1', exsentences: '4', inprop: 'url', format: 'json', origin: '*' }).toString();
-      const dr = await fetch(du.toString());
-      if (!dr.ok) return [];
-      const dd = await dr.json();
-      const p = dd?.query?.pages?.[fm.pageid];
-      if (!p?.extract) return [];
-      const pu = new URL(wikipediaApi);
-      pu.search = new URLSearchParams({ action: 'parse', pageid: String(fm.pageid), prop: 'text', format: 'json', origin: '*' }).toString();
-      let th = '';
-      try { const pr = await fetch(pu.toString()); if (pr.ok) { const pd = await pr.json(); const h = pd?.parse?.text?.['*']; if (h) { const doc = new DOMParser().parseFromString(h, 'text/html'); const t = doc.querySelector('table.wikitable') || doc.querySelector('table.infobox') || doc.querySelector('table'); if (t) th = t.outerHTML; } } } catch {}
-      const result = normalizeResult('Wikipedia', p.fullurl || 'https://en.wikipedia.org/?curid=' + fm.pageid, p.title || fm.title, p.extract, th);
-      const related = srs.slice(1, 6).map(i => normalizeResult('Wikipedia', 'https://en.wikipedia.org/?curid=' + i.pageid, i.title, i.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())).filter(Boolean);
-      return result ? [result, ...related] : related;
-    }
-
-    async function searchNasa(query) {
-      const u = new URL('https://images-api.nasa.gov/search'); u.search = new URLSearchParams({ q: query, media_type: 'image' }).toString();
-      const r = await fetch(u.toString()); if (!r.ok) return [];
-      const d = await r.json(); const fi = d?.collection?.items?.[0]; const f = fi?.data?.[0]; if (!f) return [];
-      const result = normalizeResult('NASA', fi?.href || ('https://images.nasa.gov/search-results?q=' + encodeURIComponent(query)), f.title || 'NASA', f.description || 'Result from NASA Image API');
-      return result ? [result] : [];
-    }
-
-    async function searchWiktionary(query) {
-      const u = new URL('https://en.wiktionary.org/w/api.php');
-      u.search = new URLSearchParams({ action: 'query', list: 'search', srsearch: query, srlimit: '1', format: 'json', origin: '*' }).toString();
-      const r = await fetch(u.toString()); if (!r.ok) return [];
-      const d = await r.json(); const f = d?.query?.search?.[0]; if (!f) return [];
-      const result = normalizeResult('Wiktionary', 'https://en.wiktionary.org/?curid=' + f.pageid, f.title, f.snippet.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim());
-      return result ? [result] : [];
-    }
-
-    function extractWordDefinitionCard(query, sourceResults) {
-      const nq = sanitizeText(query);
-      if (!nq || /\s/.test(nq)) return null;
-      const wr = sourceResults.find(i => i.sourceName === 'Wiktionary' && i.text);
-      if (!wr) return null;
-      return { term: sanitizeText(wr.title || nq), definition: sanitizeText(wr.text), url: wr.url };
-    }
-
-    async function searchWikidata(query) {
-      const u = new URL('https://www.wikidata.org/w/api.php');
-      u.search = new URLSearchParams({ action: 'wbsearchentities', search: query, language: 'en', limit: '1', format: 'json', origin: '*' }).toString();
-      const r = await fetch(u.toString()); if (!r.ok) return [];
-      const d = await r.json(); const f = d?.search?.[0]; if (!f) return [];
-      return [normalizeResult('Wikidata', f.concepturi || 'https://www.wikidata.org/wiki/' + f.id, f.label || f.id, f.description || 'Entry in Wikidata')].filter(Boolean);
-    }
-
-    async function searchDuckDuckGo(query) {
-      const u = new URL('https://api.duckduckgo.com/');
-      u.search = new URLSearchParams({ q: query, format: 'json', no_html: '1', no_redirect: '1', t: 'Orbit' }).toString();
-      const r = await fetch(u.toString()); if (!r.ok) return [];
-      const d = await r.json(); const at = sanitizeText(d?.AbstractText || ''); const au = d?.AbstractURL || '';
-      if (!at || !au) return [];
-      return [normalizeResult('DuckDuckGo', au, d?.Heading || 'DuckDuckGo', at)].filter(Boolean);
-    }
-
-    async function searchOpenLibrary(query) {
-      const u = new URL('https://openlibrary.org/search.json'); u.search = new URLSearchParams({ q: query, limit: '1' }).toString();
-      const r = await fetch(u.toString()); if (!r.ok) return [];
-      const d = await r.json(); const f = d?.docs?.[0]; if (!f?.key) return [];
-      const meta = [f.author_name?.[0] ? 'Author: ' + f.author_name[0] : '', f.first_publish_year ? 'First published: ' + f.first_publish_year : ''].filter(Boolean).join(' \u00B7 ');
-      return [normalizeResult('Open Library', 'https://openlibrary.org' + f.key, f.title || 'Open Library', meta || 'Result from Open Library')].filter(Boolean);
-    }
-
-    async function searchRestCountries(query) {
-      const r = await fetch('https://restcountries.com/v3.1/name/' + encodeURIComponent(query) + '?fields=name,capital,region,population,cca2');
-      if (!r.ok) return [];
-      const cs = await r.json(); const f = Array.isArray(cs) ? cs[0] : null; if (!f?.name?.common) return [];
-      const text = [f.capital?.[0] ? 'Capital: ' + f.capital[0] : '', f.region ? 'Region: ' + f.region : '', Number.isFinite(f.population) ? 'Population: ' + (window.Intl ? f.population.toLocaleString('en-US') : String(f.population)) : ''].filter(Boolean).join(' \u00B7 ');
-      return [normalizeResult('REST Countries', 'https://restcountries.com/v3.1/name/' + encodeURIComponent(f.name.common), f.name.common, text || 'Country data from REST Countries')].filter(Boolean);
-    }
-
-    async function searchCrossref(query) {
-      const u = new URL('https://api.crossref.org/works'); u.search = new URLSearchParams({ 'query.bibliographic': query, rows: '1' }).toString();
-      const r = await fetch(u.toString()); if (!r.ok) return [];
-      const d = await r.json(); const f = d?.message?.items?.[0]; if (!f) return [];
-      const title = f.title?.[0] || 'Crossref';
-      const author = f.author?.[0] ? [f.author[0].given, f.author[0].family].filter(Boolean).join(' ') : '';
-      const year = f.created?.['date-parts']?.[0]?.[0];
-      const text = [author, year ? 'Year: ' + year : '', f.publisher ? 'Publisher: ' + f.publisher : ''].filter(Boolean).join(' \u00B7 ');
-      return [normalizeResult('Crossref', f.URL || (f.DOI ? 'https://doi.org/' + f.DOI : ''), title, text || 'Scholarly result from Crossref')].filter(Boolean);
-    }
-
-    function withTimeout(promise, timeoutMs = 1500) {
-      let tid = null;
-      return Promise.race([Promise.resolve(promise).catch(() => []), new Promise(r => { tid = window.setTimeout(() => r([]), timeoutMs); })]).finally(() => { if (tid !== null) window.clearTimeout(tid); });
-    }
-
-    async function correctQueryWithLanguageTool(query) {
-      const cq = sanitizeText(query);
-      if (!cq) return { correctedQuery: cq, wasCorrected: false };
-      const ck = cq.toLowerCase();
-      if (languageToolCorrectionsCache.has(ck)) return languageToolCorrectionsCache.get(ck);
-      const setCache = (k, v) => { if (languageToolCorrectionsCache.size >= LANGUAGE_TOOL_CACHE_LIMIT) { const ok = languageToolCorrectionsCache.keys().next().value; if (ok) languageToolCorrectionsCache.delete(ok); } languageToolCorrectionsCache.set(k, v); };
-      try {
-        const ac = new AbortController(); let tid = null;
-        try { tid = window.setTimeout(() => ac.abort(), LANGUAGE_TOOL_API_TIMEOUT_MS); } finally { if (tid !== null) window.clearTimeout(tid); }
-        const r = await fetch('https://api.languagetool.org/v2/check', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, signal: ac.signal, body: new URLSearchParams({ text: cq, language: 'en-US' }).toString() });
-        if (!r.ok) { const fc = { correctedQuery: cq, wasCorrected: false }; setCache(ck, fc); return fc; }
-        const d = await r.json(); const ms = Array.isArray(d?.matches) ? d.matches : [];
-        if (!ms.length) { const fc = { correctedQuery: cq, wasCorrected: false }; setCache(ck, fc); return fc; }
-        let cr = cq, od = 0;
-        ms.filter(m => { const it = m?.rule?.issueType; return !it || it === 'misspelling' || it === 'typographical'; }).sort((a, b) => a.offset - b.offset).forEach(m => { const rp = m?.replacements?.[0]?.value; if (!rp) return; const s = m.offset + od; cr = cr.slice(0, s) + rp + cr.slice(s + m.length); od += rp.length - m.length; });
-        cr = sanitizeText(cr);
-        const c = { correctedQuery: cr, wasCorrected: cr.toLowerCase() !== cq.toLowerCase() }; setCache(ck, c); return c;
-      } catch { const fc = { correctedQuery: cq, wasCorrected: false }; setCache(ck, fc); return fc; }
-    }
-
-    async function searchAllSources(query) {
-      const r = await Promise.allSettled([withTimeout(searchWikipedia(query)), withTimeout(searchWiktionary(query)), withTimeout(searchWikidata(query)), withTimeout(searchDuckDuckGo(query)), withTimeout(searchOpenLibrary(query)), withTimeout(searchRestCountries(query)), withTimeout(searchNasa(query)), withTimeout(searchCrossref(query))]);
-      return r.filter(i => i.status === 'fulfilled').flatMap(i => i.value).filter(Boolean);
-    }
-
-    async function handleSearch(sourceInput, forcedQuery = '') {
-      const oq = sanitizeText(forcedQuery || (sourceInput || activeInput()).value.trim());
-      if (!oq) { setSearchState('Please enter a search term.', false, true); clearResults(); hideSuggestions(); return; }
-      setSearchState('Searching sources \u2026', true);
-      searchButton.disabled = true; headerSearchButton.disabled = true;
-      searchInput.disabled = true; headerSearchInput.disabled = true; hideSuggestions();
-      try {
-        let sq = '';
-        if (!forcedQuery) { const c = await correctQueryWithLanguageTool(oq); if (c.wasCorrected && c.correctedQuery) sq = c.correctedQuery; }
-        const sr = await searchAllSources(oq);
-        const wd = extractWordDefinitionCard(oq, sr);
-        if (!sr.length) { clearResults(); if (sq) setCorrectionSuggestion(oq, sq); else setSearchState('No matching results found.', false, true); return; }
-        const [main, ...related] = sr;
-        showSearchResult(main, related.slice(0, 10), oq, wd);
-        if (sq) setCorrectionSuggestion(oq, sq); else setSearchState('');
-      } catch (e) { console.error(e); clearResults(); setSearchState('Error loading. Please try again.', false, true); }
-      finally { searchButton.disabled = false; headerSearchButton.disabled = false; searchInput.disabled = false; headerSearchInput.disabled = false; activeInput().focus(); }
-    }
-
-    searchButton.addEventListener('click', () => handleSearch(searchInput));
-    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(searchInput); if (e.key === 'Escape') hideSuggestions(); });
-    searchInput.addEventListener('input', () => { clearTimeout(autocompleteDebounce); autocompleteDebounce = setTimeout(() => updateAutocomplete(searchInput.value), 180); });
-    searchInput.addEventListener('focus', () => updateAutocomplete(searchInput.value));
-    searchInput.addEventListener('blur', () => window.setTimeout(hideSuggestions, BLUR_DELAY_MS));
-
-    headerSearchButton.addEventListener('click', () => handleSearch(headerSearchInput));
-    headerSearchInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(headerSearchInput); if (e.key === 'Escape') hideSuggestions(); });
-    headerSearchInput.addEventListener('input', () => { clearTimeout(autocompleteDebounce); autocompleteDebounce = setTimeout(() => updateAutocomplete(headerSearchInput.value), 180); });
-    headerSearchInput.addEventListener('focus', () => updateAutocomplete(headerSearchInput.value));
-    headerSearchInput.addEventListener('blur', () => window.setTimeout(hideSuggestions, BLUR_DELAY_MS));
-
-    function goHome() { clearResults(); searchInput.value = ''; headerSearchInput.value = ''; hideSuggestions(); searchInput.focus(); }
-    headerLogo.addEventListener('click', goHome);
-
-    document.addEventListener('click', e => { if (!e.target.closest('.hero-search-box') && !e.target.closest('.header-search-box')) hideSuggestions(); });
-
-    setSuggestions(localSuggestions);
-    searchInput.focus();
 
     // === DISCOVERY CARDS ===
     async function loadApod() {
@@ -1680,7 +818,7 @@
       ).join('');
     }
 
-    window.searchPlanet = function(name) { searchInput.value = name; headerSearchInput.value = name; handleSearch(searchInput); };
+    window.searchPlanet = function(name) { window.location.href = 'index.html?q=' + encodeURIComponent(name); };
 
     async function loadJwst() {
       try {
@@ -1703,7 +841,7 @@
     // === CLERK AUTH ===
     (function initClerk() {
       const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
-      const AUTH_AREAS = [heroAuthArea, headerAuthArea];
+      const AUTH_AREAS = [heroAuthArea];
       let clerkReadyPromise = null, hasAuthListener = false;
 
       function waitForClerk(timeoutMs = 5000) {
@@ -1730,7 +868,7 @@
       function createBtn() {
         const b = document.createElement('button'); b.className = 'sign-in-btn'; b.type = 'button'; b.setAttribute('aria-label', 'Sign in');
         b.innerHTML = ICON + '<span>Sign In</span>';
-        b.addEventListener('click', () => { setSearchState('Loading sign-in \u2026', true); ensureClerk().then(() => { setSearchState(''); window.Clerk.openSignIn({}); }).catch(() => setSearchState('Sign-in could not be loaded.', false, true)); });
+        b.addEventListener('click', () => { ensureClerk().then(() => { window.Clerk.openSignIn({}); }).catch(() => {}); });
         return b;
       }
 
