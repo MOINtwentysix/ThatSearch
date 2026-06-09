@@ -680,6 +680,13 @@
       background: rgba(124, 58, 237, 0.08);
     }
   </style>
+
+  <!-- Clerk SDK -->
+  <script
+    async
+    crossorigin="anonymous"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  ></script>
 </head>
 <body>
   <div class="app" id="app">
@@ -702,6 +709,7 @@
         <div class="suggestions" id="headerSuggestions" role="listbox" aria-label="Vorschläge"></div>
         <div class="status" id="headerStatus" aria-live="polite"></div>
       </div>
+      <div id="clerk-auth"></div>
     </header>
 
     <!-- Hero / Homepage -->
@@ -1488,6 +1496,64 @@
     setSuggestions(localSuggestions);
     searchInput.focus();
 
+  </script>
+
+  <!-- Clerk Initialisierung -->
+  <script>
+    (() => {
+      const PUBLISHABLE_KEY = 'pk_live_Y2xlcmsuc2VhcmNoLnRoYXRkZXYudGVjaCQ';
+
+      async function initClerk() {
+        if (!window.Clerk) return;
+
+        const clerk = new Clerk(PUBLISHABLE_KEY);
+        await clerk.load();
+        window.__clerk = clerk;
+
+        const container = document.getElementById('clerk-auth');
+        if (!container) return;
+
+        function render() {
+          container.innerHTML = '';
+          if (clerk.user) {
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'display:flex;align-items:center;gap:8px;flex-shrink:0;';
+
+            const avatar = document.createElement('img');
+            avatar.src = clerk.user.imageUrl;
+            avatar.alt = '';
+            avatar.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--border);';
+
+            const btn = document.createElement('button');
+            btn.className = 'sign-in-btn';
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Abmelden</span>';
+            btn.addEventListener('click', () => clerk.signOut());
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(btn);
+            container.appendChild(wrapper);
+          } else {
+            const btn = document.createElement('button');
+            btn.className = 'sign-in-btn';
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Anmelden</span>';
+            btn.addEventListener('click', () => clerk.openSignIn({ signInFallbackRedirectUrl: window.location.href }));
+            container.appendChild(btn);
+          }
+        }
+
+        clerk.addListener(() => render());
+        render();
+      }
+
+      if (window.Clerk) {
+        initClerk();
+      } else {
+        window.addEventListener('load', () => {
+          if (window.Clerk) initClerk();
+          else setTimeout(initClerk, 1000);
+        });
+      }
+    })();
   </script>
 </body>
 </html>
