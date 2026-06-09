@@ -749,7 +749,6 @@
     </header>
 
     <!-- Clerk Auth (immer sichtbar, oben rechts) -->
-    <div id="clerk-debug" style="position:fixed;bottom:0;left:0;background:#000;color:#0f0;z-index:999999;font-size:11px;padding:2px 6px;font-family:monospace;">init</div>
     <div id="clerk-auth">
       <div class="clerk-loading" id="clerkLoading">
         <div class="clerk-shimmer"></div>
@@ -1553,7 +1552,6 @@
   <script
     src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
     data-clerk-publishable-key="pk_live_Y2xlcmsuc2VhcmNoLnRoYXRkZXYudGVjaCQ"
-    onerror="document.getElementById('clerk-debug').textContent='script-error'"
   ></script>
 
   <!-- Clerk Initialisierung -->
@@ -1563,15 +1561,8 @@
       const signInBtn  = document.getElementById('clerkSignInBtn');
       const signedInEl = document.getElementById('clerkSignedIn');
       const avatarWrap = document.getElementById('clerkAvatarWrapper');
-      const debug      = document.getElementById('clerk-debug');
-
-      function dbg(msg) {
-        console.log('[clerk]', msg);
-        if (debug) debug.textContent = msg;
-      }
-
       function fallback(err) {
-        dbg('fallback' + (err ? ': ' + err : ''));
+        console.log('[clerk] fallback' + (err ? ': ' + err : ''));
         if (loadingEl) loadingEl.hidden = true;
         if (signInBtn) {
           signInBtn.hidden = false;
@@ -1582,7 +1573,6 @@
       }
 
       function renderSignedIn(clerk) {
-        dbg('user');
         if (loadingEl) loadingEl.hidden = true;
         if (signInBtn) signInBtn.hidden = true;
         if (signedInEl) signedInEl.hidden = false;
@@ -1603,12 +1593,10 @@
       }
 
       function renderSignIn(clerk) {
-        dbg('signin');
         if (loadingEl) loadingEl.hidden = true;
         if (signInBtn) {
           signInBtn.hidden = false;
           signInBtn.onclick = () => {
-            // Modal bevorzugen, fallback auf Redirect
             if (typeof clerk.openSignIn === 'function') {
               clerk.openSignIn({ signInFallbackRedirectUrl: window.location.href });
             } else {
@@ -1620,12 +1608,10 @@
       }
 
       function tryInit(clerk) {
-        dbg('loading');
         const TIMEOUT_MS = 10000;
 
         return Promise.race([
           clerk.load().then(() => {
-            dbg('ready: user=' + !!clerk.user + ' session=' + !!clerk.session);
             if (clerk.user) {
               renderSignedIn(clerk);
             } else {
@@ -1640,28 +1626,19 @@
 
       async function init() {
         try {
-          dbg('waiting');
-
-          // Clerk kann sofort verfügbar sein (v4 UMD setzt window.Clerk auto)
           let clerk = window.Clerk;
 
-          // Falls das UMD-Auto-Init fehlschlug: kurze Verzögerung + Wiederholung
           if (!clerk) {
             await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
             clerk = window.Clerk;
           }
 
           if (!clerk) {
-            dbg('typeof Clerk=' + typeof window.Clerk + ' keys=' + Object.keys(window).filter(k => k.toLowerCase().includes('clerk')).join(','));
             fallback('no-clerk');
             return;
           }
 
-          dbg('found clerk v' + clerk.version + ' feApi=' + clerk.frontendApi);
-
-          // Prüfen ob load bereits asynchron läuft
           if (clerk.loaded) {
-            dbg('already loaded');
             if (clerk.user) renderSignedIn(clerk);
             else renderSignIn(clerk);
           } else {
@@ -1669,7 +1646,6 @@
           }
         } catch (err) {
           console.error('[clerk]', err);
-          if (debug) debug.textContent = 'err: ' + (err.message || err);
           fallback(err.message || err);
         }
       }
