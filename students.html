@@ -786,7 +786,7 @@
         <span>Anmelden</span>
       </button>
       <div id="clerkSignedIn" hidden>
-        <div id="clerkAvatarWrapper" style="display:flex;align-items:center;gap:8px;"></div>
+        <UserButton />
       </div>
     </div>
 
@@ -1589,7 +1589,6 @@
       const loadingEl  = document.getElementById('clerkLoading');
       const signInBtn  = document.getElementById('clerkSignInBtn');
       const signedInEl = document.getElementById('clerkSignedIn');
-      const avatarWrap = document.getElementById('clerkAvatarWrapper');
 
       function fallback(err) {
         console.log('[clerk] fallback' + (err ? ': ' + err : ''));
@@ -1606,20 +1605,6 @@
         if (loadingEl) loadingEl.hidden = true;
         if (signInBtn) signInBtn.hidden = true;
         if (signedInEl) signedInEl.hidden = false;
-        if (avatarWrap) {
-          avatarWrap.innerHTML = '';
-          const user = clerk.user;
-          const avatar = document.createElement('img');
-          avatar.src = user.imageUrl;
-          avatar.alt = '';
-          avatar.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--border);';
-          const btn = document.createElement('button');
-          btn.className = 'sign-in-btn';
-          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="21" x2="9" y2="12"/></svg><span>Abmelden</span>';
-          btn.onclick = () => clerk.signOut();
-          avatarWrap.appendChild(avatar);
-          avatarWrap.appendChild(btn);
-        }
       }
 
       function renderSignIn(clerk) {

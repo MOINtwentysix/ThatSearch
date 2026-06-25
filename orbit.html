@@ -193,18 +193,7 @@
         <span>Anmelden</span>
       </button>
       <div id="clerkSignedIn" hidden>
-        <div id="clerkAvatarWrapper" style="display:flex;align-items:center;gap:8px;"></div>
-      </div>
-    </div>
-
-    <!-- Waitlist Gate (shown when not approved) -->
-    <div id="orbitWaitlist" hidden>
-      <div class="waitlist-card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
-        <div class="waitlist-badge">Beta</div>
-        <h2>Orbit is in Beta</h2>
-        <p>Orbit is currently in a closed beta. You need to be approved by an admin to access this feature. If you'd like early access, please contact the team.</p>
-        <p style="font-size:0.82rem;color:var(--text-secondary);">Already approved? Try signing out and back in.</p>
+        <UserButton />
       </div>
     </div>
 
@@ -664,79 +653,6 @@
       color: var(--primary);
       flex-shrink: 0;
     }
-    /* Waitlist Gate */
-    #orbitWaitlist {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(10, 14, 26, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-    .waitlist-card {
-      max-width: 420px;
-      width: 90%;
-      background: var(--surface-glass);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px 32px;
-      text-align: center;
-      box-shadow: var(--shadow-lg);
-    }
-    .waitlist-card svg {
-      width: 48px;
-      height: 48px;
-      color: var(--primary);
-      margin-bottom: 16px;
-    }
-    .waitlist-card h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin: 0 0 8px;
-    }
-    .waitlist-card p {
-      font-size: 0.92rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin: 0 0 24px;
-    }
-    .waitlist-badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      background: linear-gradient(135deg, #f97316, #facc15);
-      color: #000;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      margin-bottom: 16px;
-    }
-    .waitlist-email-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid var(--border);
-      border-radius: 9999px;
-      padding: 10px 24px;
-      background: var(--surface);
-      color: var(--text);
-      font: inherit;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-    .waitlist-email-btn:hover {
-      background: var(--surface-hover);
-      border-color: rgba(124, 106, 239, 0.3);
-      box-shadow: 0 4px 16px rgba(124, 106, 239, 0.2);
-      transform: translateY(-1px);
-    }
     @media (max-width: 640px) {
       #clerk-auth { top: 0.6rem; right: 0.8rem; }
       .clerk-loading { width: 42px; height: 36px; }
@@ -934,8 +850,6 @@
       const loadingEl     = document.getElementById('clerkLoading');
       const signInBtn     = document.getElementById('clerkSignInBtn');
       const signedInEl    = document.getElementById('clerkSignedIn');
-      const avatarWrap    = document.getElementById('clerkAvatarWrapper');
-      const waitlistEl    = document.getElementById('orbitWaitlist');
       const orbitContent  = document.getElementById('orbitContent');
 
       function fallback(err) {
@@ -953,30 +867,6 @@
         if (loadingEl) loadingEl.hidden = true;
         if (signInBtn) signInBtn.hidden = true;
         if (signedInEl) signedInEl.hidden = false;
-        if (avatarWrap) {
-          avatarWrap.innerHTML = '';
-          const user = clerk.user;
-          const avatar = document.createElement('img');
-          avatar.src = user.imageUrl;
-          avatar.alt = '';
-          avatar.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--border);cursor:pointer;';
-          avatar.onclick = () => {
-            if (typeof clerk.openUserProfile === 'function') {
-              clerk.openUserProfile();
-            }
-          };
-          avatarWrap.appendChild(avatar);
-        }
-
-        // Check orbit access
-        const orbitAccess = clerk.user?.publicMetadata?.orbit_access;
-        if (orbitAccess === true) {
-          if (waitlistEl) waitlistEl.hidden = true;
-          if (orbitContent) orbitContent.hidden = false;
-        } else {
-          if (waitlistEl) waitlistEl.hidden = false;
-          if (orbitContent) orbitContent.hidden = true;
-        }
       }
 
       function renderSignIn(clerk) {
@@ -992,7 +882,6 @@
           };
         }
         if (signedInEl) signedInEl.hidden = true;
-        if (waitlistEl) waitlistEl.hidden = true;
         if (orbitContent) orbitContent.hidden = false;
       }
 
