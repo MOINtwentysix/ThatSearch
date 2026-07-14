@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0e1a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Orbit (BETA) — Discover Beyond Earth</title>
+  <title>Orbit (BETA) — ISS Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,9 +18,7 @@
       --bg-secondary: #0f1525;
       --surface: rgba(255, 255, 255, 0.05);
       --surface-hover: rgba(255, 255, 255, 0.1);
-      --surface-glass: rgba(255, 255, 255, 0.04);
       --border: rgba(255, 255, 255, 0.1);
-      --border-focus: #818cf8;
       --text: #f0f0f8;
       --text-secondary: #9b9fc0;
       --primary: #7c6aef;
@@ -28,13 +26,13 @@
       --accent-cyan: #22d3ee;
       --accent-violet: #a78bfa;
       --accent-blue: #60a5fa;
-      --error: #fb7185;
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
       --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
       --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
       --radius-pill: 9999px;
       --radius-card: 18px;
       --glass-blur: 20px;
+      --ease-out-expo: cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -49,12 +47,11 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .app { -webkit-overflow-scrolling: touch; }
-
     .app {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      -webkit-overflow-scrolling: touch;
     }
 
     #starCanvas {
@@ -71,6 +68,8 @@
       align-items: center;
       padding-top: clamp(60px, 12vh, 120px);
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     .hero-logo {
@@ -83,7 +82,12 @@
       margin-top: 2px;
     }
 
-    /* ── Mode Toggle ── */
+    .hero-tagline {
+      margin: 4px 0 0;
+      font-size: clamp(0.85rem, 1.4vw, 1rem);
+      color: var(--text-secondary);
+    }
+
     .mode-toggle {
       display: flex;
       position: fixed;
@@ -112,7 +116,7 @@
       background: transparent;
       color: var(--text-secondary);
       text-decoration: none;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s var(--ease-out-expo);
       white-space: nowrap;
     }
 
@@ -128,14 +132,6 @@
       background: rgba(124, 106, 239, 0.1);
     }
 
-    .results-page {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 20px 24px 60px;
-      flex: 1;
-      width: 100%;
-    }
-
     .site-footer {
       border-top: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.03);
@@ -145,40 +141,540 @@
       font-size: 0.85rem;
       color: var(--text-secondary);
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
-    @media (max-width: 640px) {
-      .hero { padding-top: clamp(24px, 6vh, 48px); }
-      .hero-tagline { font-size: 0.85rem; margin-bottom: 20px; }
-      .mode-toggle { padding: 2px; gap: 1px; }
-      .mode-toggle-btn { font-size: 0.7rem; padding: 4px 8px; }
+    .results-page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 24px 60px;
+      flex: 1;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .result-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+      padding: 32px;
+      text-align: center;
+      box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .result-card h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+
+    .result-card p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin: 0 0 16px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 12px 28px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-violet));
+      color: #fff;
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out-expo);
+      box-shadow: 0 4px 20px rgba(124, 106, 239, 0.3);
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(124, 106, 239, 0.4);
+    }
+
+    /* ── ISS WIDGET ── */
+    .iss-widget {
+      position: fixed;
+      z-index: 10000;
+      user-select: none;
+
+      /* pill state */
+      top: 20px;
+      left: 20px;
+      transform: translate(0, 0);
+      width: auto;
+      min-width: 0;
+      height: 38px;
+      border-radius: 50px;
+      padding: 0 20px;
+      background: rgba(25, 25, 35, 0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .iss-widget.iss-loading {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      height: 38px;
+      width: auto;
+      padding: 0 24px;
+      border-radius: 50px;
+      background: rgba(25, 25, 35, 0.85);
+      cursor: default;
+    }
+
+    .iss-widget.iss-dashboard {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 85vw;
+      max-width: 1100px;
+      height: 75vh;
+      max-height: 800px;
+      min-height: 400px;
+      border-radius: 20px;
+      padding: 0;
+      background: rgba(15, 15, 25, 0.98);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+      cursor: default;
+      display: grid;
+      grid-template-columns: 2.2fr 1fr;
+      overflow: hidden;
+    }
+
+    .iss-widget.iss-dashboard .iss-pill-content {
+      display: none;
+    }
+
+    .iss-pill-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .iss-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #e0e0e0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .iss-dashboard-content {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .iss-widget.iss-dashboard .iss-dashboard-content {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    .iss-map-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      min-height: 0;
+    }
+
+    #issMap {
+      width: 100%;
+      height: 100%;
+      background: #0a0e1a;
+    }
+
+    .iss-telemetry {
+      background: rgba(18, 18, 28, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .iss-telemetry::-webkit-scrollbar {
+      width: 6px;
+    }
+    .iss-telemetry::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+    .iss-telemetry::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    .iss-telemetry-box {
+      background: rgba(28, 28, 40, 0.6);
+      border-radius: 12px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.3s ease;
+    }
+
+    .iss-telemetry-box:hover {
+      background: rgba(35, 35, 50, 0.7);
+      transform: translateX(5px);
+    }
+
+    .iss-telemetry-box .iss-label {
+      font-size: 11px;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .iss-telemetry-box .iss-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .iss-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(180, 50, 50, 0.85);
+      color: #fff;
+      border: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      transition: all 0.3s var(--ease-out-expo);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      line-height: 1;
+      padding: 0;
+    }
+
+    .iss-close-btn:hover {
+      background: rgba(220, 50, 50, 1);
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(220, 50, 50, 0.4);
+    }
+
+    .iss-widget.iss-dashboard .iss-close-btn {
+      display: flex;
+    }
+
+    .iss-location-badge {
+      margin-top: auto;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(124, 106, 239, 0.12));
+      border: 1px solid rgba(34, 211, 238, 0.15);
+    }
+
+    .iss-location-badge .iss-value {
+      font-size: 15px;
+      color: var(--accent-cyan);
+    }
+
+    .iss-loading-dots::after {
+      content: '';
+      animation: issDots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes issDots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .iss-widget.iss-dashboard {
+        width: 94vw;
+        height: 85vh;
+        max-width: none;
+        max-height: none;
+        min-height: 0;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+      }
+
+      .iss-map-container {
+        height: 100%;
+        min-height: 200px;
+      }
+
+      .iss-telemetry {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 14px 16px;
+        gap: 10px;
+        max-height: 180px;
+      }
+
+      .iss-telemetry-box {
+        padding: 10px 14px;
+      }
+
+      .iss-telemetry-box .iss-value {
+        font-size: 15px;
+      }
+
+      .iss-telemetry-box .iss-label {
+        font-size: 10px;
+      }
+
+      .iss-close-btn {
+        top: 10px;
+        right: 10px;
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
+      }
+
+      .iss-text {
+        font-size: 12px;
+      }
+
+      .iss-widget {
+        top: 14px;
+        left: 14px;
+        height: 34px;
+        padding: 0 16px;
+      }
+
+      .iss-widget.iss-loading {
+        height: 34px;
+        padding: 0 20px;
+      }
     }
 
     @media (max-width: 480px) {
-      .mode-toggle {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        white-space: nowrap;
-        max-width: calc(100vw - 60px);
-        justify-content: flex-start;
+      .iss-widget.iss-dashboard {
+        width: 96vw;
+        height: 90vh;
+        border-radius: 14px;
       }
-      .mode-toggle::-webkit-scrollbar { display: none; }
-      .hero { padding-top: 18px; }
-      #discoveryGrid { gap: 12px; grid-template-columns: 1fr; }
-      .planets-scroll { gap: 8px; }
-      .planet-item { width: 100px; padding: 10px 8px; }
-      .planet-item .planet-dot { width: 32px; height: 32px; }
-      #jwc .jwst-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-      .logo-sub { font-size: 0.6rem; }
-      .hero-tagline { font-size: 0.8rem; margin-bottom: 16px; }
-      .hero-auth-area { top: 0.6rem; right: 0.8rem; }
+
+      .iss-telemetry {
+        max-height: 150px;
+        padding: 10px 12px;
+        gap: 8px;
+      }
+
+      .iss-telemetry-box {
+        padding: 8px 12px;
+      }
+
+      .iss-telemetry-box .iss-value {
+        font-size: 13px;
+      }
+
+      .iss-widget {
+        top: 10px;
+        left: 10px;
+        height: 30px;
+        padding: 0 14px;
+      }
+
+      .iss-widget.iss-loading {
+        height: 30px;
+        padding: 0 16px;
+      }
+
+      .iss-text {
+        font-size: 11px;
+      }
+
+      .mode-toggle {
+        display: none !important;
+      }
+
+      .results-page {
+        padding: 12px 12px 40px;
+      }
+
+      .result-card {
+        padding: 20px 16px;
+      }
+
+      .result-card h2 {
+        font-size: 1.1rem;
+      }
+
+      .hero {
+        padding-top: clamp(24px, 6vh, 48px);
+      }
     }
 
     @media (max-width: 380px) {
-      .mode-toggle-btn { font-size: 0.65rem; padding: 3px 6px; }
-      .planet-item { width: 90px; }
-      #jwc .jwst-grid { grid-template-columns: repeat(2, 1fr); }
+      .iss-widget.iss-dashboard {
+        width: 98vw;
+        height: 92vh;
+        border-radius: 12px;
+      }
+
+      .iss-telemetry {
+        max-height: 120px;
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .iss-telemetry-box {
+        padding: 6px 10px;
+      }
+    }
+
+    /* ── MAP TILE FIX ── */
+    .leaflet-control-attribution {
+      display: none !important;
+    }
+
+    .iss-marker-icon {
+      background: none;
+      border: none;
+      font-size: 22px;
+      text-align: center;
+      line-height: 32px;
+    }
+
+    /* Hamburger Menu (mobile) */
+    .hamburger-btn {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      min-height: 36px;
+      padding: 7px 16px 7px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .app.has-results .hamburger-btn {
+      top: 12px;
+    }
+
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hamburger-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text);
+      display: block;
+    }
+
+    .hamburger-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Mode Popup */
+    .mode-popup {
+      display: none;
+      position: fixed;
+      top: calc(1rem + 44px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      min-width: 200px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(15, 15, 25, 0.95);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      box-shadow: var(--shadow-lg);
+      padding: 6px;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app.has-results .mode-popup {
+      top: calc(12px + 44px);
+    }
+
+    .mode-popup.visible {
+      display: flex;
+    }
+
+    .mode-popup-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: block;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .mode-popup-btn:hover {
+      background: rgba(124, 106, 239, 0.15);
+      color: var(--accent-violet);
+    }
+
+    .mode-popup-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent-violet));
+      color: #fff;
+      cursor: default;
+    }
+
+    .mode-popup-btn.active:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 480px) {
+      .hamburger-btn {
+        display: flex;
+      }
     }
   </style>
 </head>
@@ -186,26 +682,26 @@
   <div class="app" id="app">
     <canvas id="starCanvas"></canvas>
 
-    <!-- Clerk Auth -->
-    <div id="clerk-auth">
-      <div class="clerk-loading" id="clerkLoading">
-        <div class="clerk-shimmer"></div>
-      </div>
-      <button class="sign-in-btn" id="clerkSignInBtn" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Anmelden</span>
-      </button>
-      <div id="clerkSignedIn" hidden>
-        <user-button after-sign-out-url="/orbit.html" appearance="{ elements: { avatarBox: { width: '36px', height: '36px' }, rootBox: { padding: '4px' } } }"></user-button>
-      </div>
-    </div>
-
     <section class="hero" id="hero">
-
       <div class="mode-toggle" id="modeToggle">
         <a href="index.html" class="mode-toggle-btn">ThatSearch</a>
         <a href="students.html" class="mode-toggle-btn">ThatSearch for Students</a>
         <span class="mode-toggle-btn active">Orbit <span style="font-size:0.7em;background:linear-gradient(135deg,#f97316,#facc15);color:#000;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:2px;">BETA</span></span>
+      </div>
+
+      <!-- Hamburger (mobile) -->
+      <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Menü öffnen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+
+      <div class="mode-popup" id="modePopup">
+        <a href="index.html" class="mode-popup-btn">ThatSearch</a>
+        <a href="students.html" class="mode-popup-btn">ThatSearch for Students</a>
+        <span class="mode-popup-btn active">Orbit <span style="font-size:0.7em;background:linear-gradient(135deg,#f97316,#facc15);color:#000;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:2px;">BETA</span></span>
       </div>
 
       <div class="hero-logo" aria-label="Orbit" style="position:relative;">
@@ -213,111 +709,23 @@
         <span class="beta-badge" style="font-size:0.55rem;background:linear-gradient(135deg,#f97316,#facc15);color:#000;padding:2px 6px;border-radius:3px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;line-height:1;position:absolute;top:-0.5em;left:100%;">BETA</span>
       </div>
       <span class="logo-sub">Discover Beyond Earth</span>
-
+      <p class="hero-tagline">🌍 Live ISS-Tracking — Klicke auf die Pille links oben</p>
     </section>
 
     <main class="results-page" id="orbitContent">
-      <section class="results" id="discoveryGrid">
-
-        <article class="discovery-card" id="apodCard">
-          <div class="card-header">
-            <div class="card-icon cyan">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            </div>
-            <div>
-              <h3>NASA Picture of the Day</h3>
-              <p class="card-sub">Astronomy Picture of the Day</p>
-            </div>
-          </div>
-          <div id="apodContent">
-            <div class="shimmer shimmer-img"></div>
-            <div class="shimmer shimmer-line"></div>
-            <div class="shimmer shimmer-line short"></div>
-          </div>
-        </article>
-
-        <article class="discovery-card" id="missionsCard">
-          <div class="card-header">
-            <div class="card-icon indigo">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-            </div>
-            <div>
-              <h3>Space Missions</h3>
-              <p class="card-sub">Notable spaceflight missions</p>
-            </div>
-          </div>
-          <div class="missions-grid" id="missionsContent">
-            <div class="shimmer shimmer-line" style="margin:4px 0;"></div>
-            <div class="shimmer shimmer-line" style="margin:4px 0;"></div>
-          </div>
-        </article>
-
-        <article class="discovery-card" id="factsCard">
-          <div class="card-header">
-            <div class="card-icon violet">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-            </div>
-            <div>
-              <h3>Astronomy Facts</h3>
-              <p class="card-sub">Fascinating insights about the universe</p>
-            </div>
-          </div>
-          <div class="fact-display" id="factsContent">
-            <p class="fact-text" id="factText">The universe is about 68% dark energy, 27% dark matter, and only 5% visible matter.</p>
-            <button class="fact-btn" id="newFactBtn">New Fact</button>
-          </div>
-        </article>
-
-        <article class="discovery-card" id="planetsCard">
-          <div class="card-header">
-            <div class="card-icon blue">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            </div>
-            <div>
-              <h3>Planets &amp; Moons</h3>
-              <p class="card-sub">Discover our solar system</p>
-            </div>
-          </div>
-          <div class="planets-scroll" id="planetsContent"></div>
-        </article>
-
-        <article class="discovery-card" id="jwc">
-          <div class="card-header">
-            <div class="card-icon cyan">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </div>
-            <div>
-              <h3>James Webb Images</h3>
-              <p class="card-sub">Deep space through the world's most powerful telescope</p>
-            </div>
-          </div>
-          <div class="jwst-grid" id="jwstContent">
-            <div class="shimmer" style="aspect-ratio:1;border-radius:10px;"></div>
-            <div class="shimmer" style="aspect-ratio:1;border-radius:10px;"></div>
-            <div class="shimmer" style="aspect-ratio:1;border-radius:10px;"></div>
-            <div class="shimmer" style="aspect-ratio:1;border-radius:10px;"></div>
-          </div>
-        </article>
-
-        <article class="discovery-card" id="launchesCard">
-          <div class="card-header">
-            <div class="card-icon violet">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
-            </div>
-            <div>
-              <h3>Rocket Launches</h3>
-              <p class="card-sub">Upcoming missions</p>
-            </div>
-          </div>
-          <div class="launches-list" id="launchesContent">
-            <div class="shimmer shimmer-line" style="margin:4px 0;"></div>
-            <div class="shimmer shimmer-line" style="margin:4px 0;"></div>
-          </div>
-        </article>
-
+      <section class="result-card">
+        <h2>🚀 International Space Station</h2>
+        <p>
+          Die ISS umkreist die Erde in etwa 400 km Höhe mit einer Geschwindigkeit von rund 28.000 km/h.
+          Klicke auf das Widget oben links, um die Live-Position der ISS auf einer interaktiven Karte zu verfolgen
+          und aktuelle Telemetriedaten einzusehen.
+        </p>
+        <button class="cta-btn" id="heroCtaBtn">
+          <span>🛰️</span>
+          <span>ISS-Tracker öffnen</span>
+        </button>
       </section>
     </main>
-
 
     <footer class="site-footer">
       Orbit (BETA) — Discover Beyond Earth —
@@ -325,681 +733,7 @@
     </footer>
   </div>
 
-  <style>
-    /* ── Orbit-specific discovery card styles ── */
-    #orbitContent {
-      max-width: 960px;
-    }
-
-    #discoveryGrid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-
-    .discovery-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      padding: 24px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    }
-
-    .discovery-card:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      transform: translateY(-2px);
-    }
-
-    .discovery-card .card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .discovery-card .card-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .discovery-card .card-icon svg { width: 20px; height: 20px; }
-
-    .discovery-card .card-icon.blue   { background: rgba(96, 165, 250, 0.12); color: #60a5fa; box-shadow: 0 2px 8px rgba(96, 165, 250, 0.15); }
-    .discovery-card .card-icon.cyan   { background: rgba(34, 211, 238, 0.12); color: #22d3ee; box-shadow: 0 2px 8px rgba(34, 211, 238, 0.15); }
-    .discovery-card .card-icon.violet { background: rgba(167, 139, 250, 0.12); color: #a78bfa; box-shadow: 0 2px 8px rgba(167, 139, 250, 0.15); }
-    .discovery-card .card-icon.indigo { background: rgba(124, 106, 239, 0.12); color: var(--primary); box-shadow: 0 2px 8px rgba(124, 106, 239, 0.15); }
-
-    .discovery-card h3 { font-size: 1.05rem; font-weight: 600; margin: 0; }
-
-    .card-sub {
-      margin: 2px 0 0;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-    }
-
-    #apodCard .apod-image {
-      width: 100%;
-      max-height: 400px;
-      object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 14px;
-      background: var(--bg-secondary);
-    }
-
-    #apodCard .apod-title { font-size: 1.1rem; font-weight: 600; margin: 0 0 4px; }
-    #apodCard .apod-date { font-size: 0.82rem; color: var(--text-secondary); margin: 0 0 10px; }
-    #apodCard .apod-explanation { font-size: 0.92rem; line-height: 1.7; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-
-    .missions-grid { display: grid; gap: 10px; }
-
-    .mission-item {
-      display: flex;
-      gap: 14px;
-      padding: 14px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      align-items: flex-start;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .mission-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.1);
-      transform: translateX(4px);
-    }
-
-    .mission-item .mission-badge {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 7px;
-    }
-
-    .mission-item .mission-badge.active  { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.4); }
-    .mission-item .mission-badge.ongoing { background: #22d3ee; box-shadow: 0 0 6px rgba(34,211,238,0.4); }
-    .mission-item .mission-badge.future  { background: #60a5fa; box-shadow: 0 0 6px rgba(96,165,250,0.4); }
-    .mission-item .mission-badge.past    { background: var(--text-secondary); }
-
-    .mission-item .mission-name { font-weight: 600; font-size: 0.95rem; margin: 0 0 2px; }
-    .mission-item .mission-desc { font-size: 0.85rem; color: var(--text-secondary); margin: 0; line-height: 1.4; }
-
-    .fact-display { text-align: center; padding: 16px 0; }
-
-    .fact-display .fact-text {
-      font-size: 1.1rem;
-      line-height: 1.7;
-      color: var(--text);
-      margin: 0 0 16px;
-      font-weight: 400;
-    }
-
-    .fact-display .fact-text::before {
-      content: "\201C";
-      color: var(--primary);
-      font-size: 2em;
-      line-height: 0;
-      vertical-align: -0.3em;
-      margin-right: 4px;
-    }
-
-    .fact-display .fact-text::after {
-      content: "\201D";
-      color: var(--primary);
-      font-size: 2em;
-      line-height: 0;
-      vertical-align: -0.15em;
-      margin-left: 4px;
-    }
-
-    .fact-btn {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 8px 20px;
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: var(--text);
-      font: inherit;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .fact-btn:hover {
-      background: var(--surface-hover);
-      border-color: rgba(124, 106, 239, 0.3);
-      box-shadow: 0 4px 16px rgba(124, 106, 239, 0.2);
-      transform: translateY(-1px);
-    }
-
-    .planets-scroll {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      padding: 4px 0 8px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,0.08) transparent;
-    }
-
-    .planets-scroll::-webkit-scrollbar { height: 4px; }
-    .planets-scroll::-webkit-scrollbar-track { background: transparent; }
-    .planets-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-
-    .planet-item {
-      flex-shrink: 0;
-      width: 150px;
-      padding: 18px 14px 14px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      text-align: center;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .planet-item:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    .planet-item .planet-dot {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      margin: 0 auto 8px;
-    }
-
-    .planet-item .planet-name { font-weight: 600; font-size: 0.88rem; margin: 0 0 2px; }
-    .planet-item .planet-info { font-size: 0.75rem; color: var(--text-secondary); margin: 0; }
-
-    #jwc .jwst-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 10px;
-    }
-
-    #jwc .jwst-img {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 10px;
-      background: var(--bg-secondary);
-      border: 1px solid rgba(255,255,255,0.04);
-      transition: border-color 0.2s;
-    }
-
-    #jwc .jwst-img:hover { border-color: rgba(255,255,255,0.14); }
-
-    .launches-list { display: grid; gap: 10px; }
-
-    .launch-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .launch-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.1);
-      transform: translateX(4px);
-    }
-
-    .launch-item .launch-date { font-size: 0.82rem; color: var(--text-secondary); min-width: 80px; flex-shrink: 0; font-weight: 500; }
-    .launch-item .launch-name { font-weight: 600; font-size: 0.92rem; margin: 0; flex: 1; }
-
-    .shimmer {
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.07) 50%, rgba(255, 255, 255, 0.03) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 10px;
-    }
-
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-    .shimmer-img { width: 100%; height: 180px; }
-    .shimmer-line { height: 14px; margin-top: 10px; width: 70%; }
-    .shimmer-line.short { width: 40%; }
-
-    .card-error { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.9rem; }
-    .card-error svg { width: 32px; height: 32px; margin-bottom: 8px; color: var(--text-secondary); opacity: 0.5; }
-
-    @media (max-width: 768px) {
-      .discovery-card { padding: 16px; }
-      .planet-item { width: 120px; }
-    }
-
-    @media (max-width: 640px) {
-      .discovery-card { padding: 14px; margin-bottom: 14px; }
-      .planet-item { width: 110px; padding: 12px 10px; }
-      .planet-item .planet-dot { width: 36px; height: 36px; }
-      #jwc .jwst-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    /* Clerk Auth */
-    #clerk-auth {
-      position: fixed;
-      top: 1rem;
-      right: 1.5rem;
-      z-index: 102;
-      display: flex;
-      align-items: center;
-    }
-    .clerk-loading {
-      width: 90px;
-      height: 36px;
-      border-radius: 9999px;
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .clerk-shimmer {
-      width: 50px;
-      height: 10px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, rgba(124, 58, 237, 0.08) 25%, rgba(124, 58, 237, 0.18) 50%, rgba(124, 58, 237, 0.08) 75%);
-      background-size: 200% 100%;
-      animation: clerkShimmer 1.2s ease-in-out infinite;
-    }
-    @keyframes clerkShimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    .sign-in-btn {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      border: 1px solid var(--border);
-      border-radius: 9999px;
-      padding: 7px 16px 7px 10px;
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: var(--text);
-      font: inherit;
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    .sign-in-btn:hover {
-      background: var(--surface-hover);
-      border-color: rgba(124, 58, 237, 0.3);
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12);
-      transform: translateY(-1px);
-    }
-    .sign-in-btn svg {
-      width: 20px;
-      height: 20px;
-      color: var(--primary);
-      flex-shrink: 0;
-    }
-    @media (max-width: 640px) {
-      #clerk-auth { top: 0.6rem; right: 0.8rem; }
-      .clerk-loading { width: 42px; height: 36px; }
-      .clerk-shimmer { width: 18px; }
-      .sign-in-btn span { display: none; }
-      .sign-in-btn { padding: 7px 10px; }
-    }
-    
-    /* Mobile Optimizations */
-    @media (max-width: 768px) {
-      .mode-toggle {
-        top: 0.8rem;
-        gap: 4px;
-        padding: 2px;
-      }
-      
-      .mode-toggle-btn {
-        padding: 4px 10px;
-        font-size: 0.75rem;
-        font-weight: 500;
-      }
-      
-      .site-header {
-        padding: 8px 14px;
-        gap: 12px;
-      }
-    }
-    
-    /* Small Mobile */
-    @media (max-width: 480px) {
-      .mode-toggle {
-        display: none !important;
-      }
-      
-      #clerk-auth {
-        top: 0.4rem;
-        right: 0.6rem;
-      }
-      
-      .sign-in-btn span {
-        display: none;
-      }
-      
-      .sign-in-btn {
-        min-height: 36px;
-        padding: 8px 12px 8px 8px;
-        touch-action: manipulation;
-      }
-      
-      /* Larger touch targets */
-      .search-submit {
-        min-width: 44px;
-        min-height: 44px;
-      }
-    }
-    [hidden] { display: none !important; }
-  </style>
-
-  <script>
-    // === DATA ===
-    const ASTRONOMY_FACTS = [
-      "The universe is about 68% dark energy, 27% dark matter, and only 5% visible matter.",
-      "A day on Venus is longer than a year on Venus. A Venusian year lasts 225 Earth days, a Venusian day 243.",
-      "The largest known star, Stephenson 2-18, would have a circumference of almost 10 billion kilometers.",
-      "There are more stars in the universe than grains of sand on Earth. Estimates range from 200 billion trillion stars.",
-      "Mars has the tallest mountain in the solar system: Olympus Mons at 21.9 km.",
-      "Jupiter has 95 known moons, including Ganymede, which is larger than Mercury.",
-      "The Andromeda Galaxy will collide with the Milky Way in about 4.5 billion years.",
-      "Neutron stars are so dense that a teaspoon of material would weigh about 10 million tons.",
-      "Saturn's rings are 99.9% water ice, spanning 280,000 km but only about 10 meters thick.",
-      "Sunlight takes about 8 minutes and 20 seconds to reach Earth.",
-      "Mercury has ice in deep craters despite daytime temperatures reaching 430 C.",
-      "The James Webb Space Telescope can observe galaxies more than 13.5 billion light-years away.",
-      "The ISS orbits Earth at about 28,000 km/h, that's 16 sunrises per day.",
-      "Halley's Comet was visible in 1986 and will return in 2061.",
-      "Black holes are so dense that not even light can escape their gravitational pull.",
-      "The Milky Way contains 100 to 400 billion stars across 100,000 light-years.",
-      "Proxima Centauri b is the nearest known exoplanet at 4.2 light-years away.",
-      "Jupiter's Great Red Spot has been raging for at least 300 years.",
-      "The Voyager probes have been flying since 1977 and left the solar system.",
-      "Water has been found in liquid form beneath the surface of Mars."
-    ];
-
-    const PLANETS = [
-      { name: "Mercury", info: "Closest to the Sun", color: "#b0a89c", size: 24 },
-      { name: "Venus", info: "Hottest planet, 475 C", color: "#e8c87a", size: 32 },
-      { name: "Earth", info: "Our blue planet", color: "#4a90d9", size: 34 },
-      { name: "Mars", info: "The red planet", color: "#c1440e", size: 28 },
-      { name: "Jupiter", info: "Largest, 95 moons", color: "#d4a574", size: 48 },
-      { name: "Saturn", info: "Famous for its rings", color: "#ead6b8", size: 42 },
-      { name: "Uranus", info: "Ice giant, sideways", color: "#7ec8e3", size: 36 },
-      { name: "Neptune", info: "Windiest, 2,100 km/h", color: "#3f54ba", size: 34 }
-    ];
-
-    const MISSIONS = [
-      { name: "Artemis III", desc: "First crewed Moon landing since Apollo. Target: lunar south pole.", status: "future" },
-      { name: "Mars 2020 (Perseverance)", desc: "The rover searches Mars for signs of ancient life.", status: "active" },
-      { name: "James Webb Telescope", desc: "Most powerful space telescope, studying the early universe.", status: "active" },
-      { name: "Europa Clipper", desc: "NASA mission to Jupiter's moon Europa, searching for an ocean.", status: "future" },
-      { name: "Chang'e 6", desc: "Chinese mission to return samples from the far side of the Moon.", status: "active" },
-      { name: "JUICE", desc: "ESA mission to Jupiter's icy moons: Ganymede, Europa, and Callisto.", status: "ongoing" },
-      { name: "Apollo 11", desc: "First crewed Moon landing in 1969, Armstrong & Aldrin walked on the Moon.", status: "past" },
-      { name: "Voyager 1 & 2", desc: "Since 1977, both probes have left the solar system.", status: "active" }
-    ];
-
-    const LAUNCHES = [
-      { date: "2026", name: "Artemis III - Moon Landing" },
-      { date: "2026", name: "Hera - Asteroid Mission (ESA)" },
-      { date: "2027", name: "Dragonfly - Titan Mission" },
-      { date: "2025", name: "SpaceX Starship - Orbital Flights" },
-      { date: "2025", name: "Blue Origin - New Glenn First Flight" }
-    ];
-
-    // === DOM REFS ===
-
-    const apodContent     = document.getElementById('apodContent');
-    const missionsContent = document.getElementById('missionsContent');
-    const planetsContent  = document.getElementById('planetsContent');
-    const jwstContent     = document.getElementById('jwstContent');
-    const launchesContent = document.getElementById('launchesContent');
-    const factText        = document.getElementById('factText');
-    const newFactBtn      = document.getElementById('newFactBtn');
-
-    // === STAR CANVAS ===
-    const canvas = document.getElementById('starCanvas');
-    let ctx, stars = [], animId = null;
-
-    const isMobile = window.innerWidth < 640;
-
-    function initStars() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      ctx = canvas.getContext('2d');
-      stars = [];
-      const divisor = isMobile ? 6000 : 3500;
-      const count = Math.floor((canvas.width * canvas.height) / divisor);
-      for (let i = 0; i < count; i++) {
-        stars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          size: isMobile ? Math.random() * 1.2 + 0.2 : Math.random() * 1.6 + 0.2,
-          opacity: Math.random() * 0.5 + 0.2,
-          twinkleSpeed: isMobile ? Math.random() * 0.008 + 0.002 : Math.random() * 0.015 + 0.004,
-          twinklePhase: Math.random() * Math.PI * 2
-        });
-      }
-      drawStars();
-    }
-
-    function drawStars() {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (!isMobile) {
-        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
-        grad.addColorStop(0, 'rgba(15, 23, 60, 0)');
-        grad.addColorStop(1, 'rgba(10, 14, 26, 0.6)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-
-      stars.forEach(star => {
-        star.twinklePhase += star.twinkleSpeed;
-        const alpha = star.opacity * (Math.sin(star.twinklePhase) * 0.25 + 0.75);
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
-        ctx.fill();
-        if (!isMobile && star.size > 1.2) {
-          ctx.beginPath();
-          ctx.arc(star.x, star.y, star.size * 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(124, 106, 239, ' + (alpha * 0.06) + ')';
-          ctx.fill();
-        }
-      });
-      animId = requestAnimationFrame(drawStars);
-    }
-
-    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-    initStars();
-
-    // === HELPERS ===
-    function escapeHtml(v) { return v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-    // === DISCOVERY CARDS ===
-    async function loadApod() {
-      try {
-        const r = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const d = await r.json();
-        apodContent.innerHTML = (d.media_type === 'image' ? '<img class="apod-image" src="' + escapeHtml(d.url) + '" alt="' + escapeHtml(d.title) + '" loading="lazy" />' : '') +
-          '<p class="apod-title">' + escapeHtml(d.title) + '</p><p class="apod-date">' + escapeHtml(d.date) + '</p><p class="apod-explanation">' + escapeHtml(d.explanation) + '</p>';
-      } catch { apodContent.innerHTML = '<div class="card-error"><p>Could not load Picture of the Day</p></div>'; }
-    }
-
-    function loadMissions() {
-      missionsContent.innerHTML = MISSIONS.map(m =>
-        '<div class="mission-item"><span class="mission-badge ' + m.status + '"></span><div><p class="mission-name">' + escapeHtml(m.name) + '</p><p class="mission-desc">' + escapeHtml(m.desc) + '</p></div></div>'
-      ).join('');
-    }
-
-    function loadRandomFact() { factText.textContent = ASTRONOMY_FACTS[Math.floor(Math.random() * ASTRONOMY_FACTS.length)]; }
-    newFactBtn.addEventListener('click', loadRandomFact);
-
-    function loadPlanets() {
-      planetsContent.innerHTML = PLANETS.map(p =>
-        '<div class="planet-item" tabindex="0" role="button" onclick="searchPlanet(\'' + escapeHtml(p.name) + '\')">' +
-          '<div class="planet-dot" style="background:radial-gradient(circle at 35% 35%, ' + p.color + '88, ' + p.color + ');width:' + p.size + 'px;height:' + p.size + 'px;"></div>' +
-          '<p class="planet-name">' + p.name + '</p><p class="planet-info">' + p.info + '</p></div>'
-      ).join('');
-    }
-
-    window.searchPlanet = function(name) { window.location.href = 'index.html?q=' + encodeURIComponent(name); };
-
-    async function loadJwst() {
-      try {
-        const r = await fetch('https://images-api.nasa.gov/search?q=james%20webb%20space%20telescope&media_type=image&page_size=6');
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const d = await r.json(); const items = d?.collection?.items || [];
-        if (!items.length) { jwstContent.innerHTML = '<p style="color:var(--text-secondary);font-size:0.9rem;">No James Webb images found.</p>'; return; }
-        jwstContent.innerHTML = items.slice(0, 6).map(i => { const u = i?.links?.[0]?.href || ''; const t = i?.data?.[0]?.title || 'JWST Image'; return u ? '<img class="jwst-img" src="' + escapeHtml(u) + '" alt="' + escapeHtml(t) + '" loading="lazy" />' : ''; }).join('');
-      } catch { jwstContent.innerHTML = '<div class="card-error"><p>Could not load James Webb images</p></div>'; }
-    }
-
-    function loadLaunches() {
-      launchesContent.innerHTML = LAUNCHES.map(l =>
-        '<div class="launch-item"><span class="launch-date">' + escapeHtml(l.date) + '</span><p class="launch-name">' + escapeHtml(l.name) + '</p></div>'
-      ).join('');
-    }
-
-    loadApod(); loadMissions(); loadPlanets(); loadJwst(); loadLaunches();
-  </script>
-
-  <!-- Clerk SDK (v4 UMD) -->
-  <script
-    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
-    data-clerk-publishable-key="pk_live_Y2xlcmsuc2VhcmNoLnRoYXRkZXYudGVjaCQ"
-  ></script>
-
-  <!-- Clerk Initialisierung + Orbit Waitlist -->
-  <script>
-    (() => {
-      const loadingEl     = document.getElementById('clerkLoading');
-      const signInBtn     = document.getElementById('clerkSignInBtn');
-      const signedInEl    = document.getElementById('clerkSignedIn');
-      const orbitContent  = document.getElementById('orbitContent');
-
-      function fallback(err) {
-        console.log('[clerk] fallback' + (err ? ': ' + err : ''));
-        if (loadingEl) loadingEl.hidden = true;
-        if (signInBtn) {
-          signInBtn.hidden = false;
-          signInBtn.onclick = () => {
-            window.location.href = 'https://accounts.search.thatdev.tech/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
-          };
-        }
-      }
-
-      function renderSignedIn(clerk) {
-        if (loadingEl) loadingEl.hidden = true;
-        if (signInBtn) signInBtn.hidden = true;
-        if (signedInEl) {
-          signedInEl.hidden = false;
-          // Force re-render user-button component
-          const userButton = signedInEl.querySelector('user-button');
-          if (userButton) {
-            const newButton = document.createElement('user-button');
-            newButton.setAttribute('after-sign-out-url', '/orbit.html');
-            newButton.setAttribute('appearance', '{ elements: { avatarBox: { width: "36px", height: "36px" }, rootBox: { padding: "4px" } } }');
-            signedInEl.innerHTML = '';
-            signedInEl.appendChild(newButton);
-          }
-        }
-      }
-
-      function renderSignIn(clerk) {
-        if (loadingEl) loadingEl.hidden = true;
-        if (signInBtn) {
-          signInBtn.hidden = false;
-          signInBtn.onclick = () => {
-            if (typeof clerk.openSignIn === 'function') {
-              clerk.openSignIn({ signInFallbackRedirectUrl: window.location.href });
-            } else {
-              window.location.href = window.Clerk?.buildSignInUrl?.() || 'https://accounts.search.thatdev.tech/sign-in';
-            }
-          };
-        }
-        if (signedInEl) signedInEl.hidden = true;
-        if (orbitContent) orbitContent.hidden = false;
-      }
-
-      function tryInit(clerk) {
-        const TIMEOUT_MS = 10000;
-        return Promise.race([
-          clerk.load().then(() => {
-            if (clerk.user) {
-              renderSignedIn(clerk);
-            } else {
-              renderSignIn(clerk);
-            }
-          }),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)
-          )
-        ]);
-      }
-
-      async function init() {
-        try {
-          let clerk = window.Clerk;
-          if (!clerk) {
-            await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
-            clerk = window.Clerk;
-          }
-          if (!clerk) {
-            fallback('no-clerk');
-            return;
-          }
-          if (clerk.loaded) {
-            if (clerk.user) renderSignedIn(clerk);
-            else renderSignIn(clerk);
-          } else {
-            await tryInit(clerk);
-          }
-          
-          // Add event listener for auth state changes
-          clerk.addListener((event) => {
-            if (event.type === 'activeSessionSet') {
-              renderSignedIn(clerk);
-            } else if (event.type === 'userRemoved') {
-              renderSignIn(clerk);
-            }
-          });
-        } catch (err) {
-          console.error('[clerk]', err);
-          fallback(err.message || err);
-        }
-      }
-
-      init();
-    })();
-  </script>
-
-  <!-- ISS Tracker Widget -->
+  <!-- ISS Widget -->
   <div class="iss-widget" id="issWidget">
     <div class="iss-pill-content">
       <span class="iss-text" id="issText">🛰️ ISS: Lädt...</span>
@@ -1025,7 +759,7 @@
           <span class="iss-label">Längengrad</span>
           <span class="iss-value" id="issLongitude">--°</span>
         </div>
-        <div class="iss-telemetry-box">
+        <div class="iss-telemetry-box iss-location-badge">
           <span class="iss-label">Position</span>
           <span class="iss-value" id="issLocation">--</span>
         </div>
@@ -1034,249 +768,129 @@
     <button class="iss-close-btn" id="issCloseBtn">✖</button>
   </div>
 
-  <style>
-    .iss-widget {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(25, 25, 35, 0.75);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 50px;
-      padding: 0 20px;
-      height: 36px;
-      cursor: pointer;
-      z-index: 10000;
-      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      user-select: none;
-      min-width: 180px;
-      text-align: center;
-    }
-
-    .iss-widget.iss-loading {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border-radius: 50px;
-      min-width: 200px;
-      padding: 0 25px;
-      height: 36px;
-      background: rgba(25, 25, 35, 0.85);
-    }
-
-    .iss-widget.iss-dashboard {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 85vw;
-      height: 75vh;
-      max-width: 1100px;
-      max-height: 800px;
-      border-radius: 20px;
-      padding: 0;
-      background: rgba(15, 15, 25, 0.98);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: grid;
-      grid-template-columns: 2.2fr 1fr;
-      overflow: hidden;
-      min-width: 600px;
-    }
-
-    .iss-text {
-      font-size: 14px;
-      font-weight: 500;
-      color: #e0e0e0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .iss-dashboard-content {
-      display: none;
-    }
-
-    .iss-widget.iss-dashboard .iss-pill-content {
-      display: none;
-    }
-
-    .iss-widget.iss-dashboard .iss-dashboard-content {
-      display: flex;
-      width: 100%;
-      height: 100%;
-    }
-
-    .iss-map-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-
-    #issMap {
-      width: 100%;
-      height: 100%;
-    }
-
-    .iss-telemetry {
-      background: rgba(18, 18, 28, 0.95);
-      backdrop-filter: blur(8px);
-      padding: 25px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      overflow-y: auto;
-      border-left: 1px solid rgba(255, 255, 255, 0.08);
-      position: relative;
-    }
-
-    .iss-telemetry::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .iss-telemetry::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 3px;
-    }
-
-    .iss-telemetry::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-    }
-
-    .iss-telemetry-box {
-      background: rgba(28, 28, 40, 0.6);
-      border-radius: 12px;
-      padding: 16px 20px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: all 0.3s ease;
-    }
-
-    .iss-telemetry-box:hover {
-      background: rgba(35, 35, 50, 0.7);
-      transform: translateX(5px);
-    }
-
-    .iss-telemetry-box .iss-label {
-      font-size: 11px;
-      color: #777;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .iss-telemetry-box .iss-value {
-      font-size: 19px;
-      font-weight: 600;
-      color: #ffffff;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .iss-close-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(180, 50, 50, 0.85);
-      color: #fff;
-      border: none;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      font-size: 26px;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10001;
-      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    .iss-close-btn:hover {
-      background: rgba(220, 50, 50, 1);
-      transform: scale(1.08);
-      box-shadow: 0 6px 20px rgba(220, 50, 50, 0.4);
-    }
-
-    .iss-widget.iss-dashboard .iss-close-btn {
-      display: flex;
-    }
-
-    @media (max-width: 768px) {
-      .iss-widget.iss-dashboard {
-        width: 95vw;
-        height: 85vh;
-        grid-template-columns: 1fr;
-        max-width: none;
-      }
-
-      .iss-telemetry {
-        border-left: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        max-height: 200px;
-      }
-
-      .iss-map-container {
-        height: 60%;
-      }
-
-      .iss-widget {
-        min-width: 140px;
-      }
-
-      .iss-text {
-        font-size: 12px;
-      }
-    }
-  </style>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // === STAR CANVAS ===
+    const canvas = document.getElementById('starCanvas');
+    let ctx, stars = [], animId = null;
+    const isMobile = window.innerWidth < 640;
+
+    function initStars() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx = canvas.getContext('2d');
+      stars = [];
+      const divisor = isMobile ? 6000 : 3500;
+      const count = Math.floor((canvas.width * canvas.height) / divisor);
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: isMobile ? Math.random() * 1.2 + 0.2 : Math.random() * 1.6 + 0.2,
+          opacity: Math.random() * 0.5 + 0.2,
+          twinkleSpeed: isMobile ? Math.random() * 0.008 + 0.002 : Math.random() * 0.015 + 0.004,
+          twinklePhase: Math.random() * Math.PI * 2
+        });
+      }
+      drawStars();
+    }
+
+    function drawStars() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!isMobile) {
+        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
+        grad.addColorStop(0, 'rgba(15, 23, 60, 0)');
+        grad.addColorStop(1, 'rgba(10, 14, 26, 0.6)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      stars.forEach(star => {
+        star.twinklePhase += star.twinkleSpeed;
+        const alpha = star.opacity * (Math.sin(star.twinklePhase) * 0.25 + 0.75);
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
+        ctx.fill();
+        if (!isMobile && star.size > 1.2) {
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(124, 106, 239, ' + (alpha * 0.06) + ')';
+          ctx.fill();
+        }
+      });
+      animId = requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+    initStars();
+
+    // === ISS TRACKER ===
     (function() {
       'use strict';
 
       const widget = document.getElementById('issWidget');
       const issText = document.getElementById('issText');
       const closeBtn = document.getElementById('issCloseBtn');
+      const heroCtaBtn = document.getElementById('heroCtaBtn');
 
-      let map;
-      let issMarker;
+      let map = null;
+      let issMarker = null;
       let isDashboardOpen = false;
+      let isAnimating = false;
       let currentPosition = { lat: 0, lng: 0 };
       let lastKnownLocation = 'Lädt...';
+      let mapInitialized = false;
+      let pollInterval = null;
 
       const ISS_API_URL = 'https://api.wheretheiss.at/v1/satellites/25544';
       const GEOCODE_API_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
 
-      initISSWidget();
-
-      function initISSWidget() {
+      function init() {
         issText.textContent = '🛰️ ISS: Lädt...';
         fetchISSData();
-        setInterval(fetchISSData, 3000);
+        pollInterval = setInterval(fetchISSData, 3000);
+
         widget.addEventListener('click', handleWidgetClick);
         closeBtn.addEventListener('click', handleCloseClick);
+
+        if (heroCtaBtn) {
+          heroCtaBtn.addEventListener('click', () => {
+            if (!isAnimating && !isDashboardOpen) {
+              handleWidgetClick();
+            }
+          });
+        }
       }
 
       function handleWidgetClick() {
-        if (isDashboardOpen) return;
+        if (isDashboardOpen || isAnimating) return;
+        isAnimating = true;
+
+        // Phase 1: Transform to center loading state
         widget.classList.add('iss-loading');
         issText.textContent = '🔄 Lädt gerade...';
 
-        setTimeout(() => {
+        // Initialize map invisibly during loading phase
+        if (!mapInitialized) {
           initializeMap();
+          mapInitialized = true;
+        }
+
+        // Phase 2: After delay, expand to dashboard
+        setTimeout(() => {
           widget.classList.remove('iss-loading');
           widget.classList.add('iss-dashboard');
           isDashboardOpen = true;
+          isAnimating = false;
+
+          // Update map with current position
+          updateMapPosition();
           updateTelemetryDisplay();
+
+          // Fix Leaflet map size after layout change
+          if (map) {
+            setTimeout(() => map.invalidateSize(), 100);
+          }
         }, 1200);
       }
 
@@ -1286,13 +900,19 @@
       }
 
       function closeDashboard() {
+        if (!isDashboardOpen || isAnimating) return;
+        isAnimating = true;
+
+        // Remove dashboard, go back to loading state briefly
         widget.classList.remove('iss-dashboard');
         widget.classList.add('iss-loading');
-        issText.textContent = '🔄 Schließt...';
+        issText.textContent = '🛰️ ISS: ' + lastKnownLocation;
 
+        // After transition completes, return to pill
         setTimeout(() => {
           widget.classList.remove('iss-loading');
           isDashboardOpen = false;
+          isAnimating = false;
           updatePillText();
         }, 600);
       }
@@ -1300,8 +920,9 @@
       function initializeMap() {
         if (map) return;
 
+        const mapEl = document.getElementById('issMap');
         map = L.map('issMap', {
-          center: [currentPosition.lat, currentPosition.lng],
+          center: [currentPosition.lat || 0, currentPosition.lng || 0],
           zoom: 2,
           minZoom: 1.5,
           maxZoom: 8,
@@ -1311,11 +932,11 @@
           boxZoom: false,
           keyboard: false,
           scrollWheelZoom: true,
-          tap: false
+          tap: !L.Browser.mobile
         });
 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-          attribution: '© OpenStreetMap contributors, © CartoDB'
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>, &copy; CartoDB'
         }).addTo(map);
 
         const issIcon = L.divIcon({
@@ -1325,22 +946,33 @@
           iconAnchor: [16, 16]
         });
 
-        issMarker = L.marker([currentPosition.lat, currentPosition.lng], {
+        issMarker = L.marker([currentPosition.lat || 0, currentPosition.lng || 0], {
           icon: issIcon,
           zIndexOffset: 1000
         }).addTo(map);
 
-        issMarker.getElement().style.filter = 'drop-shadow(0 0 10px rgba(100, 200, 255, 0.7))';
+        const markerEl = issMarker.getElement();
+        if (markerEl) {
+          markerEl.style.filter = 'drop-shadow(0 0 10px rgba(100, 200, 255, 0.7))';
+          markerEl.style.transition = 'transform 0.3s ease';
+        }
+      }
+
+      function updateMapPosition() {
+        if (!map || !issMarker || !isDashboardOpen) return;
+
+        issMarker.setLatLng([currentPosition.lat, currentPosition.lng]);
         map.panTo([currentPosition.lat, currentPosition.lng], {
           animate: true,
-          duration: 0.8
+          duration: 0.8,
+          easeLinearity: 0.5
         });
       }
 
       function fetchISSData() {
         fetch(ISS_API_URL)
           .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error('HTTP ' + response.status);
             return response.json();
           })
           .then(data => {
@@ -1360,17 +992,11 @@
             reverseGeocode(currentPosition.lat, currentPosition.lng);
 
             if (isDashboardOpen && map && issMarker) {
-              issMarker.setLatLng([currentPosition.lat, currentPosition.lng]);
-              map.panTo([currentPosition.lat, currentPosition.lng], {
-                animate: true,
-                duration: 0.5,
-                easeLinearity: 0.5
-              });
+              updateMapPosition();
             }
           })
           .catch(error => {
             console.error('[ISS API Error]:', error);
-            setTimeout(fetchISSData, 5000);
           });
       }
 
@@ -1399,10 +1025,8 @@
               updatePillText();
             }
           })
-          .catch(error => {
-            console.error('[Geocode Error]:', error);
+          .catch(() => {
             lastKnownLocation = 'Über dem Ozean 🌊';
-
             if (isDashboardOpen) {
               document.getElementById('issLocation').textContent = 'Über dem Ozean 🌊';
             } else {
@@ -1420,6 +1044,7 @@
         document.getElementById('issLocation').textContent = lastKnownLocation;
       }
 
+      // Stop propagation on map container clicks
       document.addEventListener('DOMContentLoaded', function() {
         const mapContainer = document.querySelector('.iss-map-container');
         if (mapContainer) {
@@ -1428,7 +1053,28 @@
           });
         }
       });
+
+      init();
     })();
+
+    /* Hamburger Menu Toggle */
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const modePopup = document.getElementById('modePopup');
+
+    hamburgerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      modePopup.classList.toggle('visible');
+      hamburgerBtn.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!modePopup.contains(e.target) && e.target !== hamburgerBtn) {
+        modePopup.classList.remove('visible');
+        hamburgerBtn.classList.remove('active');
+      }
+    });
   </script>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>

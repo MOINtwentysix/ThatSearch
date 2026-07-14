@@ -75,6 +75,7 @@
       -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
       border-bottom: 1px solid var(--border);
       padding: 10px 24px;
+      padding-top: calc(10px + env(safe-area-inset-top, 0px));
       transition: all 0.3s ease;
     }
 
@@ -273,11 +274,51 @@
       
       .site-header {
         padding: 6px 10px;
+        padding-top: calc(6px + env(safe-area-inset-top, 0px));
         gap: 10px;
       }
       
       .header-search-box {
         max-width: calc(100vw - 80px);
+      }
+      
+      /* Mobile Search-results Header Layout Optimization for small screens */
+      .app.has-results .site-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 8px 10px;
+        padding-top: calc(8px + env(safe-area-inset-top, 0px));
+      }
+
+      .app.has-results .header-logo {
+        max-width: calc(100% - 50px);
+        font-size: 1.25rem;
+      }
+
+      .app.has-results .header-search-box {
+        width: 100%;
+        max-width: none;
+      }
+
+      .app.has-results #clerk-auth {
+        top: calc(1px + env(safe-area-inset-top, 0px));
+        right: 10px;
+      }
+
+      /* Spacing optimizations for search results on mobile */
+      .wikipedia-result,
+      .word-card {
+        padding: 14px 14px;
+        margin-bottom: 12px;
+      }
+
+      .article-item {
+        padding: 10px 10px;
+      }
+
+      .results-page {
+        padding: 12px 10px 40px;
       }
       
       #clerk-auth {
@@ -690,7 +731,7 @@
 
     .table-wrapper.visible { display: block; }
 
-    .table-container { max-height: 420px; overflow: auto; }
+    .table-container { max-height: 420px; overflow: auto; -webkit-overflow-scrolling: touch; }
 
     .table-container table {
       width: 100%;
@@ -800,7 +841,36 @@
     }
 
     @media (max-width: 640px) {
-      .site-header { padding: 8px 14px; gap: 12px; }
+      .site-header {
+        padding: 8px 14px;
+        padding-top: calc(8px + env(safe-area-inset-top, 0px));
+        gap: 12px;
+      }
+      
+      /* Mobile Search-results Header Layout Optimization */
+      .app.has-results .site-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 14px;
+        padding-top: calc(10px + env(safe-area-inset-top, 0px));
+      }
+
+      .app.has-results .header-logo {
+        max-width: calc(100% - 60px);
+        font-size: 1.3rem;
+      }
+
+      .app.has-results .header-search-box {
+        width: 100%;
+        max-width: none;
+      }
+
+      .app.has-results #clerk-auth {
+        top: calc(3px + env(safe-area-inset-top, 0px));
+        right: 14px;
+      }
+
       .results-page { padding: 16px 14px 48px; }
       .hero { padding-top: clamp(40px, 10vh, 80px); }
       #searchInput, #headerSearchInput { font-size: 0.94rem; }
@@ -855,6 +925,113 @@
       color: var(--text);
       background: rgba(124, 58, 237, 0.08);
     }
+
+    /* Hamburger Menu (mobile) */
+    .hamburger-btn {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 102;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      min-height: 36px;
+      padding: 7px 16px 7px 10px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .app.has-results .hamburger-btn {
+      top: 12px;
+    }
+
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .hamburger-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text);
+      display: block;
+    }
+
+    .hamburger-btn.active {
+      background: var(--surface-solid);
+    }
+
+    /* Mode Popup */
+    .mode-popup {
+      display: none;
+      position: fixed;
+      top: calc(1.1rem + 44px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 102;
+      min-width: 200px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      box-shadow: var(--shadow-lg);
+      padding: 6px;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app.has-results .mode-popup {
+      top: calc(12px + 44px);
+    }
+
+    .mode-popup.visible {
+      display: flex;
+    }
+
+    .mode-popup-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: block;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .mode-popup-btn:hover {
+      background: rgba(124, 58, 237, 0.08);
+      color: var(--primary);
+    }
+
+    .mode-popup-btn.active {
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      color: #fff;
+      cursor: default;
+    }
+
+    .mode-popup-btn.active:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 480px) {
+      .hamburger-btn {
+        display: flex;
+      }
+    }
   </style>
 
 </head>
@@ -891,7 +1068,7 @@
         <span>Anmelden</span>
       </button>
       <div id="clerkSignedIn" hidden>
-        <user-button after-sign-out-url="/" appearance="{ elements: { avatarBox: { width: '36px', height: '36px' }, rootBox: { padding: '4px' } } }"></user-button>
+        <div id="userButton"></div>
       </div>
     </div>
 
@@ -902,6 +1079,21 @@
         <span class="mode-toggle-btn active">ThatSearch</span>
         <a href="students.html" class="mode-toggle-btn">ThatSearch for Students</a>
         <a href="orbit.html" class="mode-toggle-btn">Orbit <span style="font-size:0.7em;background:linear-gradient(135deg,#f97316,#facc15);color:#000;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:2px;">BETA</span></a>
+      </div>
+
+      <!-- Hamburger (mobile) -->
+      <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Menü öffnen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+
+      <div class="mode-popup" id="modePopup">
+        <span class="mode-popup-btn active">ThatSearch</span>
+        <a href="students.html" class="mode-popup-btn">ThatSearch for Students</a>
+        <a href="orbit.html" class="mode-popup-btn">Orbit <span style="font-size:0.7em;background:linear-gradient(135deg,#f97316,#facc15);color:#000;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:2px;">BETA</span></a>
       </div>
 
       <div class="hero-logo" aria-label="ThatSearch">
@@ -1709,15 +1901,16 @@
         if (signInBtn) signInBtn.hidden = true;
         if (signedInEl) {
           signedInEl.hidden = false;
-          // Force re-render user-button component
-          const userButton = signedInEl.querySelector('user-button');
-          if (userButton) {
-            // Remove and re-add to ensure Clerk picks it up
-            const newButton = document.createElement('user-button');
-            newButton.setAttribute('after-sign-out-url', '/');
-            newButton.setAttribute('appearance', '{ elements: { avatarBox: { width: "36px", height: "36px" }, rootBox: { padding: "4px" } } }');
-            signedInEl.innerHTML = '';
-            signedInEl.appendChild(newButton);
+          if (clerk?.mountUserButton) {
+            clerk.mountUserButton(document.getElementById('userButton'), {
+              afterSignOutUrl: '/',
+              appearance: {
+                elements: {
+                  avatarBox: { width: '36px', height: '36px' },
+                  rootBox: { padding: '4px' }
+                }
+              }
+            });
           }
         }
       }
@@ -1734,7 +1927,12 @@
             }
           };
         }
-        if (signedInEl) signedInEl.hidden = true;
+        if (signedInEl) {
+          signedInEl.hidden = true;
+          if (clerk?.unmountUserButton) {
+            clerk.unmountUserButton(document.getElementById('userButton'));
+          }
+        }
       }
 
       function tryInit(clerk) {
@@ -1777,9 +1975,9 @@
           
           // Add event listener for auth state changes
           clerk.addListener((event) => {
-            if (event.type === 'activeSessionSet') {
+            if (event.eventType === 'signIn' || event.eventType === 'session:create') {
               renderSignedIn(clerk);
-            } else if (event.type === 'userRemoved') {
+            } else if (event.eventType === 'signOut' || event.eventType === 'session:remove') {
               renderSignIn(clerk);
             }
           });
@@ -1791,6 +1989,23 @@
 
       init();
     })();
+
+    /* Hamburger Menu Toggle */
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const modePopup = document.getElementById('modePopup');
+
+    hamburgerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      modePopup.classList.toggle('visible');
+      hamburgerBtn.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!modePopup.contains(e.target) && e.target !== hamburgerBtn) {
+        modePopup.classList.remove('visible');
+        hamburgerBtn.classList.remove('active');
+      }
+    });
   </script>
 </body>
 </html>
