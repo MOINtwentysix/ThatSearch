@@ -2,7 +2,10 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>ThatSearch for Students</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -751,6 +754,58 @@
       .sign-in-btn span { display: none; }
       .sign-in-btn { padding: 7px 10px; }
     }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .mode-toggle {
+        top: 0.8rem;
+        gap: 4px;
+        padding: 2px;
+      }
+      
+      .mode-toggle-btn {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      
+      .site-header {
+        padding: 8px 14px;
+        gap: 12px;
+      }
+      
+      .results-page {
+        padding: 16px 14px 48px;
+      }
+    }
+    
+    /* Small Mobile */
+    @media (max-width: 480px) {
+      .mode-toggle {
+        display: none !important;
+      }
+      
+      #clerk-auth {
+        top: 0.4rem;
+        right: 0.6rem;
+      }
+      
+      .sign-in-btn span {
+        display: none;
+      }
+      
+      .sign-in-btn {
+        min-height: 36px;
+        padding: 8px 12px 8px 8px;
+        touch-action: manipulation;
+      }
+      
+      /* Larger touch targets */
+      .search-submit {
+        min-width: 44px;
+        min-height: 44px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -786,7 +841,7 @@
         <span>Anmelden</span>
       </button>
       <div id="clerkSignedIn" hidden>
-        <user-button></user-button>
+        <user-button after-sign-out-url="/students.html" appearance="{ elements: { avatarBox: { width: '36px', height: '36px' }, rootBox: { padding: '4px' } } }"></user-button>
       </div>
     </div>
 
@@ -1604,7 +1659,18 @@
       function renderSignedIn(clerk) {
         if (loadingEl) loadingEl.hidden = true;
         if (signInBtn) signInBtn.hidden = true;
-        if (signedInEl) signedInEl.hidden = false;
+        if (signedInEl) {
+          signedInEl.hidden = false;
+          // Force re-render user-button component
+          const userButton = signedInEl.querySelector('user-button');
+          if (userButton) {
+            const newButton = document.createElement('user-button');
+            newButton.setAttribute('after-sign-out-url', '/students.html');
+            newButton.setAttribute('appearance', '{ elements: { avatarBox: { width: "36px", height: "36px" }, rootBox: { padding: "4px" } } }');
+            signedInEl.innerHTML = '';
+            signedInEl.appendChild(newButton);
+          }
+        }
       }
 
       function renderSignIn(clerk) {
@@ -1655,6 +1721,15 @@
           } else {
             await tryInit(clerk);
           }
+          
+          // Add event listener for auth state changes
+          clerk.addListener((event) => {
+            if (event.type === 'activeSessionSet') {
+              renderSignedIn(clerk);
+            } else if (event.type === 'userRemoved') {
+              renderSignIn(clerk);
+            }
+          });
         } catch (err) {
           console.error('[clerk]', err);
           fallback(err.message || err);
