@@ -11,6 +11,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+  <!-- Clerk -->
+  <script
+    defer
+    crossorigin="anonymous"
+    src="https://clerk.thatdev.tech/npm/@clerk/ui@1/dist/ui.browser.js"
+    type="text/javascript">
+  </script>
+  <script
+    defer
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_live_Y2xlcmsudGhhdGRldi50ZWNoJA"
+    src="https://clerk.thatdev.tech/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+    type="text/javascript">
+  </script>
+
   <style>
     :root {
       --bg: #f0eef6;
@@ -802,9 +817,74 @@
         display: flex;
       }
     }
+
+    /* Waitlist gate */
+    .waitlist-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-y: auto;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, var(--bg-gradient-1) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 80% 30%, var(--bg-gradient-2) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 60% at 50% 80%, var(--bg-gradient-3) 0%, transparent 50%),
+        var(--bg);
+    }
+
+    .waitlist-gate[hidden] { display: none; }
+
+    .waitlist-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 420px;
+      margin: auto;
+    }
+
+    .waitlist-brand {
+      font-size: clamp(2rem, 8vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .waitlist-tagline {
+      margin: -8px 0 4px;
+      color: var(--muted);
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .waitlist-loading {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    #clerkWaitlist { width: 100%; display: flex; justify-content: center; }
   </style>
 </head>
 <body>
+
+  <!-- Waitlist gate (covers the app until Clerk is ready) -->
+  <div class="waitlist-gate" id="waitlistGate">
+    <div class="waitlist-card">
+      <div class="waitlist-brand">ThatSearch</div>
+      <p class="waitlist-tagline">Sichere dir früh Zugang zu deiner neuen Suchmaschine.</p>
+      <div id="clerkWaitlist">
+        <p class="waitlist-loading" id="waitlistLoading">Warteliste wird geladen…</p>
+      </div>
+    </div>
+  </div>
+
   <div class="app" id="app">
 
     <!-- Sticky header (shown after search) -->
@@ -1643,6 +1723,55 @@
       if (!modePopup.contains(e.target) && e.target !== hamburgerBtn) {
         modePopup.classList.remove('visible');
         hamburgerBtn.classList.remove('active');
+      }
+    });
+  </script>
+
+  <script>
+    /* Mount the Clerk waitlist into the gate overlay */
+    function waitFor(check, timeout) {
+      return new Promise(function (resolve, reject) {
+        var start = Date.now();
+        (function poll() {
+          var value = check();
+          if (value) return resolve(value);
+          if (Date.now() - start > timeout) return reject(new Error('timeout'));
+          setTimeout(poll, 50);
+        })();
+      });
+    }
+
+    window.addEventListener('load', async function () {
+      try {
+        await waitFor(function () { return typeof Clerk !== 'undefined'; }, 15000);
+
+        // The @clerk/ui bundle exposes the UI constructor once loaded.
+        var ClerkUI = await waitFor(function () {
+          return window.__internal_ClerkUICtor;
+        }, 15000);
+
+        if (!Clerk.loaded) {
+          await Clerk.load({ ui: { ClerkUI: ClerkUI } });
+        }
+
+        const loading = document.getElementById('waitlistLoading');
+        if (loading) loading.remove();
+
+        Clerk.mountWaitlist(document.getElementById('clerkWaitlist'), {
+          appearance: {
+            variables: {
+              colorPrimary: '#7c3aed',
+              colorText: '#1a1a2e',
+              colorBackground: '#ffffff',
+              borderRadius: '14px',
+              fontFamily: '"Inter", "Segoe UI", Arial, sans-serif',
+            },
+          },
+        });
+      } catch (err) {
+        console.error('Clerk waitlist could not be loaded:', err && err.message);
+        const loading = document.getElementById('waitlistLoading');
+        if (loading) loading.textContent = 'Warteliste konnte nicht geladen werden.';
       }
     });
   </script>
