@@ -118,41 +118,6 @@
       position: relative;
     }
 
-    .sign-in-btn {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 7px 16px 7px 10px;
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: var(--text);
-      font: inherit;
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .sign-in-btn:hover {
-      background: var(--surface-hover);
-      border-color: rgba(124, 58, 237, 0.3);
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12);
-      transform: translateY(-1px);
-    }
-
-    .sign-in-btn svg {
-      width: 20px;
-      height: 20px;
-      color: var(--primary);
-      flex-shrink: 0;
-    }
-
     .hero {
       display: flex;
       flex-direction: column;
@@ -644,7 +609,7 @@
       }
 
       .app.has-results .header-logo {
-        max-width: calc(100% - 60px);
+        max-width: 100%;
         font-size: 1.3rem;
       }
 
@@ -653,136 +618,10 @@
         max-width: none;
       }
 
-      .app.has-results #clerk-auth {
-        top: calc(3px + env(safe-area-inset-top, 0px));
-        right: 14px;
-      }
-
       .results-page { padding: 16px 14px 48px; }
       .hero { padding-top: clamp(40px, 10vh, 80px); }
       #searchInput, #headerSearchInput { font-size: 0.94rem; }
-      .sign-in-btn span { display: none; }
-      .sign-in-btn { padding: 7px 10px; }
-    }
-
-    .mode-toggle {
-      display: flex;
-      position: fixed;
-      top: 1.1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 101;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      padding: 3px;
-      gap: 2px;
-      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    }
-
-    .app.has-results .mode-toggle {
-      top: 12px;
-    }
-
-    .mode-toggle-btn {
-      border: none;
-      border-radius: var(--radius-pill);
-      padding: 5px 14px;
-      font: inherit;
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      background: transparent;
-      color: var(--muted);
-      text-decoration: none;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-    }
-
-    .mode-toggle-btn.active {
-      background: linear-gradient(135deg, var(--primary), #a855f7);
-      color: #fff;
-      cursor: default;
-      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-    }
-
-    .mode-toggle-btn:hover:not(.active) {
-      color: var(--text);
-      background: rgba(124, 58, 237, 0.08);
-    }
-    /* Clerk Auth */
-    #clerk-auth {
-      position: fixed;
-      top: 1rem;
-      right: 1.5rem;
-      z-index: 102;
-      display: flex;
-      align-items: center;
-    }
-    .clerk-loading {
-      width: 90px;
-      height: 36px;
-      border-radius: 9999px;
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .clerk-shimmer {
-      width: 50px;
-      height: 10px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, rgba(124, 58, 237, 0.08) 25%, rgba(124, 58, 237, 0.18) 50%, rgba(124, 58, 237, 0.08) 75%);
-      background-size: 200% 100%;
-      animation: clerkShimmer 1.2s ease-in-out infinite;
-    }
-    @keyframes clerkShimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    .sign-in-btn {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      border: 1px solid var(--border);
-      border-radius: 9999px;
-      padding: 7px 16px 7px 10px;
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: var(--text);
-      font: inherit;
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    .sign-in-btn:hover {
-      background: var(--surface-hover);
-      border-color: rgba(124, 58, 237, 0.3);
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12);
-      transform: translateY(-1px);
-    }
-    .sign-in-btn svg {
-      width: 20px;
-      height: 20px;
-      color: var(--primary);
-      flex-shrink: 0;
-    }
     @media (max-width: 640px) {
-      #clerk-auth { top: 0.6rem; right: 0.8rem; }
-      .clerk-loading { width: 42px; height: 36px; }
-      .clerk-shimmer { width: 18px; }
-      .sign-in-btn span { display: none; }
-      .sign-in-btn { padding: 7px 10px; }
     }
     
     /* Mobile Optimizations */
@@ -825,18 +664,13 @@
       }
 
       .app.has-results .header-logo {
-        max-width: calc(100% - 50px);
+        max-width: 100%;
         font-size: 1.25rem;
       }
 
       .app.has-results .header-search-box {
         width: 100%;
         max-width: none;
-      }
-
-      .app.has-results #clerk-auth {
-        top: calc(1px + env(safe-area-inset-top, 0px));
-        right: 10px;
       }
 
       /* Spacing optimizations for search results on mobile */
@@ -854,20 +688,6 @@
         padding: 12px 10px 40px;
       }
       
-      #clerk-auth {
-        top: 0.4rem;
-        right: 0.6rem;
-      }
-      
-      .sign-in-btn span {
-        display: none;
-      }
-      
-      .sign-in-btn {
-        min-height: 36px;
-        padding: 8px 12px 8px 8px;
-        touch-action: manipulation;
-      }
       
       /* Larger touch targets */
       .search-submit {
@@ -1006,20 +826,6 @@
         <div class="status" id="headerStatus" aria-live="polite"></div>
       </div>
     </header>
-
-    <!-- Clerk Auth -->
-    <div id="clerk-auth">
-      <div class="clerk-loading" id="clerkLoading">
-        <div class="clerk-shimmer"></div>
-      </div>
-      <button class="sign-in-btn" id="clerkSignInBtn" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Anmelden</span>
-      </button>
-      <div id="clerkSignedIn" hidden>
-        <div id="userButton"></div>
-      </div>
-    </div>
 
     <!-- Hero / Homepage -->
     <section class="hero" id="hero">
@@ -1822,121 +1628,7 @@
     searchInput.focus();
 
   </script>
-
-  <!-- Clerk SDK (v4 UMD) -->
-  <script
-    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
-    data-clerk-publishable-key="pk_live_Y2xlcmsuc2VhcmNoLnRoYXRkZXYudGVjaCQ"
-  ></script>
-
-  <!-- Clerk Initialisierung -->
   <script>
-    (() => {
-      const loadingEl  = document.getElementById('clerkLoading');
-      const signInBtn  = document.getElementById('clerkSignInBtn');
-      const signedInEl = document.getElementById('clerkSignedIn');
-
-      function fallback(err) {
-        console.log('[clerk] fallback' + (err ? ': ' + err : ''));
-        if (loadingEl) loadingEl.hidden = true;
-        if (signInBtn) {
-          signInBtn.hidden = false;
-          signInBtn.onclick = () => {
-            window.location.href = 'https://accounts.search.thatdev.tech/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
-          };
-        }
-      }
-
-      function renderSignedIn(clerk) {
-        if (loadingEl) loadingEl.hidden = true;
-        if (signInBtn) signInBtn.hidden = true;
-        if (signedInEl) {
-          signedInEl.hidden = false;
-          if (clerk?.mountUserButton) {
-            clerk.mountUserButton(document.getElementById('userButton'), {
-              afterSignOutUrl: '/students.html',
-              appearance: {
-                elements: {
-                  avatarBox: { width: '36px', height: '36px' },
-                  rootBox: { padding: '4px' }
-                }
-              }
-            });
-          }
-        }
-      }
-
-      function renderSignIn(clerk) {
-        if (loadingEl) loadingEl.hidden = true;
-        if (signInBtn) {
-          signInBtn.hidden = false;
-          signInBtn.onclick = () => {
-            if (typeof clerk.openSignIn === 'function') {
-              clerk.openSignIn({ signInFallbackRedirectUrl: window.location.href });
-            } else {
-              window.location.href = window.Clerk?.buildSignInUrl?.() || 'https://accounts.search.thatdev.tech/sign-in';
-            }
-          };
-        }
-        if (signedInEl) {
-          signedInEl.hidden = true;
-          if (clerk?.unmountUserButton) {
-            clerk.unmountUserButton(document.getElementById('userButton'));
-          }
-        }
-      }
-
-      function tryInit(clerk) {
-        const TIMEOUT_MS = 10000;
-        return Promise.race([
-          clerk.load().then(() => {
-            if (clerk.user) {
-              renderSignedIn(clerk);
-            } else {
-              renderSignIn(clerk);
-            }
-          }),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)
-          )
-        ]);
-      }
-
-      async function init() {
-        try {
-          let clerk = window.Clerk;
-          if (!clerk) {
-            await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
-            clerk = window.Clerk;
-          }
-          if (!clerk) {
-            fallback('no-clerk');
-            return;
-          }
-          if (clerk.loaded) {
-            if (clerk.user) renderSignedIn(clerk);
-            else renderSignIn(clerk);
-          } else {
-            await tryInit(clerk);
-          }
-          
-          // Add event listener for auth state changes
-          clerk.addListener((event) => {
-            if (event.eventType === 'signIn' || event.eventType === 'session:create') {
-              renderSignedIn(clerk);
-            } else if (event.eventType === 'signOut' || event.eventType === 'session:remove') {
-              renderSignIn(clerk);
-            }
-          });
-        } catch (err) {
-          console.error('[clerk]', err);
-          fallback(err.message || err);
-        }
-      }
-
-      init();
-    })();
-
     /* Hamburger Menu Toggle */
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const modePopup = document.getElementById('modePopup');
