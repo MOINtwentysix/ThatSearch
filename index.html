@@ -118,7 +118,8 @@
       position: relative;
     }
 
-    .sign-in-btn {
+    .sign-in-btn,
+    .sign-up-btn {
       display: flex;
       align-items: center;
       gap: 7px;
@@ -141,7 +142,8 @@
       touch-action: manipulation;
     }
 
-    .sign-in-btn:hover {
+    .sign-in-btn:hover,
+    .sign-up-btn:hover {
       background: var(--surface-hover);
       border-color: rgba(124, 58, 237, 0.3);
       box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12);
@@ -153,6 +155,25 @@
       height: 20px;
       color: var(--primary);
       flex-shrink: 0;
+    }
+
+    .auth-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sign-up-btn {
+      padding-left: 16px;
+      padding-right: 16px;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      color: #ffffff;
+      border-color: rgba(124, 58, 237, 0.35);
+    }
+
+    .sign-up-btn:hover {
+      background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+      color: #ffffff;
     }
 
     /* Clerk Auth */
@@ -326,7 +347,8 @@
         right: 0.6rem;
       }
       
-      .sign-in-btn {
+      .sign-in-btn,
+    .sign-up-btn {
         padding: 6px 8px;
       }
       
@@ -355,7 +377,8 @@
         min-height: 44px;
       }
       
-      .sign-in-btn {
+      .sign-in-btn,
+    .sign-up-btn {
         min-height: 36px;
         padding: 8px 12px 8px 8px;
       }
@@ -875,7 +898,8 @@
       .hero { padding-top: clamp(40px, 10vh, 80px); }
       #searchInput, #headerSearchInput { font-size: 0.94rem; }
       .sign-in-btn span { display: none; }
-      .sign-in-btn { padding: 7px 10px; }
+      .sign-in-btn,
+    .sign-up-btn { padding: 7px 10px; }
     }
 
     .mode-toggle {
@@ -1063,12 +1087,15 @@
       <div class="clerk-loading" id="clerkLoading">
         <div class="clerk-shimmer"></div>
       </div>
-      <button class="sign-in-btn" id="clerkSignInBtn" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Anmelden</span>
-      </button>
+      <div class="auth-actions" id="clerkSignedOut" hidden>
+        <button class="sign-in-btn" id="clerkSignInBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          <span>Anmelden</span>
+        </button>
+        <button class="sign-up-btn" id="clerkSignUpBtn" type="button">Registrieren</button>
+      </div>
       <div id="clerkSignedIn" hidden>
-        <UserButton />
+        <div id="userButton"></div>
       </div>
     </div>
 
@@ -1883,22 +1910,29 @@
   <script>
     (() => {
       const loadingEl  = document.getElementById('clerkLoading');
+      const signedOutEl = document.getElementById('clerkSignedOut');
       const signInBtn  = document.getElementById('clerkSignInBtn');
+      const signUpBtn  = document.getElementById('clerkSignUpBtn');
       const signedInEl = document.getElementById('clerkSignedIn');
       function fallback(err) {
         console.log('[clerk] fallback' + (err ? ': ' + err : ''));
         if (loadingEl) loadingEl.hidden = true;
+        if (signedOutEl) signedOutEl.hidden = false;
         if (signInBtn) {
-          signInBtn.hidden = false;
           signInBtn.onclick = () => {
             window.location.href = 'https://accounts.search.thatdev.tech/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
+          };
+        }
+        if (signUpBtn) {
+          signUpBtn.onclick = () => {
+            window.location.href = 'https://accounts.search.thatdev.tech/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
           };
         }
       }
 
       function renderSignedIn(clerk) {
         if (loadingEl) loadingEl.hidden = true;
-        if (signInBtn) signInBtn.hidden = true;
+        if (signedOutEl) signedOutEl.hidden = true;
         if (signedInEl) {
           signedInEl.hidden = false;
           if (clerk?.mountUserButton) {
@@ -1917,13 +1951,22 @@
 
       function renderSignIn(clerk) {
         if (loadingEl) loadingEl.hidden = true;
+        if (signedOutEl) signedOutEl.hidden = false;
         if (signInBtn) {
-          signInBtn.hidden = false;
           signInBtn.onclick = () => {
             if (typeof clerk.openSignIn === 'function') {
               clerk.openSignIn({ signInFallbackRedirectUrl: window.location.href });
             } else {
               window.location.href = window.Clerk?.buildSignInUrl?.() || 'https://accounts.search.thatdev.tech/sign-in';
+            }
+          };
+        }
+        if (signUpBtn) {
+          signUpBtn.onclick = () => {
+            if (typeof clerk.openSignUp === 'function') {
+              clerk.openSignUp({ signUpFallbackRedirectUrl: window.location.href });
+            } else {
+              window.location.href = window.Clerk?.buildSignUpUrl?.() || 'https://accounts.search.thatdev.tech/sign-up';
             }
           };
         }
