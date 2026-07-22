@@ -118,105 +118,6 @@
       position: relative;
     }
 
-    .waitlist-btn {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 7px 16px 7px 10px;
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: var(--text);
-      font: inherit;
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      min-height: 36px;
-      touch-action: manipulation;
-    }
-
-    .waitlist-btn:hover {
-      background: var(--surface-hover);
-      border-color: rgba(124, 58, 237, 0.3);
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12);
-      transform: translateY(-1px);
-    }
-
-    .waitlist-btn svg {
-      width: 20px;
-      height: 20px;
-      color: var(--primary);
-      flex-shrink: 0;
-    }
-
-    .waitlist-action {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .waitlist-btn {
-      padding-left: 16px;
-      padding-right: 16px;
-      background: linear-gradient(135deg, var(--primary), #a855f7);
-      color: #ffffff;
-      border-color: rgba(124, 58, 237, 0.35);
-    }
-
-    .waitlist-btn:hover {
-      background: linear-gradient(135deg, var(--primary-hover), var(--primary));
-      color: #ffffff;
-    }
-
-    /* Clerk Auth */
-    #clerk-auth {
-      position: fixed;
-      top: 1rem;
-      right: 1.5rem;
-      z-index: 102;
-      display: flex;
-      align-items: center;
-    }
-
-    .clerk-loading {
-      width: 90px;
-      height: 36px;
-      border-radius: var(--radius-pill);
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .clerk-shimmer {
-      width: 50px;
-      height: 10px;
-      border-radius: var(--radius-pill);
-      background: linear-gradient(90deg, rgba(124, 58, 237, 0.08) 25%, rgba(124, 58, 237, 0.18) 50%, rgba(124, 58, 237, 0.08) 75%);
-      background-size: 200% 100%;
-      animation: clerkShimmer 1.2s ease-in-out infinite;
-    }
-
-    @keyframes clerkShimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    @media (max-width: 640px) {
-      #clerk-auth { top: 0.6rem; right: 0.8rem; }
-      .clerk-loading { width: 42px; height: 36px; }
-      .clerk-shimmer { width: 18px; }
-    }
-
     /* Mobile Optimizations */
     @media (max-width: 768px) {
       .mode-toggle {
@@ -311,18 +212,13 @@
       }
 
       .app.has-results .header-logo {
-        max-width: calc(100% - 50px);
+        max-width: 100%;
         font-size: 1.25rem;
       }
 
       .app.has-results .header-search-box {
         width: 100%;
         max-width: none;
-      }
-
-      .app.has-results #clerk-auth {
-        top: calc(1px + env(safe-area-inset-top, 0px));
-        right: 10px;
       }
 
       /* Spacing optimizations for search results on mobile */
@@ -340,23 +236,6 @@
         padding: 12px 10px 40px;
       }
       
-      #clerk-auth {
-        top: 0.4rem;
-        right: 0.6rem;
-      }
-      
-      .waitlist-btn {
-        padding: 6px 8px;
-      }
-      
-      .waitlist-btn span {
-        display: none;
-      }
-      
-      .waitlist-btn svg {
-        width: 18px;
-        height: 18px;
-      }
       
       .search-icon {
         padding: 0 10px 0 12px;
@@ -372,11 +251,6 @@
       .search-submit {
         min-width: 44px;
         min-height: 44px;
-      }
-      
-      .waitlist-btn {
-        min-height: 36px;
-        padding: 8px 12px 8px 8px;
       }
     }
 
@@ -876,7 +750,7 @@
       }
 
       .app.has-results .header-logo {
-        max-width: calc(100% - 60px);
+        max-width: 100%;
         font-size: 1.3rem;
       }
 
@@ -885,16 +759,9 @@
         max-width: none;
       }
 
-      .app.has-results #clerk-auth {
-        top: calc(3px + env(safe-area-inset-top, 0px));
-        right: 14px;
-      }
-
       .results-page { padding: 16px 14px 48px; }
       .hero { padding-top: clamp(40px, 10vh, 80px); }
       #searchInput, #headerSearchInput { font-size: 0.94rem; }
-      .waitlist-btn span { display: none; }
-      .waitlist-btn { padding: 7px 10px; }
     }
 
     .mode-toggle {
@@ -1076,17 +943,6 @@
         <div class="status" id="headerStatus" aria-live="polite"></div>
       </div>
     </header>
-
-    <!-- Clerk Auth (immer sichtbar, oben rechts) -->
-    <div id="clerk-auth">
-      <div class="clerk-loading" id="clerkLoading">
-        <div class="clerk-shimmer"></div>
-      </div>
-      <button class="waitlist-btn" id="clerkWaitlistBtn" type="button" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-        <span>Waitlist</span>
-      </button>
-    </div>
 
     <!-- Hero / Homepage -->
     <section class="hero" id="hero">
@@ -1888,73 +1744,7 @@
     searchInput.focus();
 
   </script>
-
-  <!-- Clerk UI + SDK -->
-  <script
-    defer
-    crossorigin="anonymous"
-    src="https://outgoing-escargot-72.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"
-    type="text/javascript">
-  </script>
-  <script
-    defer
-    crossorigin="anonymous"
-    data-clerk-publishable-key="pk_test_b3V0Z29pbmctZXNjYXJnb3QtNzIuY2xlcmsuYWNjb3VudHMuZGV2JA"
-    src="https://outgoing-escargot-72.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
-    type="text/javascript">
-  </script>
-
-  <!-- Clerk Initialisierung -->
   <script>
-    (() => {
-      const loadingEl = document.getElementById('clerkLoading');
-      const waitlistBtn = document.getElementById('clerkWaitlistBtn');
-
-      function showWaitlistButton(clerk) {
-        if (loadingEl) loadingEl.hidden = true;
-        if (!waitlistBtn) return;
-
-        waitlistBtn.hidden = false;
-        waitlistBtn.onclick = () => {
-          if (typeof clerk?.openWaitlist === 'function') {
-            clerk.openWaitlist();
-          } else {
-            window.location.href = 'https://outgoing-escargot-72.clerk.accounts.dev/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
-          }
-        };
-      }
-
-      async function init() {
-        try {
-          let clerk = window.Clerk;
-
-          if (!clerk) {
-            await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
-            clerk = window.Clerk;
-          }
-
-          if (!clerk) {
-            showWaitlistButton(null);
-            return;
-          }
-
-          if (!clerk.loaded) {
-            await Promise.race([
-              clerk.load(),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
-            ]);
-          }
-
-          showWaitlistButton(clerk);
-        } catch (err) {
-          console.error('[clerk]', err);
-          showWaitlistButton(null);
-        }
-      }
-
-      init();
-    })();
-
     /* Hamburger Menu Toggle */
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const modePopup = document.getElementById('modePopup');
